@@ -10,11 +10,23 @@ const electron = require('electron');
 const path = require('path');
 
 // 在主进程中通信组件.
-const {ipcMain} = require('electron')
+const {
+  ipcMain
+} = require('electron')
 
-const {setOnCurrentSpace}=require('../wallpaper/outwallpaper.js')
+const {
+  setOnCurrentSpace
+} = require('../wallpaper/outwallpaper.js')
 
-const {downloadPic}=require('../file/file2.js');    //这里面不能引入promise的相关对象
+const {
+  downloadPic
+} = require('../file/file2.js'); //这里面不能引入promise的相关对象
+
+import {
+  open_autoStart,
+  open_disStart,
+  open_type
+} from '../file/open-start.js'
 
 
 
@@ -67,16 +79,21 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     height: 600,
     useContentSize: true,
-    // width: 280,
-    width: 800,
-
+    width: 280,
+    // width: 800,
     frame: false,
     transparent: true,
-    // resizable:false,     //禁止变化尺寸
-    hasShadow:false,    //是否阴影
-    thickFrame:false,
-    scrollBounce:true,
-    scrollBounce:true,
+    resizable:false,     //禁止变化尺寸
+    hasShadow: false, //是否阴影
+    thickFrame: false,
+    scrollBounce: true,
+    backgroundColor: '#222',
+    alwaysOnTop:true,
+    focusable:true,
+    fullscreenable:false,
+    skipTaskbar:true,
+    hasShadow:true,
+    vibrancy:'medium-light',
   })
 
 
@@ -87,9 +104,9 @@ function createWindow() {
     mainWindow = null;
   })
 
-  // mainWindow.on('blur', () => {
-  //     mainWindow.hide();
-  // }); 
+  mainWindow.on('blur', () => {
+      mainWindow.hide();
+  }); 
 }
 
 function createAppTray() {
@@ -99,69 +116,75 @@ function createAppTray() {
 
   mainWindow.hide();
 
-  appTray = new Tray(path.resolve(__static,'./img/tray.png'));
+  appTray = new Tray(path.resolve(__static, './img/tray.png'));
 
   //系统托盘图标目录
   appTray.on('click', () => {
-    mainWindow === null ? createWindow() : mainWindow.close();
+    // mainWindow === null ? createWindow() : mainWindow.close();
+    // return;
+    // 点击时显示窗口，并修改窗口的显示位置
+    const {
+      screen
+    } = electron;
+    const {
+      width,
+      height
+    } = screen.getPrimaryDisplay().workAreaSize;
+
+    console.log(width, height)
+
+    const WINDOW_WIDTH = mainWindow.getSize()[0];
+    const WINDOW_HEIGHT = mainWindow.getSize()[1];
+    const HORIZ_PADDING = 15;
+    const VERT_PADDING = 15;
+
+    const cursorPosition = screen.getCursorScreenPoint();
+
+    // console.log(cursorPosition,mainWindow.getSize())
+
+    const primarySize = screen.getPrimaryDisplay().workAreaSize;
+    const trayPositionVert = cursorPosition.y >= primarySize.height / 2 ? 'bottom' : 'top';
+    const trayPositionHoriz = cursorPosition.x >= primarySize.width / 2 ? 'right' : 'left';
+
+    mainWindow.setPosition(getTrayPosX(), getTrayPosY());
+
+    if (mainWindow.isVisible()) {
+      mainWindow.webContents.send('datainfo', {
+        type: 'windowShow',
+        data: false
+      })
+      mainWindow.hide();
+    } else {
+      mainWindow.webContents.send('datainfo', {
+        type: 'windowShow',
+        data: true
+      })
+      mainWindow.show();
+    }
+    // 计算位置
+    function getTrayPosX() {
+      const horizBounds = {
+        left: cursorPosition.x - (WINDOW_WIDTH / 2),
+        right: cursorPosition.x + (WINDOW_WIDTH / 2)
+      };
+      if (trayPositionHoriz === 'left') {
+        return horizBounds.left <= HORIZ_PADDING ? HORIZ_PADDING : horizBounds.left;
+      }
+      return horizBounds.right >= primarySize.width ? primarySize.width - HORIZ_PADDING - WINDOW_WIDTH : horizBounds.right - WINDOW_WIDTH;
+    }
+
+    function getTrayPosY() {
+      return trayPositionVert === 'bottom' ? cursorPosition.y - WINDOW_HEIGHT - VERT_PADDING : cursorPosition.y + VERT_PADDING;
+    }
     return;
-      // 点击时显示窗口，并修改窗口的显示位置
-      const {
-        screen
-      } = electron;
-      const {
-        width,
-        height
-      } = screen.getPrimaryDisplay().workAreaSize;
 
-      console.log(width,height)
-      
-      const WINDOW_WIDTH =mainWindow.getSize()[0];
-      const WINDOW_HEIGHT = mainWindow.getSize()[1];
-      const HORIZ_PADDING = 15;
-      const VERT_PADDING = 15;
-
-      const cursorPosition = screen.getCursorScreenPoint();
-
-      // console.log(cursorPosition,mainWindow.getSize())
-      
-      const primarySize = screen.getPrimaryDisplay().workAreaSize;
-      const trayPositionVert = cursorPosition.y >= primarySize.height / 2 ? 'bottom' : 'top';
-      const trayPositionHoriz = cursorPosition.x >= primarySize.width / 2 ? 'right' : 'left';
-
-      mainWindow.setPosition(getTrayPosX(), getTrayPosY());
-
-      if (mainWindow.isVisible()) {
-        mainWindow.webContents.send('datainfo',{type:'windowShow',data:false})
-        mainWindow.hide();
-      } else {
-        mainWindow.webContents.send('datainfo',{type:'windowShow',data:true})
-        mainWindow.show();
-      }
-      // 计算位置
-      function getTrayPosX() {
-        const horizBounds = {
-          left: cursorPosition.x - (WINDOW_WIDTH / 2),
-          right: cursorPosition.x + (WINDOW_WIDTH / 2)
-        };
-        if (trayPositionHoriz === 'left') {
-          return horizBounds.left <= HORIZ_PADDING ? HORIZ_PADDING : horizBounds.left;
-        }
-        return horizBounds.right >= primarySize.width ? primarySize.width - HORIZ_PADDING - WINDOW_WIDTH : horizBounds.right - WINDOW_WIDTH;
-      }
-
-      function getTrayPosY() {
-        return trayPositionVert === 'bottom' ? cursorPosition.y - WINDOW_HEIGHT - VERT_PADDING : cursorPosition.y + VERT_PADDING;
-      }
-      return;
-    
   })
 
   mainWindow.on('show', () => {
-    appTray.setHighlightMode('selection')
+    appTray.setHighlightMode('never')
   })
   mainWindow.on('hide', () => {
-    appTray.setHighlightMode('never')
+    appTray.setHighlightMode('selection')    
   })
 
   //图标的上下文菜单
@@ -178,12 +201,12 @@ function createAppTray() {
 
 }
 
-app.dock.hide();    //隐藏dock
+app.dock.hide(); //隐藏dock
 
 
-app.on('ready', function(){
+app.on('ready', function () {
   createAppTray();
-} )
+})
 
 
 app.on('window-all-closed', () => {
@@ -201,27 +224,36 @@ app.on('activate', () => {
 
 
 ipcMain.on('dataWallpaper', (event, arg) => {
-  downloadPic(arg.downloadUrl,function(result){
+  downloadPic(arg.downloadUrl, function (result) {
     setOnCurrentSpace(result);
     event.sender.send('dataWallpaper', 'success');
   });
 })
 
-ipcMain.on('getImageUrls',(event,data)=>{
-  get_urls(data).then(result=>{
-    mainWindow.webContents.send('datainfo',{type:'urls',data:result})
+ipcMain.on('getImageUrls', (event, data) => {
+  get_urls(data).then(result => {
+    mainWindow.webContents.send('datainfo', {
+      type: 'urls',
+      data: result
+    })
   })
   console.log(data);
 })
 
-
-/***按钮相关事件 */
-ipcMain.on('btn',(event,data)=>{
-  if(data.type=='quit'){
+ipcMain.on('btn', (event, data) => {
+  console.log(data);
+  if (data.type == 'quit') {
     app.quit();
-  }
-  else if(data.type=='searchKey'){
+  } else if (data.type == 'searchKey') {
 
+  } 
+  else if (data.type == 'openStart') {
+    console.log('----------------333')
+    if (data.data) {
+      open_autoStart();
+    } else {
+      open_disStart();
+    }
   }
 })
 

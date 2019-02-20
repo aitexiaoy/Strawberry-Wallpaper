@@ -35,6 +35,7 @@ let url = '?dark=true&format=js&page=0&seed=2019-02-15+08%3A17%3A15++0000';
 
 
  export const get_image=function(data){
+   
 
   // axios_get('https://www.pexels.com/?dark=true&format=js&page=0&seed=2019-02-15+08%3A17%3A15++0000',{
   //   headers: {
@@ -48,6 +49,9 @@ let url = '?dark=true&format=js&page=0&seed=2019-02-15+08%3A17%3A15++0000';
   // })
 
   return new Promise((resolve,reject)=>{
+    if(!data){
+      resolve([]);
+    }
     let base_url='https://www.pexels.com/'
     if(data.searchKey){
       base_url=`https://www.pexels.com/search/${data.searchKey}/`
@@ -76,6 +80,10 @@ let url = '?dark=true&format=js&page=0&seed=2019-02-15+08%3A17%3A15++0000';
       //匹配拥有srcset属性的
       var srcReg = /srcset=\\.*?\\/i;
       var arr = result.match(imgReg);
+      if(!arr){
+        resolve([]);
+        return
+      }
       for (var i = 0; i < arr.length; i++) {
         // console.log(arr[i]);
         var src = arr[i].match(srcReg);

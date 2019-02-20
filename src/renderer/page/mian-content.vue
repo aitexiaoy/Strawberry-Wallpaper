@@ -1,22 +1,22 @@
 <template>
-<div class="main-content">
+<div class="main-content" @keydown.enter="keydown_enter_fn">
+     <el-collapse-transition>
+                        <setter class="setter-content" v-show="setterShow"></setter>
+     </el-collapse-transition>
     <div class="header">
         <el-row class="header-row-one">
             <div class="left">
-               <h1 class="text">Strawberry</h1> 
+                <h1 class="text">Strawberry</h1>
             </div>
             <div class="right">
                 <i class="iconfont icon-wenjianjia" @click.stop="open_download_file"></i>
                 <div class="header-set">
                     <i class="iconfont icon-shezhi" @click.stop="setterShow=!setterShow"></i>
-                    <el-collapse-transition>
-                        <setter class="setter-content" v-show="setterShow"></setter>
-                    </el-collapse-transition>
                 </div>
             </div>
         </el-row>
         <div class="header-search">
-            <el-input class="header-search-input" v-model="searchKey" placeholder="壁纸搜索关键词" size="small"></el-input>
+            <el-input class="header-search-input" v-model="searchKey" placeholder="关键词[英文]" size="small" @focus="searchKeyFocus=true" @blur="searchKeyFocus=false"></el-input>
             <i class="iconfont icon-sousuo" @click.stop="search_key_fn"></i>
         </div>
     </div>
@@ -48,7 +48,8 @@
         </div>
 
         <div class="content-main-no" v-else>
-            美好的事件即将发生...
+            <span v-if="get_data_flag==true">美好的事情即将发生...</span>
+            <span v-else>暂时没有搜索到...</span>
         </div>
 
     </div>
@@ -68,7 +69,9 @@ import {
     request
 } from 'http';
 
-import {mkdirSync} from '../../file/file2.js'
+import {
+    mkdirSync
+} from '../../file/file2.js'
 export default {
     name: 'mainContent',
     components: {
@@ -84,7 +87,8 @@ export default {
             images: [],
             hava_data_flag: true, //标记是否还有数据
             page: 0, //请求数据的页数
-            get_data_flag:false,
+            get_data_flag: false,
+            searchKeyFocus: false,
         }
     },
     beforeCreate() {
@@ -92,31 +96,29 @@ export default {
     },
 
     mounted() {
-        vue.$ipcRenderer.on('dataWallpaper', (event, arg) => {
+        Vue.$ipcRenderer.on('dataWallpaper', (event, arg) => {
             //设置一个时间记录最后更新的时间
             vue.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000))
             vue.isSetting = false;
             vue.$fbloading.close();
         })
 
-        vue.$ipcRenderer.on('datainfo', (event, arg) => {
+        Vue.$ipcRenderer.on('datainfo', (event, arg) => {
             if (arg.type == 'urls') {
-                this.get_data_flag=false;
-                if(arg.data.length==0){
-                    this.hava_data_flag=false;
+                this.get_data_flag = false;
+                if (arg.data.length == 0) {
+                    this.hava_data_flag = false;
                     return;
                 }
-                if(this.page==0){
-                    this.images=[];
+                if (this.page == 0) {
+                    this.images = [];
                 }
                 vue.get_urls(arg.data);
-            }
-            else if(arg.type=='windowShow'){
-                if(arg.data){
-                    this.setterShow=false;
-                }
-                else{
-                    this.setterShow=false;
+            } else if (arg.type == 'windowShow') {
+                if (arg.data) {
+                    this.setterShow = false;
+                } else {
+                    this.setterShow = false;
                 }
             }
         })
@@ -139,17 +141,22 @@ export default {
     },
 
     methods: {
+        keydown_enter_fn() {
+            if (this.searchKeyFocus) {
+                this.search_key_fn();
+            }
+        },
         randomColor() {
             return '#' + Math.floor(Math.random() * 0xffffff).toString(16);
         },
         /*** 设置壁纸按钮 */
         set_wallpaper(img, index) {
             this.isSetting = true;
-            if(!this.$refs['image_item_' + index][0]){
+            if (!this.$refs['image_item_' + index][0]) {
                 return;
             }
             this.$fbloading.open(this.$refs['image_item_' + index][0]);
-            vue.$ipcRenderer.send('dataWallpaper', img);
+            Vue.$ipcRenderer.send('dataWallpaper', img);
             this.currentWallpaperIndex = index;
         },
         img_load(img) {
@@ -181,11 +188,11 @@ export default {
         wallpaperAuto() {
             let userConfig = this.$localStorage.getStore('userConfig');
             //如果正在设置,则弹出去
-            if (this.isSetting == true||this.images.length==0) {
+            if (this.isSetting == true || this.images.length == 0) {
                 return;
             }
-            if(this.hava_data_flag&&this.currentWallpaperIndex==this.images.length-5){
-                this.page=this.page+1;
+            if (this.hava_data_flag && this.currentWallpaperIndex == this.images.length - 5) {
+                this.page = this.page + 1;
                 this.get_data();
             }
             if (userConfig.wallpaperAutoUp == true) {
@@ -203,12 +210,12 @@ export default {
 
         /** 搜索按钮 */
         search_key_fn() {
-            if (this.searchKey ==this.$localStorage.getStore('searchKey')) {
+            if (this.searchKey == this.$localStorage.getStore('searchKey')) {
                 return;
             }
             this.$localStorage.setStore('searchKey', this.searchKey);
             this.page = 0;
-            this.images=[];
+            this.images = [];
             this.get_data();
         },
 
@@ -236,21 +243,21 @@ export default {
         /*** 滚动条事件 */
         content_scroll(event) {
             let el = event.srcElement || event.target;
-            if(this.hava_data_flag==true&&this.get_data_flag==false){
+            if (this.hava_data_flag == true && this.get_data_flag == false) {
                 if (el.scrollTop + 900 > el.querySelector('.content-main').clientHeight) {
                     this.page = this.page + 1;
                     this.get_data();
                 }
             }
-   
+
         },
         get_data() {
-            this.get_data_flag=true;
+            this.get_data_flag = true;
             let obj = {
                 searchKey: this.searchKey,
                 page: this.page
             }
-            this.$ipcRenderer.send('getImageUrls', obj);
+            Vue.$ipcRenderer.send('getImageUrls', obj);
         }
     },
 }
@@ -271,25 +278,28 @@ export default {
         position: fixed;
         width: 100%;
         height: 96px;
-        background-color: #222222;
-        z-index: 99;
-        // padding-top: 16px;
+        z-index: 3000;
         padding-left: 20px;
         padding-right: 20px;
+        background-color: rgba(34, 34, 34, 0.9);
+        /* opacity: 0.9; */
+        overflow: hidden;
 
         .header-row-one {
             display: flex;
             width: 100%;
-            height: 50px;
+            height: 56px;
             justify-content: space-between;
-            .left{
+
+            .left {
                 position: relative;
                 width: 100%;
                 height: 100%;
-                .text{
-                    color: rgba(255, 255, 255, 0.8);
+
+                .text {
+                    color: rgba(255, 255, 255, 0.9);
                     cursor: default;
-                    user-select:none;
+                    user-select: none;
                     // z-index: 2;
                     // -webkit-text-fill-color: transparent;
                     // -webkit-background-clip: text;
@@ -337,14 +347,26 @@ export default {
         }
     }
 
+    .header::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        filter: blur(50px);
+        /* opacity: 0.9; */
+        background-color: rgba(37, 31, 30, 0.9);
+    }
+
     .image-item-img-first {
         margin-top: 96px;
     }
 
     .content {
-
         width: calc(~'100% + 15px');
-        height: 598px;
+        height: 600px;
         overflow-x: hidden;
         overflow-y: scroll;
         padding: 1px;
@@ -368,8 +390,7 @@ export default {
 
             .image-set-wallpaper {
                 position: absolute;
-                background-color: rgba(0, 0, 0, 0.6);
-                ;
+                background-color: rgba(0, 0, 0, 0.4);
                 width: auto;
                 height: 33px;
                 width: 120px;
@@ -385,7 +406,7 @@ export default {
             }
 
             .image-set-wallpaper:hover {
-                background-color: rgba(0, 0, 0, 0.3);
+                background-color: rgba(0, 0, 0, 0.7);
             }
 
             .image-item-flag {
@@ -437,7 +458,8 @@ export default {
         }
 
     }
-    .content-main-no{
+
+    .content-main-no {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -456,5 +478,9 @@ export default {
         background-color: #383838;
         color: #a5a5a5;
     }
+    ::-webkit-input-placeholder { /* WebKit browsers */
+        color: #8a8484;
+    }
+
 }
 </style>
