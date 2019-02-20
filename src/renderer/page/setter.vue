@@ -46,13 +46,16 @@
 </template>
 
 <script>
-import {
-    open_autoStart,
-    open_disStart,
-    open_type
-} from '../../file/open-start.js'
+// import {
+//     open_autoStart,
+//     open_disStart,
+//     open_type
+// } from '../../file/open-start.js'
+
+const {ipcRenderer} = require('electron')
 
 const shell = require('electron').shell
+global.setter=null
 
 export default {
     name: 'setter',
@@ -66,23 +69,14 @@ export default {
         }
     },
     mounted() {
+        setter=this;
         let data = this.$localStorage.getStore('userConfig');
         for (let index in data) {
             this[index] = data[index] || this[index];
         }
-        if (open_type()) {
-            this.isOpenStatr = true;
-        } else {
-            this.isOpenStatr = false;
-        }
     },
     methods: {
         set_open_start() {
-            if (this.isOpenStatr) {
-                open_autoStart();
-            } else {
-                open_disStart();
-            }
             Vue.$ipcRenderer.send('btn', {
                 type: 'openStart',
                 data: this.isOpenStatr
@@ -135,8 +129,8 @@ export default {
     width: 240px;
     height: 200px;
     position: absolute;
-    right: -10px;
-    top: 30px;
+    right: 10px;
+    top: 44px;
     z-index: 4000;
     // padding: 20px;
     // color: #fff;
