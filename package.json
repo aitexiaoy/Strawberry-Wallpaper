@@ -58,6 +58,7 @@
     "bagpipe": "^0.3.5",
     "blob": "^0.0.5",
     "cheerio": "^1.0.0-rc.2",
+    "electron-updater": "^4.0.6",
     "element-ui": "^2.5.4",
     "fs": "^0.0.1-security",
     "jsdom": "^13.2.0",
