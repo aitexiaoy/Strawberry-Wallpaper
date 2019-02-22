@@ -1,6 +1,6 @@
 {
   "name": "strawberrywallpaper",
-  "version": "0.0.1",
+  "version": "v0.0.1",
   "author": "peng <yangpeng@fubangyun.com>",
   "description": "An electron-vue project",
   "license": "",
@@ -21,6 +21,11 @@
     "appId": "org.simulatedgreg.electron-vue-strawberry-wallpaper",
     "directories": {
       "output": "build"
+      
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "http://172.16.10.106:18989/static/version/"
     },
     "files": [
       "dist/electron/**/*"
@@ -72,7 +77,9 @@
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
-    "vuex-electron": "^1.0.0"
+    "vuex-electron": "^1.0.0",
+    "wangeditor": "^3.1.1",
+    "nodemailer": "^5.1.1"
   },
   "devDependencies": {
     "ajv": "^6.5.0",
