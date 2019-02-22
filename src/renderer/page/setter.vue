@@ -7,6 +7,7 @@
             <div>
                 <!-- <i class="iconfont icon-banbenhao"></i> -->
                 {{version1}}
+                <span :style="{fontSize:'12px'}" class="about-pro" @click.stop="check_newVersion">检查更新</span>
             </div>
             <div @click.stop="quit">
                 <i class="iconfont icon-tuichu"></i>
@@ -39,7 +40,11 @@
         </div>
 
         <div class="setter-row image-sourece">图片来源: pexels.com</div>
-        <div class="about-pro" @click="about_pro">关于项目</div>
+        <div class="setter-last-btn">
+                <div class="about-pro" @click="suggestion">意见反馈</div>
+                <div class="about-pro" @click="about_pro">关于项目</div>
+        </div>
+    
     </div>
 
 </div>
@@ -55,13 +60,14 @@
 const {ipcRenderer} = require('electron')
 
 const shell = require('electron').shell
+const {version}=require('../../../package.json')
 global.setter=null
 
 export default {
     name: 'setter',
     data() {
         return {
-            version1: 'v0.1试用版',
+            version1: version,
             imageSource: 'pexels',
             updataTime: '3600',
             isOpenStatr: false, //开机启动
@@ -95,6 +101,14 @@ export default {
             shell.openExternal('http://electron.atom.io')
         },
 
+        /*** 意见反馈 */
+        suggestion(){
+               Vue.$ipcRenderer.send('btn', {
+                type: 'openChildren',
+                data: true
+            });
+        },
+
         /***将配置信息存到localstorage中 */
         setLocation() {
             Vue.$localStorage.setStore('userConfig', {
@@ -119,6 +133,13 @@ export default {
             this.setLocation();
             this.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000))
         },
+        /** 检查更新 */
+        check_newVersion(){
+            Vue.$ipcRenderer.send('btn', {
+                type: 'check_newVersion',
+                data: true
+            });
+        }
     }
 }
 </script>
@@ -158,6 +179,10 @@ export default {
         .icon-tuichu{
             font-size: 20px;
         }
+    }
+    .setter-last-btn{
+        display: flex;
+        justify-content: space-between;
     }
     .setter-content{
         background-color: rgba(43, 42, 42, 0.8);

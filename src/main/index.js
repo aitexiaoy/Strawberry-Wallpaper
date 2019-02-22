@@ -9,6 +9,11 @@ const electron = require('electron');
 
 const path = require('path');
 
+const {version} =require('../../package.json')
+
+import { autoUpdater } from 'electron-updater'
+
+
 // 在主进程中通信组件.
 const {
   ipcMain
@@ -32,7 +37,11 @@ import {
 
 const get_urls = require('../get-image/search.js').get_urls
 
-// import get_urls from '../get-image/search.js'
+
+const {hideChildrenWindow,showChildrenWinndow}=require('./info-win.js')
+
+
+import {newEmail} from './mail.js'
 
 
 
@@ -79,8 +88,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     height: 600,
     useContentSize: true,
-    width: 280,
-    // width: 800,
+    // width: 280,
+    width: 800,
     frame: false,
     transparent: true,
     resizable:false,     //禁止变化尺寸
@@ -95,6 +104,9 @@ function createWindow() {
     hasShadow:true,
     vibrancy:'medium-light',
   })
+
+
+  mainWindow.openDevTools();
 
 
 
@@ -218,7 +230,6 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (mainWindow === null) {
     createAppTray();
-    // createWindow()
   }
 })
 
@@ -248,23 +259,72 @@ ipcMain.on('btn', (event, data) => {
 
   } 
   else if (data.type == 'openStart') {
-    console.log('----------------333')
     if (data.data) {
       open_autoStart();
     } else {
       open_disStart();
     }
   }
+  else if(data.type=='openChildren'){
+    if(data.data){
+      showChildrenWinndow()
+    }
+    else{
+      hideChildrenWindow()
+    }
+  }
+  else if(data.type=='newEmail'){
+    newEmail(data.data.html,data.data.telUser,{
+      version:version,
+    }).then(result=>{
+      event.sender.send('sendnewEmail', 'success');
+    }).catch(error=>{
+      event.sender.send('sendnewEmail', 'error',error);
+    })
+  }
+  else if(data.type=='check_newVersion'){
+    autoUpdater.checkForUpdates()
+  }
 })
 
 
 
-import { autoUpdater } from 'electron-updater'
 
+/*** 下载完成 */
 autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall()
 })
 
-app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
+/***检查更新 */
+
+const uploadUrl = "http://172.16.10.106:18989/static/version/"; // 下载地址，不加后面的.exe
+
+autoUpdater.setFeedURL(uploadUrl);
+
+autoUpdater.on('error', function (info) {
+  mainWindow.webContents.send('check_newVersion', {'type':'error',data:info});
+  console.log('-------------');
+  // console.log(info)
+});
+autoUpdater.on('update-available', function (info) {
+  console.log('检测到新版本',info);
+  mainWindow.webContents.send('check_newVersion', {'type':'avai',data:info});
+
+});
+
+
+autoUpdater.on('update-not-available', function (info) {
+  console.log('没有检测到新版本',info);
+  mainWindow.webContents.send('check_newVersion', {'type':'noavai',data:info});
+
+});
+
+
+//更新下载进度
+autoUpdater.on('download-progress', function (progressObj) {
+  mainWindow.webContents.send('downloadProgress', progressObj)
 })
+
+// app.on('ready', () => {
+//   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
+// })

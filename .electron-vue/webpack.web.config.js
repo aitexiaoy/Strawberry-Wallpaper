@@ -94,10 +94,16 @@ let webConfig = {
       nodeModules: false
     }),
     new webpack.DefinePlugin({
-      'process.env.IS_WEB': 'true'
+      'process.env':{
+        'IS_WEB': 'true',
+      'myversion':'0.0.1'
+      }
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin(),
+    // new webpack.DefinePlugin({
+    //   'myversion':version
+    // })
   ],
   output: {
     filename: '[name].js',

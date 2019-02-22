@@ -1,7 +1,7 @@
 <template>
 <div class="main-content" @keydown.enter="keydown_enter_fn">
      <el-collapse-transition>
-                        <setter class="setter-content" v-show="setterShow"></setter>
+        <setter class="setter-content" v-show="setterShow"></setter>
      </el-collapse-transition>
     <div class="header">
         <el-row class="header-row-one">
@@ -121,6 +121,12 @@ export default {
                     this.setterShow = false;
                 }
             }
+        })
+
+        Vue.$ipcRenderer.on('check_newVersion',(event,arg)=>{
+            console.log('---------------llll')
+            console.log(arg)
+            this.haveNewVersion(arg);
         })
 
         this.searchKey = this.$localStorage.getStore('searchKey');
@@ -258,7 +264,20 @@ export default {
                 page: this.page
             }
             Vue.$ipcRenderer.send('getImageUrls', obj);
-        }
+        },
+        haveNewVersion(newVersion) {
+        this.$confirm(newVersion, '版本检测', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info'
+        }).then(() => {
+            Vue.$ipcRenderer.send('btn',{
+                type:'updataNewVersion',
+            })
+        }).catch(() => {
+                 
+        });
+      }
     },
 }
 </script>

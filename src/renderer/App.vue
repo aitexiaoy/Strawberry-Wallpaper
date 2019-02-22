@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="app">
     <router-view></router-view>
   </div>
 </template>
@@ -20,6 +20,10 @@
     margin: 0px;
     font-family: 'PingFang SC',"Microsoft YaHei";
     box-sizing: border-box;
+  }
+  html,body,.app{
+    width: 100%;
+    height: 100%;
   }
 
   .el-loading-mask{

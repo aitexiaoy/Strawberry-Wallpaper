@@ -5,6 +5,7 @@ Vue.use(Router)
 
 const mainContent=()=>import('../page/mian-content.vue');
 const setter=()=>import('../page/setter.vue')
+const suggestion=()=>import('../page/suggestion.vue')
 
 export default new Router({
   routes: [
@@ -16,6 +17,10 @@ export default new Router({
     {
       path: '/set',
       component:setter
+    },
+    {
+      path:'/suggestion',
+      component:suggestion
     }
   ]
 })
