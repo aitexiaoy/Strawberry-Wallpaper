@@ -1,8 +1,8 @@
 <template>
 <div class="main-content" @keydown.enter="keydown_enter_fn">
-     <el-collapse-transition>
+    <el-collapse-transition>
         <setter class="setter-content" v-show="setterShow"></setter>
-     </el-collapse-transition>
+    </el-collapse-transition>
     <div class="header">
         <el-row class="header-row-one">
             <div class="left">
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="content" @scroll="content_scroll">
+    <div class="content" :class="{'content-win':osType=='Windows_NT'}" @scroll="content_scroll">
         <div class="content-main" v-if="images.length>0">
             <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" :style="{'backgroundColor':img.backgroundColor}" @mousemove.stop="currentMouseOverIndex=index" @mouseleave.stop="currentMouseOverIndex=-1">
                 <div class="image-item-img" v-imagematch="img.url">
@@ -89,6 +89,7 @@ export default {
             page: 0, //请求数据的页数
             get_data_flag: false,
             searchKeyFocus: false,
+            osType:'Darwin',
         }
     },
     beforeCreate() {
@@ -96,6 +97,9 @@ export default {
     },
 
     mounted() {
+
+        this.osType=os.type();
+
         Vue.$ipcRenderer.on('dataWallpaper', (event, arg) => {
             //设置一个时间记录最后更新的时间
             vue.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000))
@@ -123,10 +127,26 @@ export default {
             }
         })
 
-        Vue.$ipcRenderer.on('check_newVersion',(event,arg)=>{
-            console.log('---------------llll')
-            console.log(arg)
+        Vue.$ipcRenderer.on('check_newVersion', (event, arg) => {
+            console.log(arg);
             this.haveNewVersion(arg);
+        })
+
+        Vue.$ipcRenderer.on('rendererConfirm',(event,data)=>{
+            console.log(data);
+              this.$confirm(data.content||'', data.title||'消息提醒', {
+                confirmButtonText:data.suerText||'确定',
+                cancelButtonText:data.cancelText||'取消',
+                type: data.type||'info'
+            }).then(() => {
+                if(data.sureFn){
+                    Vue.$ipcRenderer.send('maincallback',data.sureFn,data.argument)
+                }
+            }).catch(() => {
+                if(data.cancelFn){
+                    Vue.$ipcRenderer.send('maincallback',data.sureFn,data.argument)                    
+                }
+            });
         })
 
         this.searchKey = this.$localStorage.getStore('searchKey');
@@ -147,6 +167,7 @@ export default {
     },
 
     methods: {
+
         keydown_enter_fn() {
             if (this.searchKeyFocus) {
                 this.search_key_fn();
@@ -266,18 +287,18 @@ export default {
             Vue.$ipcRenderer.send('getImageUrls', obj);
         },
         haveNewVersion(newVersion) {
-        this.$confirm(newVersion, '版本检测', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'info'
-        }).then(() => {
-            Vue.$ipcRenderer.send('btn',{
-                type:'updataNewVersion',
-            })
-        }).catch(() => {
-                 
-        });
-      }
+            this.$confirm(newVersion, '版本检测', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'info'
+            }).then(() => {
+                Vue.$ipcRenderer.send('btn', {
+                    type: 'updataNewVersion',
+                })
+            }).catch(() => {
+
+            });
+        }
     },
 }
 </script>
@@ -477,6 +498,12 @@ export default {
         }
 
     }
+    .content-win{
+        width: calc(~'100% + 17px');
+        .image-item{
+            height: 240px;
+        }
+    }
 
     .content-main-no {
         display: flex;
@@ -497,7 +524,9 @@ export default {
         background-color: #383838;
         color: #a5a5a5;
     }
-    ::-webkit-input-placeholder { /* WebKit browsers */
+
+    ::-webkit-input-placeholder {
+        /* WebKit browsers */
         color: #8a8484;
     }
 

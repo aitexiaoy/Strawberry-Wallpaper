@@ -35,6 +35,7 @@
         <div class="setter-row">
             <el-radio-group v-model="updataTime" @change="updata_time_change">
                 <el-radio label="3600" :disabled="wallpaperAutoUp==false"><span class="checkbox-text">每小时</span></el-radio>
+                <el-radio label="86400" :disabled="wallpaperAutoUp==false"><span class="checkbox-text">每天</span></el-radio>
                 <el-radio label="604800" :disabled="wallpaperAutoUp==false"><span class="checkbox-text">每周</span></el-radio>
             </el-radio-group>
         </div>
@@ -90,6 +91,7 @@ export default {
             this.setLocation();
         },
         quit() {
+            this.$parent.setterShow=false;
             Vue.$ipcRenderer.send('btn', {
                 type: 'quit',
                 data: ''
@@ -98,7 +100,7 @@ export default {
 
         //打开外部链接
         about_pro(){
-            shell.openExternal('http://electron.atom.io')
+            shell.openExternal('https://github.com/aitexiaoy/Strawberry-Wallpaper');
         },
 
         /*** 意见反馈 */
@@ -250,6 +252,9 @@ export default {
     .el-radio__inner{
         background-color: rgba(52, 52, 53, 0.2) !important;
         border-color: #f3f3f3 !important;
+    }
+    .el-radio{
+        margin-right:10px !important;
     }
 }
 </style>

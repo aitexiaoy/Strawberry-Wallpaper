@@ -1,71 +1,40 @@
-import {
-  app,
-  BrowserWindow,
-  nativeImage
-} from 'electron'
 
+const electron=require('electron');
+const {app,BrowserWindow,ipcMain,Tray,dialog} =electron
 
-const electron = require('electron');
+const os = require('os');
 
 const path = require('path');
 
 const {version} =require('../../package.json')
 
-import { autoUpdater } from 'electron-updater'
+const { autoUpdater }=require("electron-updater")
 
+const log = require("electron-log");
+log.transports.file.level = "debug";
 
-// 在主进程中通信组件.
-const {
-  ipcMain
-} = require('electron')
+const {setOnCurrentSpace} = require('../wallpaper/outwallpaper.js')
 
-const {
-  setOnCurrentSpace
-} = require('../wallpaper/outwallpaper.js')
+const {downloadPic} = require('../file/file2.js'); 
 
-const {
-  downloadPic
-} = require('../file/file2.js'); //这里面不能引入promise的相关对象
-
-import {
-  open_autoStart,
-  open_disStart,
-  open_type
-} from '../file/open-start.js'
-
-
+const {open_autoStart,open_disStart} =require('../file/open-start.js')
 
 const get_urls = require('../get-image/search.js').get_urls
 
-
 const {hideChildrenWindow,showChildrenWinndow}=require('./info-win.js')
 
-
-import {newEmail} from './mail.js'
-
-
-
-
-
-
-// var menubar = require('menubar')
-
-
-// var mb = menubar()
-
-// mb.on('ready', function ready() {
-//   console.log('app is ready')
-//   // your app code here
-// })
-
-
-//用一个 Tray 来表示一个图标,这个图标处于正在运行的系统的通知区 ，通常被添加到一个 context menu 上.
-const Menu = electron.Menu;
-const Tray = electron.Tray;
+const {newEmail}= require( './mail.js')
 
 //托盘对象
 var appTray = null;
 
+
+const osType=os.type();
+
+const uploadUrl = "https://swallpaper.oss-cn-beijing.aliyuncs.com/version/"; // 下载地址，不加后面的.exe
+
+
+var openAppFlag=true;
 
 
 /**
@@ -81,44 +50,70 @@ const winURL = process.env.NODE_ENV === 'development' ?
   `http://localhost:9080` :
   `file://${__dirname}/index.html`
 
+
+  if(osType=='Darwin'){
+    app.dock.hide();
+  }
+  else if(osType=='Windows_NT'){
+  
+  }
+
 function createWindow() {
   /**
    * Initial window options
    */
-  mainWindow = new BrowserWindow({
-    height: 600,
-    useContentSize: true,
-    // width: 280,
-    width: 800,
-    frame: false,
-    transparent: true,
-    resizable:false,     //禁止变化尺寸
-    hasShadow: false, //是否阴影
-    thickFrame: false,
-    scrollBounce: true,
-    backgroundColor: '#222',
-    alwaysOnTop:true,
-    focusable:true,
-    fullscreenable:false,
-    skipTaskbar:true,
-    hasShadow:true,
-    vibrancy:'medium-light',
-  })
+  if(osType=='Darwin'){
+    mainWindow = new BrowserWindow({
+      height: 600,
+      useContentSize: true,
+      // width: 280,
+      width: 300,
+      frame: false,
+      transparent: true,
+      resizable:false,     //禁止变化尺寸
+      hasShadow: false, //是否阴影
+      thickFrame: false,
+      scrollBounce: true,
+      backgroundColor: '#222',
+      alwaysOnTop:true,
+      focusable:true,
+      fullscreenable:false,
+      skipTaskbar:true,
+      hasShadow:true,
+      vibrancy:'medium-light',
+    })
 
+    mainWindow.on('blur', () => {
+      mainWindow.hide();
+  }); 
+  }
+  else if(osType=='Windows_NT'){
+    mainWindow = new BrowserWindow({
+      height: 600,
+      useContentSize: true,
+      // width: 280,
+      width: 500,
+      // transparent: true,
+      resizable:false,     //禁止变化尺寸
+      hasShadow: false, //是否阴影
+      thickFrame: false,
+      scrollBounce: true,
+      backgroundColor: '#222',
+      fullscreenable:false,
+      skipTaskbar:true,
+      hasShadow:true,
+      vibrancy:'medium-light',
+    })
+  }
+  
 
-  mainWindow.openDevTools();
-
-
+  // mainWindow.openDevTools();
 
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   })
-
-  mainWindow.on('blur', () => {
-      mainWindow.hide();
-  }); 
 }
 
 function createAppTray() {
@@ -135,15 +130,13 @@ function createAppTray() {
     // mainWindow === null ? createWindow() : mainWindow.close();
     // return;
     // 点击时显示窗口，并修改窗口的显示位置
-    const {
-      screen
-    } = electron;
+    const {screen}=electron;
     const {
       width,
       height
     } = screen.getPrimaryDisplay().workAreaSize;
 
-    console.log(width, height)
+    log.info(width, height)
 
     const WINDOW_WIDTH = mainWindow.getSize()[0];
     const WINDOW_HEIGHT = mainWindow.getSize()[1];
@@ -152,7 +145,7 @@ function createAppTray() {
 
     const cursorPosition = screen.getCursorScreenPoint();
 
-    // console.log(cursorPosition,mainWindow.getSize())
+    // log.info(cursorPosition,mainWindow.getSize())
 
     const primarySize = screen.getPrimaryDisplay().workAreaSize;
     const trayPositionVert = cursorPosition.y >= primarySize.height / 2 ? 'bottom' : 'top';
@@ -213,12 +206,23 @@ function createAppTray() {
 
 }
 
-app.dock.hide(); //隐藏dock
-
 
 app.on('ready', function () {
-  createAppTray();
+  // autoUpdater.setFeedURL(uploadUrl);
+  autoUpdater.logger = log;
+  autoUpdater.autoDownload=false;
+  if(osType=='Darwin'){
+    createAppTray();
+  }
+  else if(osType=='Windows_NT'){
+    createWindow();
+  }
+
+  checkUpdater();
+  
 })
+
+
 
 
 app.on('window-all-closed', () => {
@@ -248,11 +252,11 @@ ipcMain.on('getImageUrls', (event, data) => {
       data: result
     })
   })
-  console.log(data);
+  log.info(data);
 })
 
 ipcMain.on('btn', (event, data) => {
-  console.log(data);
+  log.info(data);
   if (data.type == 'quit') {
     app.quit();
   } else if (data.type == 'searchKey') {
@@ -283,48 +287,112 @@ ipcMain.on('btn', (event, data) => {
     })
   }
   else if(data.type=='check_newVersion'){
-    autoUpdater.checkForUpdates()
+    checkUpdater();
+  }
+})
+
+function checkUpdater(){
+  autoUpdater.checkForUpdates().then(result=>{
+    log.info(result);
+  }).catch(error=>{
+    log.error('-----------xxxx')
+    log.error(error)
+  })
+
+}
+
+
+const mainCallBack={
+  'autoUpdater.downloadUpdate':(data)=>{
+    autoUpdater.downloadUpdate()},
+}
+
+/*** 用于主进程中的一些函数回调 */
+ipcMain.on('maincallback', (event, data,argument) => {
+
+  console.log('ccccccccccccccccccccccc')
+  if(typeof mainCallBack[data] !='undefined'){
+    mainCallBack[data](argument);
   }
 })
 
 
-
-
 /*** 下载完成 */
 autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
+  log.info('下载完成:');
+  autoUpdater.quitAndInstall();
 })
 
-/***检查更新 */
-
-const uploadUrl = "http://172.16.10.106:18989/static/version/"; // 下载地址，不加后面的.exe
-
-autoUpdater.setFeedURL(uploadUrl);
-
 autoUpdater.on('error', function (info) {
-  mainWindow.webContents.send('check_newVersion', {'type':'error',data:info});
-  console.log('-------------');
-  // console.log(info)
+  log.error('版本错误:');
+  log.error(info);
+  if(openAppFlag){
+    openAppFlag=false;
+    return;
+  }
+  dialog.showMessageBox({
+    type:'error',
+    buttons:['关闭'],
+    title:'版本更新',
+    message:`版本更新检测出错`,
+    detail:'可能是网路不好火灾版本Bug,请提交意见反馈',
+    icon:path.resolve(__static, './img/banben.png')
+  });
 });
-autoUpdater.on('update-available', function (info) {
-  console.log('检测到新版本',info);
-  mainWindow.webContents.send('check_newVersion', {'type':'avai',data:info});
 
+
+autoUpdater.on('update-available', function (info) {
+  if(openAppFlag){
+    openAppFlag=false;
+    return;
+  }
+  dialog.showMessageBox({
+    type:'info',
+    buttons:['是','否'],
+    title:'版本更新',
+    message:`当前版本:${autoUpdater.currentVersion}`,
+    detail:`检测到新版本:${info.version},是否升级？`,
+    icon:path.resolve(__static, './img/banben.png')
+  },function(response){
+    if(response==0){
+      autoUpdater.downloadUpdate();
+    }
+    else if(response==1){
+      return;
+    }
+  });
+
+  log.info('检测到新版本',info);
+});
+
+autoUpdater.on('checking-for-update', function (info) {
+  log.info('检测更新已发出',info);
 });
 
 
 autoUpdater.on('update-not-available', function (info) {
-  console.log('没有检测到新版本',info);
-  mainWindow.webContents.send('check_newVersion', {'type':'noavai',data:info});
-
+  log.error('没有检测到新版本',info);
+  dialog.showMessageBox({
+    type:'info',
+    buttons:['关闭'],
+    title:'版本更新',
+    message:`当前版本:${autoUpdater.currentVersion}`,
+    detail:'当前已是最新版本，无需更新',
+    icon:path.resolve(__static, './img/banben.png')
+  });
+  // mainWindow.webContents.send('rendererConfirm',{
+  //   title:'版本更新',
+  //   content: `当前版本:${autoUpdater.currentVersion},暂无检测到新版本`,
+  //   suerText:'是',
+  //   cancelText:'否',
+  // });
 });
 
 
 //更新下载进度
 autoUpdater.on('download-progress', function (progressObj) {
-  mainWindow.webContents.send('downloadProgress', progressObj)
+  log.info('下载进度:')
+  log.info(progressObj);
+  mainWindow.webContents.send('datainfo',{type:'updaterProgress',data:progressObj.percent})
 })
 
-// app.on('ready', () => {
-//   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-// })
