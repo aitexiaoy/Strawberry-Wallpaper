@@ -33,7 +33,7 @@ export function createChildrenWindow() {
   
     childrenWin.loadURL(winURL)
 
-    childrenWin.openDevTools();
+    // childrenWin.openDevTools();
   
     childrenWin.on('closed', () => {
       childrenWin = null;
