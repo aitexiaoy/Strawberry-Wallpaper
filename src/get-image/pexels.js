@@ -28,7 +28,7 @@ https://images.pexels.com/photos/735621/pexels-photo-735621.jpeg?auto=compress&c
 
 const {
   axios_get
-} = require('../units/axios.js');
+} = require('../utils/axios.js');
 
 let url = '?dark=true&format=js&page=0&seed=2019-02-15+08%3A17%3A15++0000';
 

@@ -1,11 +1,38 @@
-import {
-    BrowserWindow,
-  } from 'electron'
-const winURL = process.env.NODE_ENV === 'development' ?
-  `http://localhost:9080/#/suggestion` :
-  `file://${__dirname}/index.html#/suggestion`
+import {BrowserWindow,screen} from 'electron'
+const {base_url} =require('../utils/utils.js')
+
+
+const winURL = base_url+'#/suggestion'
 
 var childrenWin=null;
+
+
+/**
+ * 设置窗口居中
+ */
+function infoWinCenter(screen,win){
+  let winWidth=win.getSize()[0];
+  let winHeight=win.getSize()[1];
+  let screens=screen.getAllDisplays();
+  let currentScreen=screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  let width=0;
+  for(let i=0;i<screens.length;i++){
+    if(screens[i].id!==currentScreen.id){
+      width=width+screens[i].workAreaSize.width;
+    }else{
+      break;
+    }
+  }
+
+  console.log(width,screens,currentScreen,winWidth,winHeight);
+
+  return {
+    x:parseInt(width+((currentScreen.workAreaSize.width-winWidth)/2)),
+    y:parseInt((currentScreen.workAreaSize.height-winHeight)/2)
+  }
+
+}
+
 
 export function createChildrenWindow() {
     /**
@@ -38,10 +65,6 @@ export function createChildrenWindow() {
     childrenWin.on('closed', () => {
       childrenWin = null;
     })
-  
-    // childrenWin.on('blur', () => {
-    //     childrenWin.hide();
-    // }); 
   }
 
   
@@ -55,6 +78,9 @@ export function hideChildrenWindow(){
 export function showChildrenWinndow(){
     if(childrenWin==null){
         createChildrenWindow();
+        let position=infoWinCenter(screen,childrenWin);
+        console.log(position);
+        childrenWin.setPosition(position.x,position.y);
     }
     // if(childrenWin&&!childrenWin.isVisible()){
     //     childrenWin.show();

@@ -2,7 +2,7 @@
   "name": "strawberrywallpaper",
   "version": "v0.0.1",
   "author": "peng <yangpeng@fubangyun.com>",
-  "description": "An electron-vue project",
+  "description": "a wallpaper app by electron",
   "license": "",
   "main": "./dist/electron/main.js",
   "bin": "cli.js",
