@@ -78,8 +78,13 @@ export default {
     mounted() {
         setter=this;
         let data = this.$localStorage.getStore('userConfig');
-        for (let index in data) {
-            this[index] = data[index] || this[index];
+        if(data){
+            for (let index in data) {
+                this[index] = data[index] || this[index];
+            }
+        }
+        else{
+            this.setLocation();
         }
     },
     methods: {

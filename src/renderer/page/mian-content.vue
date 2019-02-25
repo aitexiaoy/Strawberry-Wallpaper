@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="content" :class="{'content-win':osType=='Windows_NT'}" @scroll="content_scroll">
+    <div class="content"  @scroll="content_scroll">
         <div class="content-main" v-if="images.length>0">
             <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" :style="{'backgroundColor':img.backgroundColor}" @mousemove.stop="currentMouseOverIndex=index" @mouseleave.stop="currentMouseOverIndex=-1">
                 <div class="image-item-img" v-imagematch="img.url">
@@ -191,9 +191,7 @@ export default {
         },
         open_download_file() {
             // shell.showItemInFolder(os.homedir()+'/Downloads/');
-
-            mkdirSync(os.homedir() + '/Downloads/wallpaper');
-
+            mkdirSync(os.homedir() + '/Downloads/wallpaper');    //判断是否有文件夹
             shell.openItem(os.homedir() + '/Downloads/wallpaper');
         },
         image_tip(width, height) {
@@ -248,7 +246,7 @@ export default {
 
         get_urls(urls) {
             this.urls_deal(urls);
-            this.$localStorage.setStore('aa', vue.images);
+            // this.$localStorage.setStore('aa', vue.images);
         },
         /*** 对获取到的地址进行处理 */
         urls_deal(urls) {
