@@ -41,11 +41,14 @@ const {
 
 
 const utils = require('../utils/utils.js');
-const {log, isDev} = require('../utils/utils.js');
+const {
+  log,
+  isDev
+} = require('../utils/utils.js');
 
 
 //托盘对象
-var mainWindow=null; 
+var mainWindow = null;
 var appTray = null;
 var openAppFlag = true;
 
@@ -61,13 +64,13 @@ autoUpdaterInit();
 
 if (utils.isMac()) {
   app.dock.hide();
-} 
+}
 app.on('ready', function () {
-  if(!isDev()){
+  if (!isDev()) {
     autoUpdater.logger = log;
     autoUpdater.autoDownload = false;
     checkUpdater();
-}
+  }
   app_init();
 })
 
@@ -78,65 +81,46 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
-  if (mainWindow === null) {
-    app_init();
-  }
+  // if (mainWindow === null) {
+  //   app_init();
+  // }
 })
 
 function createWindow() {
   /**
    * Initial window options
    */
-  if (utils.isMac()) {
-    mainWindow = new BrowserWindow({
-      height: 600,
-      useContentSize: true,
-      // width: 300,
-      width: 300,
-      frame: false,
-      show: false,
-      transparent: true,
-      resizable: false, //禁止变化尺寸
-      hasShadow: false, //是否阴影
-      thickFrame: false,
-      scrollBounce: true,
-      backgroundColor: '#222',
-      alwaysOnTop: true,
-      focusable: true,
-      fullscreenable: false,
-      skipTaskbar: true,
-      hasShadow: true,
-      vibrancy: 'medium-light',
-    })
-
-    mainWindow.on('blur', () => {
-      mainWindow.hide();
-    });
-  } else if (utils.isWin()) {
-    mainWindow = new BrowserWindow({
-      height: 600,
-      useContentSize: true,
-      // width: 280,
-      width: 500,
-      // transparent: true,
-      resizable: false, //禁止变化尺寸
-      hasShadow: false, //是否阴影
-      thickFrame: false,
-      scrollBounce: true,
-      backgroundColor: '#222',
-      fullscreenable: false,
-      skipTaskbar: true,
-      hasShadow: true,
-      vibrancy: 'medium-light',
-    })
-  }
-
+  mainWindow = new BrowserWindow({
+    height: 600,
+    useContentSize: true,
+    width: 300,
+    // width: 800,
+    frame: false,
+    show: false,
+    transparent: true,
+    resizable: false, //禁止变化尺寸
+    hasShadow: false, //是否阴影
+    thickFrame: false,
+    scrollBounce: true,
+    backgroundColor: '#222',
+    alwaysOnTop: true,
+    focusable: true,
+    fullscreenable: false,
+    skipTaskbar: true,
+    hasShadow: true,
+    vibrancy: 'medium-light',
+  })
 
   // mainWindow.openDevTools();
 
   mainWindow.loadURL(utils.base_url)
 
+  mainWindow.on('blur', () => {
+    mainWindow.hide();
+  });
+
   mainWindow.on('closed', () => {
+    app.quit();
     mainWindow = null;
   })
 }
@@ -153,49 +137,88 @@ function createAppTray() {
     // mainWindow === null ? createWindow() : mainWindow.close();
     // return;
     // 点击时显示窗口，并修改窗口的显示位置
-    if (utils.isMac()) {
-      const {
-        screen
-      } = electron;
-      const {
-        width,
-        height
-      } = screen.getPrimaryDisplay().workAreaSize;
 
-      log.info(width, height)
 
-      const WINDOW_WIDTH = mainWindow.getSize()[0];
-      const WINDOW_HEIGHT = mainWindow.getSize()[1];
-
-      log.info(screen.getAllDisplays());
-
-      const cursorPosition = screen.getCursorScreenPoint();
-      // 计算位置
-      function getTrayPosX() {
-        return cursorPosition.x-(WINDOW_WIDTH/2);
+    try {
+      if (mainWindow.isVisible()) {
+        mainWindow.webContents.send('datainfo', {
+          type: 'windowShow',
+          data: false
+        })
+        setTimeout(() => {
+          mainWindow.hide();
+        })
+      } else {
+        mainWindow.webContents.send('datainfo', {
+          type: 'windowShow',
+          data: true
+        })
+        mainWindow.show();
+        setMainWinPosition(mainWindow);
       }
-
-      function getTrayPosY() {
-        return 25;
-      }
-
-      mainWindow.setPosition(getTrayPosX(), getTrayPosY());
-    } else if (utils.isWin()) {
-
+    } catch (error) {
+      log.error(error);
     }
 
-    if (mainWindow.isVisible()) {
-      mainWindow.webContents.send('datainfo', {
-        type: 'windowShow',
-        data: false
-      })
-      mainWindow.hide();
-    } else {
-      mainWindow.webContents.send('datainfo', {
-        type: 'windowShow',
-        data: true
-      })
-      mainWindow.show();
+    function setMainWinPosition(win) {
+      try {
+        const {
+          screen
+        } = electron;
+        const win_width = mainWindow.getSize()[0];
+        const win_height = mainWindow.getSize()[1];
+        const cursorPosition = screen.getCursorScreenPoint();
+        const currentScreen = screen.getDisplayNearestPoint(cursorPosition);
+        const screens = screen.getAllDisplays();
+
+        log.info(screens);
+
+        let screenWidth = 0;
+        let screenHeight = 0;
+
+        // 这目前判断多屏都是横着拼的多屏,
+        for (let i = 0; i < screens.length; i++) {
+          screenWidth += screens[i].workAreaSize.width;
+          // screenHeight+=screens[i].workAreaSize.height;
+        }
+        var parallel_type = cursorPosition.x < screenWidth / 2 ? 'left' : 'right';
+        var vertica_type = cursorPosition.y < currentScreen.workAreaSize.height / 2 ? 'top' : 'bottom';
+
+        var trayPositionType = ''; //任务栏的位置
+        var trayPositionSize = 0;
+        if (currentScreen.workAreaSize.height < currentScreen.size.height) {
+          trayPositionType = vertica_type === 'top' ? 'top' : 'bottom';
+          trayPositionSize = currentScreen.size.height - currentScreen.workAreaSize.height;
+        } else if (currentScreen.workAreaSize.width < currentScreen.size.width) {
+          trayPositionType = parallel_type === 'left' ? 'left' : 'right';
+          trayPositionSize = currentScreen.size.width - currentScreen.workAreaSize.width;
+        }
+
+        var winPositionX = 1;
+        var winPositionY = 1;
+
+
+        log.info(currentScreen.workAreaSize.height, currentScreen.size.height);
+
+        if (trayPositionType == 'top') {
+          winPositionX = Math.max(Math.min(screenWidth - win_width, cursorPosition.x - (win_width / 2)), 1);
+          winPositionY = trayPositionSize;
+        } else if (trayPositionType == 'bottom') {
+          winPositionX = Math.max(Math.min(screenWidth - win_width, cursorPosition.x - (win_width / 2)), 1);
+          winPositionY = currentScreen.size.height - trayPositionSize - win_height;
+        } else if (trayPositionType == 'left') {
+          winPositionX = trayPositionSize;
+          winPositionY = Math.max(Math.min(currentScreen.size.height - win_height, cursorPosition.y - (win_height / 2)), 1);
+        } else if (trayPositionType == 'right') {
+          winPositionX = screenWidth - trayPositionSize - win_width;
+          winPositionY = Math.max(Math.min(currentScreen.size.height - win_height, cursorPosition.y - (win_height / 2)), 1);
+        }
+
+        win.setPosition(winPositionX, winPositionY);
+      } catch (error) {
+        log.error(error)
+      }
+
     }
     return;
 
@@ -229,6 +252,7 @@ function ipcMainInit() {
     downloadPic(arg.downloadUrl, function (result) {
       setOnCurrentSpace(result);
       event.sender.send('dataWallpaper', 'success');
+      log.info('设置壁纸成功');
     });
   })
 
@@ -283,83 +307,81 @@ function checkUpdater() {
   })
 
 }
-function autoUpdaterInit(){
 
-/*** 下载完成 */
-autoUpdater.on('update-downloaded', () => {
-  log.info('下载完成:');
-  autoUpdater.quitAndInstall();
-})
+function autoUpdaterInit() {
 
-autoUpdater.on('error', function (info) {
-  log.error('版本错误:');
-  log.error(info);
-  if (openAppFlag) {
-    openAppFlag = false;
-    return;
-  }
-  dialog.showMessageBox({
-    type: 'error',
-    buttons: ['关闭'],
-    title: '版本更新',
-    message: `版本更新检测出错`,
-    detail: '可能是网路不好火灾版本Bug,请提交意见反馈',
-    icon: path.resolve(__static, './img/banben.png')
-  });
-});
+  /*** 下载完成 */
+  autoUpdater.on('update-downloaded', () => {
+    log.info('下载完成:');
+    autoUpdater.quitAndInstall();
+  })
 
-
-autoUpdater.on('update-available', function (info) {
-  dialog.showMessageBox({
-    type: 'info',
-    buttons: ['是', '否'],
-    title: '版本更新',
-    message: `当前版本:${autoUpdater.currentVersion}`,
-    detail: `检测到新版本:${info.version},是否升级？`,
-    icon: path.resolve(__static, './img/banben.png')
-  }, function (response) {
-    if (response == 0) {
-      autoUpdater.downloadUpdate();
-    } else if (response == 1) {
+  autoUpdater.on('error', function (info) {
+    log.error('版本错误:');
+    log.error(info);
+    if (openAppFlag) {
+      openAppFlag = false;
       return;
     }
+    dialog.showMessageBox({
+      type: 'error',
+      buttons: ['关闭'],
+      title: '版本更新',
+      message: `版本更新检测出错`,
+      detail: '可能是网路不好火灾版本Bug,请提交意见反馈',
+      icon: path.resolve(__static, './img/banben.png')
+    });
   });
 
-  log.info('检测到新版本', info);
-});
 
-autoUpdater.on('checking-for-update', function (info) {
-  log.info('检测更新已发出', info);
-});
+  autoUpdater.on('update-available', function (info) {
+    dialog.showMessageBox({
+      type: 'info',
+      buttons: ['是', '否'],
+      title: '版本更新',
+      message: `当前版本:${autoUpdater.currentVersion}`,
+      detail: `检测到新版本:${info.version},是否升级？`,
+      icon: path.resolve(__static, './img/banben.png')
+    }, function (response) {
+      if (response == 0) {
+        autoUpdater.downloadUpdate();
+      } else if (response == 1) {
+        return;
+      }
+    });
 
-
-autoUpdater.on('update-not-available', function (info) {
-  if (openAppFlag) {
-    openAppFlag = false;
-    return;
-  }
-  log.error('没有检测到新版本', info);
-  dialog.showMessageBox({
-    type: 'info',
-    buttons: ['关闭'],
-    title: '版本更新',
-    message: `当前版本:${autoUpdater.currentVersion}`,
-    detail: '当前已是最新版本，无需更新',
-    icon: path.resolve(__static, './img/banben.png')
+    log.info('检测到新版本', info);
   });
-});
+
+  autoUpdater.on('checking-for-update', function (info) {
+    log.info('检测更新已发出', info);
+  });
 
 
-//更新下载进度
-autoUpdater.on('download-progress', function (progressObj) {
-  log.info('下载进度:')
-  log.info(progressObj);
-  mainWindow.webContents.send('datainfo', {
-    type: 'updaterProgress',
-    data: progressObj.percent
+  autoUpdater.on('update-not-available', function (info) {
+    if (openAppFlag) {
+      openAppFlag = false;
+      return;
+    }
+    log.error('没有检测到新版本', info);
+    dialog.showMessageBox({
+      type: 'info',
+      buttons: ['关闭'],
+      title: '版本更新',
+      message: `当前版本:${autoUpdater.currentVersion}`,
+      detail: '当前已是最新版本，无需更新',
+      icon: path.resolve(__static, './img/banben.png')
+    });
+  });
+
+
+  //更新下载进度
+  autoUpdater.on('download-progress', function (progressObj) {
+    log.info('下载进度:')
+    log.info(progressObj);
+    mainWindow.webContents.send('datainfo', {
+      type: 'updaterProgress',
+      data: progressObj.percent
+    })
   })
-})
 }
-
-
-

@@ -23,7 +23,7 @@ npm run build-win
 
 ### 1.适用范围
 
-Works on macOS 10.12+, and Windows 10+.
+Works on macOS 10.12+, and Windows 10, Windows7.
 
 目前只在mac10.14.3与win10上进行了测试
 
@@ -31,9 +31,9 @@ Works on macOS 10.12+, and Windows 10+.
 
 提供两个打包好的下载地址:
 
-[Strawberry Wallpaper-mac-v0.0.1](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-0.0.1.dmg) 
+[Strawberry Wallpaper-mac-v0.0.1](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-mac.dmg) 
 
-[Strawberry Wallpaper-win-v0.0.1](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper%20Setup%200.0.1.exe)
+[Strawberry Wallpaper-win-v0.0.1](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-win.exe)
 
 
 #### 2.软件介绍
@@ -66,6 +66,9 @@ Works on macOS 10.12+, and Windows 10+.
 - 意见反馈
 - 自动更新
 - 支持win10
+
+>v0.0.2
+- 修改win下主窗口的显示位置，win7测试成功
 
 
 ## 待开发功能

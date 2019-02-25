@@ -45,8 +45,8 @@ export const downloadPic =function (src,callback) {
     // `onDownloadProgress` 允许为下载处理进度事件
     onDownloadProgress: function (progressEvent) {
       // 对原生进度事件的处理
-      console.log('--------------------下载图片进度:')
-      console.log(progressEvent);
+      // console.log('--------------------下载图片进度:')
+      // console.log(progressEvent);
     },
     }).then(result => {
       if (result.status == 200) {
@@ -59,22 +59,22 @@ export const downloadPic =function (src,callback) {
       })
 
       writeStream.on('finish', function () {
-        console.log('文件写入成功:' + dstpath);
+        // console.log('文件写入成功:' + dstpath);
         callback(dstpath);
       })
       writeStream.on('error', function (error) {
-        console.log('文件写入失败:' + dstpath);
-        console.log(error);
+        // console.log('文件写入失败:' + dstpath);
+        // console.log(error);
       })
 
       writeStream.once("close", function () {
-        console.log("流关闭了~~~");
+        // console.log("流关闭了~~~");
       });
 
       writeStream.write(result, 'binary',function(){
         writeStream.end();
       });
     }).catch(error=>{
-      console.log(error);
+      // console.log(error);
     })
 }

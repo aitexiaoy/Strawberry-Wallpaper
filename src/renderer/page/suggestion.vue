@@ -27,7 +27,6 @@ export default {
     mounted() {
         Vue.$ipcRenderer.on('sendnewEmail',(event,data,error)=>{
             this.loading=false;
-            console.log(data);
             if(data==='success'){
                 this.$alert('意见反馈成功，感谢你宝贵的意见', '反馈结果', {
                     confirmButtonText: '关闭',
@@ -66,13 +65,10 @@ export default {
             ]
             this.editer.create();
         })
-
-        console.log('-------------------aallll')
     },
     methods: {
         sure_post(){
             let html=this.editer.txt.html();
-            console.log(html);
             if(html=='<p data-v-6327ab11="" style="color: rgb(204, 204, 204);">非常感谢你提出宝贵的意见...</p><p><br></p>'){
                 this.$message.warning('请填写宝贵意见再提交');
                 return;
