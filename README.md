@@ -1,7 +1,7 @@
 
 ## Strawberry Wallpaper 草莓壁纸
 
-> 采用elctron-vue开发的壁纸应用，适用于mac端
+> 采用elctron-vue开发的壁纸应用
 
 #### 开发
 ```
@@ -11,7 +11,7 @@ npm run dev
 #### 打包
 1.先执行webpack打包页面
 ```
-npm run build-r
+npm run build
 ```
 2.按平台打包 `electron-builder` 会默认当前平台进行打包
 ```
@@ -57,6 +57,21 @@ Works on macOS 10.12+, and Windows 10+.
 【意见反馈】
 
 ![qq20190224-210944@2x.png](http://file.qiniu.taoacat.com/stwallpaper-4.png)
+
+## 更新日志
+
+> v0.0.1发行版
+- 动态更新壁纸
+- 设置开机启动
+- 意见反馈
+- 自动更新
+- 支持win10
+
+
+## 待开发功能
+
+- 图片列表重复问题
+- 多图床的选择
 
 ## 开发采坑
 
