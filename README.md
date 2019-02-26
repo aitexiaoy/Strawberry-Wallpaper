@@ -2,6 +2,8 @@
 ## Strawberry Wallpaper 草莓壁纸
 
 > 采用elctron-vue开发的壁纸应用
+> 本应用相关图片都源自于网络，壁纸图片的一切版权归壁纸来源网站所有，切不可将版权图片作为商用。
+
 
 #### 开发
 ```
@@ -31,9 +33,9 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 
 提供两个打包好的下载地址:
 
-[Strawberry Wallpaper-mac-v0.0.1](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-mac.dmg) 
+[Strawberry Wallpaper-mac](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-mac.dmg) 
 
-[Strawberry Wallpaper-win-v0.0.1](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-win.exe)
+[Strawberry Wallpaper-win](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-win.exe)
 
 
 #### 2.软件介绍
@@ -67,8 +69,11 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 - 自动更新
 - 支持win10
 
->v0.0.2
+> v0.0.2
 - 修改win下主窗口的显示位置，win7测试成功
+
+> v0.0.3
+- 增加壁纸来源的选择，增加500px壁纸来源
 
 
 ## 待开发功能
@@ -79,3 +84,15 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 ## 开发采坑
 
 很多坑，容我细细道来。
+
+## LICENSE
+
+Apache License 2.0
+
+## 点👍
+
+如果觉得本项目不错，请点击页面右上角的的小星星。也可以为作者点👍，欢迎打赏。
+
+![👍](http://file.qiniu.taoacat.com/github-start.png)
+
+![点赞.png](http://file.qiniu.taoacat.com/wechat-money.png)

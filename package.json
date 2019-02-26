@@ -1,7 +1,7 @@
 {
   "name": "strawberrywallpaper",
-  "version": "v0.0.2",
-  "author": "taoacat",
+  "version": "v0.0.3",
+  "author": "taoacat,流浪记",
   "description": "a wallpaper app by electron",
   "license": "",
   "main": "./dist/electron/main.js",
@@ -52,7 +52,10 @@
     },
     "win": {
       "icon": "build/icons/icon.ico",
-      "target": ["nsis","zip"]
+      "target": [
+        "nsis",
+        "zip"
+      ]
     },
     "linux": {
       "icon": "build/icons"
@@ -94,6 +97,7 @@
   "dependencies": {
     "auto-launch": "^5.0.5",
     "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
     "electron-log": "^3.0.1",
     "electron-updater": "^4.0.6",
     "element-ui": "^2.5.4",
@@ -108,6 +112,7 @@
     "vuex": "^3.0.1",
     "vuex-electron": "^1.0.0",
     "wallpaper": "^4.2.0",
-    "wangeditor": "^3.1.1"
+    "wangeditor": "^3.1.1",
+    "webp-converter": "^2.2.2"
   }
 }

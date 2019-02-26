@@ -114,7 +114,5 @@ let url = '?dark=true&format=js&page=0&seed=2019-02-15+08%3A17%3A15++0000';
       // downloadUrl(urls);
     })
   })
-
 }
 
-get_image();

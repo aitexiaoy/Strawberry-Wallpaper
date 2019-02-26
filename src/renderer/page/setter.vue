@@ -1,8 +1,8 @@
 <template>
-<div class="setter">
+<div class="setter" @mouseout.stop.prevent="mouseout_fn(false)" @mouseenter.stop.prevent="mouseout_fn(true)">
     <div class="setter-sanjiao"></div>
     <div class="setter-bk"></div>
-    <div class="setter-content">
+    <div class="setter-content" >
         <div class="setter-row-one">
             <div>
                 <!-- <i class="iconfont icon-banbenhao"></i> -->
@@ -20,13 +20,7 @@
 
         
 
-        <!-- <div class="setter-row">
-            <el-radio-group v-model="imageSource">
-                <el-radio label="Biying">必应</el-radio>
-                <el-radio label="pexels"><span class="checkbox-text">pexels</span></el-radio>
-                <el-radio label="pola">pola</el-radio>
-            </el-radio-group>
-        </div> -->
+
 
         <div class="setter-row">
             <el-checkbox v-model="wallpaperAutoUp" @change="wallpaper_auto_change"><span class="checkbox-text">壁纸自动更新</span></el-checkbox>
@@ -40,7 +34,17 @@
             </el-radio-group>
         </div>
 
-        <div class="setter-row image-sourece">图片来源: pexels.com</div>
+        <div class="setter-row image-sourece">图片来源: {{imageSource}}</div>
+
+        <div class="setter-row">
+            <el-radio-group v-model="imageSource" @change="image_source_change" :disabled="get_data_flag==true">
+                <!-- <el-radio label="Biying">必应</el-radio> -->
+                <el-radio label="pexels"><span class="checkbox-text">pexels</span></el-radio>
+                <el-radio label="500px"><span class="checkbox-text">500px</span></el-radio>
+                <!-- <el-radio label="pola">pola</el-radio> -->
+            </el-radio-group>
+        </div>
+
         <div class="setter-last-btn">
                 <div class="about-pro" @click="suggestion">意见反馈</div>
                 <div class="about-pro" @click="about_pro">关于项目</div>
@@ -66,6 +70,12 @@ global.setter=null
 
 export default {
     name: 'setter',
+    props:{
+        get_data_flag:{
+            type:Boolean,
+            default:false
+        }
+    },
     data() {
         return {
             version1: version,
@@ -108,6 +118,10 @@ export default {
             shell.openExternal('https://github.com/aitexiaoy/Strawberry-Wallpaper');
         },
 
+        mouseout_fn(val){
+            this.$emit('contentMouse',val)
+        },
+
         /*** 意见反馈 */
         suggestion(){
                Vue.$ipcRenderer.send('btn', {
@@ -140,6 +154,11 @@ export default {
             this.setLocation();
             this.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000))
         },
+        //更改图片来源
+        image_source_change(val){
+            this.$emit('imageSourceChange',val)
+            this.setLocation();
+        },
         /** 检查更新 */
         check_newVersion(){
             Vue.$ipcRenderer.send('btn', {
@@ -155,7 +174,7 @@ export default {
 .setter {
     // background-color: #767678;
     width: 240px;
-    height: 200px;
+    height: 230px;
     position: absolute;
     right: 10px;
     top: 44px;
@@ -194,7 +213,7 @@ export default {
     .setter-content{
         background-color: rgba(43, 42, 42, 0.8);
         width: 240px;
-        height: 200px;
+        height: 230px;
         position: absolute;
         right: 0px;
         top: 0px;

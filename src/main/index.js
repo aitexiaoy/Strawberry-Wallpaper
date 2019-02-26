@@ -24,7 +24,7 @@ const {
 
 const {
   downloadPic
-} = require('../file/file2.js');
+} = require('../file/file.js');
 
 const {
   get_urls
@@ -234,8 +234,14 @@ function createAppTray() {
 
 
 function app_init() {
-  createWindow(); //创建主窗口
-  createAppTray(); //创建系统托盘
+  if(mainWindow==null){
+    createWindow(); //创建主窗口
+  }else{
+    mainWindow.show();
+  }
+  if(appTray==null){
+    createAppTray(); //创建系统托盘    
+  }
 }
 
 
@@ -249,11 +255,14 @@ function ipcMainInit() {
 
 
   ipcMain.on('dataWallpaper', (event, arg) => {
-    downloadPic(arg.downloadUrl, function (result) {
+    downloadPic(arg.downloadUrl).then((result)=>{
+      console.log(result);
       setOnCurrentSpace(result);
       event.sender.send('dataWallpaper', 'success');
       log.info('设置壁纸成功');
-    });
+    }).catch(error=>{
+      log.error(error);
+    })
   })
 
   ipcMain.on('getImageUrls', (event, data) => {
