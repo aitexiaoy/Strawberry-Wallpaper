@@ -1,7 +1,12 @@
 <template>
 <div class="main-content" @keydown.enter="keydown_enter_fn">
     <el-collapse-transition>
-        <setter class="setter-content" v-show="setterShow"></setter>
+        <setter class="setter-content" v-show="setterShow" 
+        @imageSourceChange="image_source_change"
+        @contentMouse="content_mouse"
+        :get_data_flag="get_data_flag"
+        
+        ></setter>
     </el-collapse-transition>
     <div class="header">
         <el-row class="header-row-one">
@@ -21,14 +26,10 @@
         </div>
     </div>
 
-    <div class="content"  @scroll="content_scroll">
+    <div class="content" :class="{'content-win':osType=='Windows_NT'}"  @scroll="content_scroll">
         <div class="content-main" v-if="images.length>0">
-            <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" :style="{'backgroundColor':img.backgroundColor}" @mousemove.stop="currentMouseOverIndex=index" @mouseleave.stop="currentMouseOverIndex=-1">
+            <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" :style="{'backgroundColor':img.backgroundColor}" @mousemove.stop="currentMouseOverIndex=index,setterShow=false" @mouseleave.stop="currentMouseOverIndex=-1">
                 <div class="image-item-img" v-imagematch="img.url">
-                    <!-- <img class="image-item-img" 
-                :src="img.url" 
-                @load="img_load($event,img)" 
-                :alt="img.name"> -->
                 </div>
                 <div class="image-set-wallpaper" v-show="currentMouseOverIndex==index&&isSetting==false" @click.stop="set_wallpaper(img,index)">
                     <i class="iconfont icon-xianshiqi"></i>
@@ -71,7 +72,7 @@ import {
 
 import {
     mkdirSync
-} from '../../file/file2.js'
+} from '../../file/file.js'
 export default {
     name: 'mainContent',
     components: {
@@ -87,9 +88,10 @@ export default {
             images: [],
             hava_data_flag: true, //标记是否还有数据
             page: 0, //请求数据的页数
-            get_data_flag: false,
+            get_data_flag: false,    //标记页面是否正在请求数据
             searchKeyFocus: false,
             osType:'Darwin',
+            image_source:'pexels',
         }
     },
     beforeCreate() {
@@ -97,9 +99,8 @@ export default {
     },
 
     mounted() {
-
+        this.image_source=this.$localStorage.getStore('userConfig').imageSource||'pexels';
         this.osType=os.type();
-
         Vue.$ipcRenderer.on('dataWallpaper', (event, arg) => {
             //设置一个时间记录最后更新的时间
             vue.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000))
@@ -179,15 +180,13 @@ export default {
         /*** 设置壁纸按钮 */
         set_wallpaper(img, index) {
             this.isSetting = true;
+            this.setterShow=false;
             if (!this.$refs['image_item_' + index][0]) {
                 return;
             }
             this.$fbloading.open(this.$refs['image_item_' + index][0]);
             Vue.$ipcRenderer.send('dataWallpaper', img);
             this.currentWallpaperIndex = index;
-        },
-        img_load(img) {
-            console.log(img)
         },
         open_download_file() {
             // shell.showItemInFolder(os.homedir()+'/Downloads/');
@@ -207,6 +206,10 @@ export default {
 
         image_direction(width, height) {
             return width >= height ? false : true;
+        },
+
+        content_mouse(val){
+            // this.setterShow=val;
         },
 
         /** 壁纸自动更新 */
@@ -241,6 +244,12 @@ export default {
             this.$localStorage.setStore('searchKey', this.searchKey);
             this.page = 0;
             this.images = [];
+            this.get_data();
+        },
+        image_source_change(val){
+            this.image_source=val;
+            this.page=0;
+            this.images=[];
             this.get_data();
         },
 
@@ -280,7 +289,8 @@ export default {
             this.get_data_flag = true;
             let obj = {
                 searchKey: this.searchKey,
-                page: this.page
+                page: this.page,
+                imageSource:this.image_source
             }
             Vue.$ipcRenderer.send('getImageUrls', obj);
         },
@@ -306,7 +316,7 @@ export default {
     // padding-top: 30px;
     width: 100%;
     height: 100%;
-    overflow-x: hidden;
+    overflow: hidden;
     border-radius: 5px;
     box-sizing: border-box;
     position: relative;
@@ -499,7 +509,7 @@ export default {
     .content-win{
         width: calc(~'100% + 17px');
         .image-item{
-            height: 240px;
+            // height: 240px;
         }
     }
 

@@ -7,12 +7,14 @@ const axios = require('axios');
 
 const os=require('os');
 
+var webp=require('webp-converter');
+
 
 
 const hostdir = path.resolve(os.homedir() + '/Downloads/wallpaper');
 
 
-function mkdirSync(dirname) {
+export function mkdirSync(dirname) {
   if (fs.existsSync(dirname)) {
     return true;
   } else {
@@ -26,12 +28,20 @@ function mkdirSync(dirname) {
 
 
 /** 从指定连接下图片 */
-module.exports.downloadPic =async function (src) {
+export const downloadPic =async function (src) {
   return new Promise((resolve, reject) => {
-
     //创建文件夹
     mkdirSync(hostdir);
-    const dstpath = hostdir + '/' + (new Date()).getTime() + '_' + ((new Date()).getMilliseconds())+'-'+(parseInt(Math.random()*100000)) + '.jpg';
+    var dstpath=hostdir + '/' + (new Date()).getTime() + '_' + ((new Date()).getMilliseconds())+'-'+(parseInt(Math.random()*100000));
+    var isWebp=false;
+    if(src.match('webp=true')){
+      dstpath = dstpath + '.webp';
+      isWebp=true;
+    }
+    else{
+      dstpath = dstpath + '.jpg';
+      isWebp=false;
+    }
     
     axios.get(src, {
       responseType: "arraybuffer",
@@ -56,21 +66,32 @@ module.exports.downloadPic =async function (src) {
         resolve();
         return;
       }
+
+  
+
       var writeStream = fs.createWriteStream(dstpath, {
         // autoClose: true
       })
 
       writeStream.on('finish', function () {
         console.log('文件写入成功:' + dstpath);
-        resolve(dstpath);
-        // consta++;
-        // console.log(consta);
-        // if (consta == urls.length / 2) {
-        //   setInterval(() => {
-        //     wallpaper.setOnCurrentSpace(urls[k % urls.length])
-        //     k++;
-        //   }, 2000)
-        // }
+
+        if(isWebp){
+          webp.dwebp(dstpath,dstpath.replace('webp','jpg'),"-o",function(status,error)
+          {
+             //if conversion successful status will be '100'
+            //if conversion fails status will be '101'
+            console.log(status,error);
+            fs.unlink(dstpath,(err) => {
+              if (err) throw err;
+              console.log('文件已删除');
+            });
+            resolve(dstpath.replace('webp','jpg'))
+          });
+        }
+        else{
+          resolve(dstpath);
+        }
       })
       writeStream.on('error', function (error) {
         console.log('文件写入失败:' + dstpath);
@@ -85,18 +106,6 @@ module.exports.downloadPic =async function (src) {
       writeStream.write(result, 'binary',function(){
         writeStream.end();
       });
-
-      // fs.writeFile(dstpath,result,'binary',function(err){
-      //   if (err) throw err;
-      //   console.log('文件写入成功:',dstpath);
-      //   // if(err){
-      //   //   console.log('文件写入失败');
-      //   //   console.log(err);
-      //   // }else{
-      //   //   console.log('文件写入成功');
-      //   // }
-      // })
-
     }).catch(error=>{
       console.log(error);
       resolve();
@@ -106,22 +115,6 @@ module.exports.downloadPic =async function (src) {
 
 // module.exports.downloadPic=downloadPic;
 
-module.exports.downloadUrl = async function (urlList) {
-  return new Promise((resolve, reject) => {
-    var k = 0;
-    for (var i = 0; i < urlList.length; i++) {
-      downloadPic(urlList[i]).then(p => {
-        k++
-        if (k == urlList.length) {
-          console.log('---------------99');
-          resolve();
-        }
-      })
-
-    }
-  })
-}
 
 
-
-// downloadUrl(['http://qiniu.fubang.taoacat.com/fbicon_remove.png'])
+// downloadPic('https://drscdn.500px.org/photo/296097989/m%3D4096/v2?webp=true&sig=5d2e79b4d23c12db748593a3bfab28988e3f2cf91cde79d21e9ec4cbe3cf22d2')
