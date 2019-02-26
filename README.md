@@ -95,4 +95,4 @@ Apache License 2.0
 
 ![👍](http://file.qiniu.taoacat.com/github-start.png)
 
-![点赞.png](http://file.qiniu.taoacat.com/wechat-money.png)
+![点赞.png](http://file.qiniu.taoacat.com/wechat-money.png){:width="100"}
