@@ -58,7 +58,7 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 
 【意见反馈】
 
-<img src="http://file.qiniu.taoacat.com/stwallpaper-4.png" width="400px" />
+<img src="http://file.qiniu.taoacat.com/stwallpaper-4.png" width="500px" />
 
 
 ## 更新日志
