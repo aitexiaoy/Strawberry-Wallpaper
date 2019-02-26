@@ -44,21 +44,22 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 
 用于显示壁纸照片，可以进行关键词搜索[目前只支持英文关键词搜索]。
 
-![qq20190224-210835@2x.png](http://file.qiniu.taoacat.com/stwallpaper-1.png)
+<img src="http://file.qiniu.taoacat.com/stwallpaper-1.png" width="300px" />
 
 【设置页面可进行简单的设置】
 
-![qq20190224-210856@2x.png](http://file.qiniu.taoacat.com/stwallpaper-2.png)
+<img src="http://file.qiniu.taoacat.com/stwallpaper-2.png" width="300px" />
 
 
 【检测更新】
 
-![qq20190224-210930@2x.png](http://file.qiniu.taoacat.com/stwallpaper-3.png)
+<img src="http://file.qiniu.taoacat.com/stwallpaper-3.png" width="500px" />
 
 
 【意见反馈】
 
-![qq20190224-210944@2x.png](http://file.qiniu.taoacat.com/stwallpaper-4.png)
+<img src="http://file.qiniu.taoacat.com/stwallpaper-4.png" width="400px" />
+
 
 ## 更新日志
 
