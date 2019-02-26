@@ -1,7 +1,7 @@
 
 ## Strawberry Wallpaper 草莓壁纸
 
-> 采用elctron-vue开发的壁纸应用
+> 采用electron-vue开发的壁纸应用
 > 本应用相关图片都源自于网络，壁纸图片的一切版权归壁纸来源网站所有，切不可将版权图片作为商用。
 
 
