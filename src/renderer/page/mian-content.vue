@@ -1,61 +1,61 @@
 <template>
 <div class="main-content" @keydown.enter="keydown_enter_fn">
     <el-collapse-transition>
-        <setter class="setter-content" v-show="setterShow" 
-        @imageSourceChange="image_source_change"
-        @contentMouse="content_mouse"
-        :get_data_flag="get_data_flag"
-        
-        ></setter>
+        <setter class="setter-content" :class="{'setter-content-mac':osType=='mac'}" v-show="setterShow" @imageSourceChange="image_source_change" @contentMouse="content_mouse" :get_data_flag="get_data_flag"></setter>
     </el-collapse-transition>
-    <div class="header">
-        <el-row class="header-row-one">
-            <div class="left">
-                <h1 class="text">Strawberry</h1>
+    <!-- mac下显示三角 -->
+    <div class="sanjiao" v-if="osType=='mac'"></div>
+
+    <div class="image-main-content" :class="{'image-main-content-mac':osType=='mac'}">
+        <div class="header">
+            <el-row class="header-row-one">
+                <div class="left">
+                    <h1 class="text">Strawberry</h1>
+                </div>
+                <div class="right">
+                    <i class="iconfont icon-wenjianjia" @click.stop="open_download_file"></i>
+                    <div class="header-set">
+                        <i class="iconfont icon-shezhi" @click.stop="setterShow=!setterShow"></i>
+                    </div>
+                </div>
+            </el-row>
+            <div class="header-search">
+                <el-input class="header-search-input" v-model="searchKey" placeholder="关键词[英文]" size="small" @focus="searchKeyFocus=true" @blur="searchKeyFocus=false"></el-input>
+                <i class="iconfont icon-sousuo" @click.stop="search_key_fn"></i>
             </div>
-            <div class="right">
-                <i class="iconfont icon-wenjianjia" @click.stop="open_download_file"></i>
-                <div class="header-set">
-                    <i class="iconfont icon-shezhi" @click.stop="setterShow=!setterShow"></i>
+            <sw-progress v-if="progress>0" :value="progress" :color="currentImageBacColor"></sw-progress>
+        </div>
+
+        <div class="content" :class="{'content-win':osType=='win'}" @scroll="content_scroll">
+            <div class="content-main" v-if="images.length>0">
+                <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" :style="{'backgroundColor':img.backgroundColor}" @mousemove.stop="currentMouseOverIndex=index,setterShow=false" @mouseleave.stop="currentMouseOverIndex=-1">
+                    <div class="image-item-img" v-imagematch="img.url">
+                    </div>
+                    <div class="image-set-wallpaper" v-show="currentMouseOverIndex==index&&isSetting==false" @click.stop="set_wallpaper(img,index)">
+                        <i class="iconfont icon-xianshiqi"></i>
+                        <span>设置壁纸</span>
+                    </div>
+
+                    <div class="image-item-flag" v-show="currentMouseOverIndex==index&&isSetting==false">
+                        <div class="image-item-flag-direction" v-show="img.directionColumn">
+                            <i class="iconfont icon-xiaoqing-tubiao-hengping"></i>
+                        </div>
+                        <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">
+                            {{img.tip}}
+                        </div>
+                    </div>
+
                 </div>
             </div>
-        </el-row>
-        <div class="header-search">
-            <el-input class="header-search-input" v-model="searchKey" placeholder="关键词[英文]" size="small" @focus="searchKeyFocus=true" @blur="searchKeyFocus=false"></el-input>
-            <i class="iconfont icon-sousuo" @click.stop="search_key_fn"></i>
+
+            <div class="content-main-no" v-else>
+                <span v-if="get_data_flag==true">美好的事情即将发生...</span>
+                <span v-else>暂时没有搜索到...</span>
+            </div>
+
         </div>
     </div>
 
-    <div class="content" :class="{'content-win':osType=='Windows_NT'}"  @scroll="content_scroll">
-        <div class="content-main" v-if="images.length>0">
-            <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" :style="{'backgroundColor':img.backgroundColor}" @mousemove.stop="currentMouseOverIndex=index,setterShow=false" @mouseleave.stop="currentMouseOverIndex=-1">
-                <div class="image-item-img" v-imagematch="img.url">
-                </div>
-                <div class="image-set-wallpaper" v-show="currentMouseOverIndex==index&&isSetting==false" @click.stop="set_wallpaper(img,index)">
-                    <i class="iconfont icon-xianshiqi"></i>
-                    <span>设置壁纸</span>
-                </div>
-
-                <div class="image-item-flag" v-show="currentMouseOverIndex==index&&isSetting==false">
-                    <div class="image-item-flag-direction" v-show="img.directionColumn">
-                        <i class="iconfont icon-xiaoqing-tubiao-hengping"></i>
-                    </div>
-                    <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">
-                        {{img.tip}}
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="content-main-no" v-else>
-            <span v-if="get_data_flag==true">美好的事情即将发生...</span>
-            <span v-else>暂时没有搜索到...</span>
-        </div>
-
-
-
-    </div>
 </div>
 </template>
 
@@ -68,6 +68,7 @@ const shell = require('electron').shell
 const os = require('os')
 
 import setter from './setter.vue'
+import swProgress from './progress.vue'
 import {
     request
 } from 'http';
@@ -75,11 +76,17 @@ import {
 import {
     mkdirSync
 } from '../../file/file.js'
-import { log } from 'util';
+import {
+    log
+} from 'util';
+import {
+    clearTimeout
+} from 'timers';
 export default {
     name: 'mainContent',
     components: {
-        setter
+        setter,
+        swProgress
     },
     data() {
         return {
@@ -91,16 +98,17 @@ export default {
             images: [],
             hava_data_flag: true, //标记是否还有数据
             page: 0, //请求数据的页数
-            get_data_flag: false,    //标记页面是否正在请求数据
+            get_data_flag: false, //标记页面是否正在请求数据
             searchKeyFocus: false,
-            osType:'Darwin',
-            image_source:'pexels',
-            sendnewEmailLoading:false,    //邮件发送loading
+            osType: 'mac',
+            image_source: 'pexels',
+            sendnewEmailLoading: false, //邮件发送loading
+            progress: 0,
+            currentImageBacColor: '#fff',
         }
     },
     beforeCreate() {
         vue = this;
-
     },
 
     mounted() {
@@ -109,9 +117,9 @@ export default {
 
         this.first_install();
 
+        this.osType = os.type() == 'Darwin' ? 'mac' : 'win';
 
-        this.image_source=this.$localStorage.getStore('userConfig').imageSource||'pexels';
-        this.osType=os.type();
+        this.image_source = this.$localStorage.getStore('userConfig').imageSource || 'pexels';
         Vue.$ipcRenderer.on('dataWallpaper', (event, arg) => {
             //设置一个时间记录最后更新的时间
             vue.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000))
@@ -136,6 +144,14 @@ export default {
                 } else {
                     this.setterShow = false;
                 }
+            } else if (arg.type == 'updaterProgress') {
+                this.progress = arg.data;
+                if (this.progress >= 100) {
+                    let time = setTimeout(() => {
+                        clearTimeout(time);
+                        this.progress = 0;
+                    }, 1000);
+                }
             }
         })
 
@@ -143,30 +159,28 @@ export default {
             console.log(arg);
             this.haveNewVersion(arg);
         })
-         Vue.$ipcRenderer.on('sendnewEmail',(event,data,emailType,error)=>{
-             console.log('llllllllll----------')
-             
-            if(emailType=='初次安装'){
-                this.sendnewEmailLoading=false;
-                if(data=='success'){
-                    this.$localStorage.setStore('first_install_flag','strawberrywallpaper');
+        Vue.$ipcRenderer.on('sendnewEmail', (event, data, emailType, error) => {
+            if (emailType == '初次安装') {
+                this.sendnewEmailLoading = false;
+                if (data == 'success') {
+                    this.$localStorage.setStore('first_install_flag', 'strawberrywallpaper');
                 }
             }
         })
 
-        Vue.$ipcRenderer.on('rendererConfirm',(event,data)=>{
+        Vue.$ipcRenderer.on('rendererConfirm', (event, data) => {
             console.log(data);
-              this.$confirm(data.content||'', data.title||'消息提醒', {
-                confirmButtonText:data.suerText||'确定',
-                cancelButtonText:data.cancelText||'取消',
-                type: data.type||'info'
+            this.$confirm(data.content || '', data.title || '消息提醒', {
+                confirmButtonText: data.suerText || '确定',
+                cancelButtonText: data.cancelText || '取消',
+                type: data.type || 'info'
             }).then(() => {
-                if(data.sureFn){
-                    Vue.$ipcRenderer.send('maincallback',data.sureFn,data.argument)
+                if (data.sureFn) {
+                    Vue.$ipcRenderer.send('maincallback', data.sureFn, data.argument)
                 }
             }).catch(() => {
-                if(data.cancelFn){
-                    Vue.$ipcRenderer.send('maincallback',data.sureFn,data.argument)                    
+                if (data.cancelFn) {
+                    Vue.$ipcRenderer.send('maincallback', data.sureFn, data.argument)
                 }
             });
         })
@@ -197,27 +211,26 @@ export default {
             }
         },
 
-        first_install(){
-            console.log('------------------llll-----------');
+        first_install() {
             //如果不是第一次安装，发一封邮件
-            if(this.$localStorage.getStore('first_install_flag')!='strawberrywallpaper'){
-                if(this.sendnewEmailLoading==true){
+            if (this.$localStorage.getStore('first_install_flag') != 'strawberrywallpaper') {
+                if (this.sendnewEmailLoading == true) {
                     return;
                 }
-                let user_info=os.userInfo();
-                let date=new Date();
-                let html=`<h1>快来看啊！！！软件又有人安装了</h1><p>用户系统:<b>${os.type()}--${os.release()}--${os.hostname()}</b></p><p>用户名:<b>${user_info.username}</b></p><p>Uid:<b>${user_info.uid}</b></p><p>Homedir:<b>${user_info.homedir}</b></p><p>当前时间:<b>${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}</b></p>`;
-                this.sendnewEmailLoading=true;
+                let user_info = os.userInfo();
+                let date = new Date();
+                let html = `<h1>快来看啊！！！软件又有人安装了</h1><p>用户系统:<b>${os.type()}--${os.release()}--${os.hostname()}</b></p><p>用户名:<b>${user_info.username}</b></p><p>Uid:<b>${user_info.uid}</b></p><p>Homedir:<b>${user_info.homedir}</b></p><p>当前时间:<b>${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}</b></p>`;
+                this.sendnewEmailLoading = true;
                 this.$ipcRenderer.send('btn', {
                     type: 'newEmail',
                     data: {
-                        html:html,
-                        telUser:"【软件初次安装】",
-                        emailType:'初次安装'
+                        html: html,
+                        telUser: "【软件初次安装】",
+                        emailType: '初次安装'
                     }
                 });
             }
-            return;            
+            return;
         },
 
         randomColor() {
@@ -226,17 +239,18 @@ export default {
         /*** 设置壁纸按钮 */
         set_wallpaper(img, index) {
             this.isSetting = true;
-            this.setterShow=false;
+            this.setterShow = false;
             if (!this.$refs['image_item_' + index][0]) {
                 return;
             }
             this.$fbloading.open(this.$refs['image_item_' + index][0]);
             Vue.$ipcRenderer.send('dataWallpaper', img);
             this.currentWallpaperIndex = index;
+            this.currentImageBacColor = this.images[index].backgroundColor;
         },
         open_download_file() {
             // shell.showItemInFolder(os.homedir()+'/Downloads/');
-            mkdirSync(os.homedir() + '/Downloads/wallpaper');    //判断是否有文件夹
+            mkdirSync(os.homedir() + '/Downloads/wallpaper'); //判断是否有文件夹
             shell.openItem(os.homedir() + '/Downloads/wallpaper');
         },
         image_tip(width, height) {
@@ -254,7 +268,7 @@ export default {
             return width >= height ? false : true;
         },
 
-        content_mouse(val){
+        content_mouse(val) {
             // this.setterShow=val;
         },
 
@@ -292,10 +306,10 @@ export default {
             this.images = [];
             this.get_data();
         },
-        image_source_change(val){
-            this.image_source=val;
-            this.page=0;
-            this.images=[];
+        image_source_change(val) {
+            this.image_source = val;
+            this.page = 0;
+            this.images = [];
             this.get_data();
         },
 
@@ -336,7 +350,7 @@ export default {
             let obj = {
                 searchKey: this.searchKey,
                 page: this.page,
-                imageSource:this.image_source
+                imageSource: this.image_source
             }
             Vue.$ipcRenderer.send('getImageUrls', obj);
         },
@@ -358,14 +372,54 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.image-main-content {
+    border-radius: 6px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    transform: rotate(0deg);
+}
+
+.sanjiao {
+    width: 100%;
+    height: 10px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    background-color: transparent;
+}
+
+.sanjiao::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-width: 0 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent rgb(37, 33, 33);
+    /*透明 透明  灰*/
+}
+
+.setter-content {
+    top: 44px;
+}
+
+.setter-content-mac {
+    top: 54px;
+}
+
+.image-main-content-mac {
+    height: calc(100% - 10px);
+}
+
 .main-content {
     // padding-top: 30px;
     width: 100%;
     height: 100%;
     overflow: hidden;
-    border-radius: 5px;
     box-sizing: border-box;
     position: relative;
+
+    background-color: transparent;
 
     // background-color: red;
     .header {
@@ -376,7 +430,6 @@ export default {
         padding-left: 20px;
         padding-right: 20px;
         background-color: rgba(34, 34, 34, 0.9);
-        /* opacity: 0.9; */
         overflow: hidden;
 
         .header-row-one {
@@ -421,8 +474,6 @@ export default {
             position: relative;
         }
 
-        .setter-content {}
-
         .header-search {
             width: 100%;
             display: flex;
@@ -455,12 +506,12 @@ export default {
     }
 
     .image-item-img-first {
-        margin-top: 96px;
+        margin-top: 95px;
     }
 
     .content {
         width: calc(~'100% + 15px');
-        height: 600px;
+        height: 100%;
         overflow-x: hidden;
         overflow-y: scroll;
         padding: 1px;
@@ -474,7 +525,7 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #fff;
+            border-bottom: 1px solid #bbb;
 
             .image-item-img {
                 width: 100%;
@@ -552,11 +603,9 @@ export default {
         }
 
     }
-    .content-win{
+
+    .content-win {
         width: calc(~'100% + 17px');
-        .image-item{
-            // height: 240px;
-        }
     }
 
     .content-main-no {

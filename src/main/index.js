@@ -42,9 +42,12 @@ const {
 
 const utils = require('../utils/utils.js');
 const {
-  log,
   isDev
 } = require('../utils/utils.js');
+
+const log = require("electron-log");
+log.transports.file.level = "info";
+
 
 
 //托盘对象
@@ -62,29 +65,52 @@ const mainCallBack = {
 ipcMainInit();
 autoUpdaterInit();
 
-if (utils.isMac()) {
-  app.dock.hide();
+/*** 创建程序锁，保证只能打开单个实例 */
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (!mainWindow.isVisible()){
+        mainWindow_show();
+      }
+      mainWindow.focus();
+    }
+  })
+
+  if (utils.isMac()) {
+    app.dock.hide();
+  }
+  app.on('ready', function () {
+    setTimeout(() => {
+      if (!isDev()) {
+        autoUpdater.logger = log;
+        autoUpdater.autoDownload = false;
+        checkUpdater();
+      }
+      app_init();
+    }, 10)
+
+  })
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  })
+
+  app.on('activate', () => {
+    if (mainWindow === null) {
+      app_init();
+    } else {
+      mainWindow_show();
+    }
+  })
 }
-app.on('ready', function () {
-  if (!isDev()) {
-    autoUpdater.logger = log;
-    autoUpdater.autoDownload = false;
-    checkUpdater();
-  }
-  app_init();
-})
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-})
 
-app.on('activate', () => {
-  // if (mainWindow === null) {
-  //   app_init();
-  // }
-})
 
 function createWindow() {
   /**
@@ -92,23 +118,19 @@ function createWindow() {
    */
   mainWindow = new BrowserWindow({
     height: 600,
-    useContentSize: true,
+    // useContentSize: true,
     width: 300,
     // width: 800,
     frame: false,
-    show: false,
     transparent: true,
-    resizable: false, //禁止变化尺寸
-    hasShadow: false, //是否阴影
-    thickFrame: false,
-    scrollBounce: true,
-    backgroundColor: '#222',
+    show: false,
     alwaysOnTop: true,
+    resizable: false, //禁止变化尺寸
+    hasShadow: true, //是否阴影
     focusable: true,
     fullscreenable: false,
     skipTaskbar: true,
-    hasShadow: true,
-    vibrancy: 'medium-light',
+    titleBarStyle: 'customButtonsOnHover' 
   })
 
   // mainWindow.openDevTools();
@@ -139,34 +161,31 @@ function createAppTray() {
 
 
   //系统托盘图标目录
-  appTray.on('click', () => {
+  appTray.on('click', (event, bounds, position) => {
+    log.info(event, bounds, position);
     // mainWindow === null ? createWindow() : mainWindow.close();
     // return;
     // 点击时显示窗口，并修改窗口的显示位置
-
-
     try {
       if (mainWindow.isVisible()) {
         mainWindow.webContents.send('datainfo', {
           type: 'windowShow',
           data: false
         })
-        setTimeout(() => {
-          mainWindow.hide();
-        })
+        mainWindow_hide();
       } else {
         mainWindow.webContents.send('datainfo', {
           type: 'windowShow',
           data: true
         })
-        mainWindow.show();
-        setMainWinPosition(mainWindow);
+        mainWindow_show();
+        setMainWinPosition(mainWindow, bounds);
       }
     } catch (error) {
       log.error(error);
     }
 
-    function setMainWinPosition(win) {
+    function setMainWinPosition(win, trayBounds) {
       try {
         const {
           screen
@@ -185,8 +204,10 @@ function createAppTray() {
         // 这目前判断多屏都是横着拼的多屏,
         for (let i = 0; i < screens.length; i++) {
           screenWidth += screens[i].workAreaSize.width;
-          // screenHeight+=screens[i].workAreaSize.height;
         }
+
+        cursorPosition.x = trayBounds.x + trayBounds.width / 2;
+
         var parallel_type = cursorPosition.x < screenWidth / 2 ? 'left' : 'right';
         var vertica_type = cursorPosition.y < currentScreen.workAreaSize.height / 2 ? 'top' : 'bottom';
 
@@ -204,11 +225,10 @@ function createAppTray() {
         var winPositionY = 1;
 
 
-        log.info(currentScreen.workAreaSize.height, currentScreen.size.height);
 
         if (trayPositionType == 'top') {
           winPositionX = Math.max(Math.min(screenWidth - win_width, cursorPosition.x - (win_width / 2)), 1);
-          winPositionY = trayPositionSize;
+          winPositionY = trayBounds.width + trayBounds.y + 2;
         } else if (trayPositionType == 'bottom') {
           winPositionX = Math.max(Math.min(screenWidth - win_width, cursorPosition.x - (win_width / 2)), 1);
           winPositionY = currentScreen.size.height - trayPositionSize - win_height;
@@ -219,6 +239,8 @@ function createAppTray() {
           winPositionX = screenWidth - trayPositionSize - win_width;
           winPositionY = Math.max(Math.min(currentScreen.size.height - win_height, cursorPosition.y - (win_height / 2)), 1);
         }
+
+        log.info(currentScreen, winPositionX, winPositionY, cursorPosition, screenWidth);
 
         win.setPosition(winPositionX, winPositionY);
       } catch (error) {
@@ -240,14 +262,40 @@ function createAppTray() {
 
 
 function app_init() {
-  if(mainWindow==null){
+  if (mainWindow == null) {
     createWindow(); //创建主窗口
-  }else{
-    mainWindow.show();
+  } else {
+    mainWindow_show();
   }
-  if(appTray==null){
+  if (appTray == null) {
     createAppTray(); //创建系统托盘    
   }
+}
+
+function mainWindow_show() {
+  let opacity = 0;
+  mainWindow.show();
+  let time = setInterval(() => {
+    if (opacity >= 1) {
+      opacity = 1;
+      clearInterval(time);
+    }
+    mainWindow.setOpacity(opacity);
+    opacity = parseFloat((opacity + 0.1).toFixed(1));
+  }, 30)
+}
+
+function mainWindow_hide() {
+  let opacity = 1;
+  let time = setInterval(() => {
+    if (opacity <= 0) {
+      opacity = 0.0;
+      clearInterval(time);
+      mainWindow.hide();
+    }
+    mainWindow.setOpacity(opacity);
+    opacity = parseFloat((opacity - 0.1).toFixed(1));
+  }, 30)
 }
 
 
@@ -261,12 +309,12 @@ function ipcMainInit() {
 
 
   ipcMain.on('dataWallpaper', (event, arg) => {
-    downloadPic(arg.downloadUrl).then((result)=>{
+    downloadPic(arg.downloadUrl,mainWindow).then((result) => {
       console.log(result);
       setOnCurrentSpace(result);
       event.sender.send('dataWallpaper', 'success');
       log.info('设置壁纸成功');
-    }).catch(error=>{
+    }).catch(error => {
       log.error(error);
     })
   })
@@ -302,15 +350,13 @@ function ipcMainInit() {
     } else if (data.type == 'newEmail') {
       newEmail(data.data.html, data.data.telUser, {
         version: autoUpdater.currentVersion,
-        emailType:data.data.emailType
+        emailType: data.data.emailType
       }).then(result => {
-        event.sender.send('sendnewEmail', 'success',data.data.emailType);
+        event.sender.send('sendnewEmail', 'success', data.data.emailType);
       }).catch(error => {
-        event.sender.send('sendnewEmail', 'error',data.data.emailType,error);
+        event.sender.send('sendnewEmail', 'error', data.data.emailType, error);
       })
-    } 
-    
-    else if (data.type == 'check_newVersion') {
+    } else if (data.type == 'check_newVersion') {
       checkUpdater();
     }
   })
@@ -346,7 +392,7 @@ function autoUpdaterInit() {
       buttons: ['关闭'],
       title: '版本更新',
       message: `版本更新检测出错`,
-      detail: '可能是网路不好火灾版本Bug,请提交意见反馈',
+      detail: '可能是网路不好或者版本Bug,请提交意见反馈',
       icon: path.resolve(__static, './img/banben.png')
     });
   });
