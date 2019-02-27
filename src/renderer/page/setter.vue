@@ -1,5 +1,7 @@
 <template>
-<div class="setter" @mouseout.stop.prevent="mouseout_fn(false)" @mouseenter.stop.prevent="mouseout_fn(true)">
+<div class="setter" 
+@mouseout.stop.prevent="mouseout_fn(false)" 
+@mouseenter.stop.prevent="mouseout_fn(true)">
     <div class="setter-sanjiao"></div>
     <div class="setter-bk"></div>
     <div class="setter-content" >
@@ -177,7 +179,7 @@ export default {
     height: 230px;
     position: absolute;
     right: 10px;
-    top: 44px;
+    
     z-index: 4000;
     // padding: 20px;
     // color: #fff;
