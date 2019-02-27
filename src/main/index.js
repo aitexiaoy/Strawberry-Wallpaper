@@ -128,9 +128,15 @@ function createWindow() {
 function createAppTray() {
   if (utils.isMac()) {
     appTray = new Tray(path.resolve(__static, './img/tray.png'));
+
+
+    log.info(app.dock.isVisible());
+
   } else if (utils.isWin()) {
     appTray = new Tray(path.resolve(__static, './img/tray.ico'));
   }
+
+
 
   //系统托盘图标目录
   appTray.on('click', () => {
@@ -295,13 +301,16 @@ function ipcMainInit() {
       }
     } else if (data.type == 'newEmail') {
       newEmail(data.data.html, data.data.telUser, {
-        version: autoUpdater.currentVersion
+        version: autoUpdater.currentVersion,
+        emailType:data.data.emailType
       }).then(result => {
-        event.sender.send('sendnewEmail', 'success');
+        event.sender.send('sendnewEmail', 'success',data.data.emailType);
       }).catch(error => {
-        event.sender.send('sendnewEmail', 'error', error);
+        event.sender.send('sendnewEmail', 'error',data.data.emailType,error);
       })
-    } else if (data.type == 'check_newVersion') {
+    } 
+    
+    else if (data.type == 'check_newVersion') {
       checkUpdater();
     }
   })
