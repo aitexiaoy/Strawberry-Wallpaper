@@ -25,8 +25,10 @@ export default {
         }
     },
     mounted() {
-        Vue.$ipcRenderer.on('sendnewEmail',(event,data,error)=>{
+        Vue.$ipcRenderer.on('sendnewEmail',(event,data,emailType,error)=>{
             this.loading=false;
+            if(emailType!=='意见反馈')
+                return;
             if(data==='success'){
                 this.$alert('意见反馈成功，感谢你宝贵的意见', '反馈结果', {
                     confirmButtonText: '关闭',
@@ -78,7 +80,8 @@ export default {
                 type: 'newEmail',
                 data: {
                     html:html,
-                    telUser:this.telUser
+                    telUser:`[联系方式:${this.telUser}]` ,
+                    emailType:'意见反馈'
                 }
             });
         }

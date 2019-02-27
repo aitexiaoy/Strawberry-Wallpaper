@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 export function newEmail(html,telUser,appInfo){
     return new Promise((resolve,reject)=>{
 
-        console.log(email_username,email_password)
+        // console.log(email_username,email_password)
         nodemailer.createTestAccount((err) => {
             // create reusable transporter object using the default SMTP transport
             let transporter = nodemailer.createTransport({
@@ -27,7 +27,7 @@ export function newEmail(html,telUser,appInfo){
             let mailOptions = {
                 from: 'strawberrypaper@163.com', // sender address
                 to: 'taoacat@163.com', // list of receivers
-                subject:  `【意见反馈:草莓壁纸】[${appInfo.version}][联系方式:${telUser}]`, // Subject line
+                subject:  `【${appInfo.emailType}:草莓壁纸】[${appInfo.version}]${telUser}`, // Subject line
                 text: '', // plain text body
                 html: html
             };

@@ -53,6 +53,8 @@
             <span v-else>暂时没有搜索到...</span>
         </div>
 
+
+
     </div>
 </div>
 </template>
@@ -73,6 +75,7 @@ import {
 import {
     mkdirSync
 } from '../../file/file.js'
+import { log } from 'util';
 export default {
     name: 'mainContent',
     components: {
@@ -92,13 +95,21 @@ export default {
             searchKeyFocus: false,
             osType:'Darwin',
             image_source:'pexels',
+            sendnewEmailLoading:false,    //邮件发送loading
         }
     },
     beforeCreate() {
         vue = this;
+
     },
 
     mounted() {
+
+        //安装量的统计
+
+        this.first_install();
+
+
         this.image_source=this.$localStorage.getStore('userConfig').imageSource||'pexels';
         this.osType=os.type();
         Vue.$ipcRenderer.on('dataWallpaper', (event, arg) => {
@@ -132,6 +143,16 @@ export default {
             console.log(arg);
             this.haveNewVersion(arg);
         })
+         Vue.$ipcRenderer.on('sendnewEmail',(event,data,emailType,error)=>{
+             console.log('llllllllll----------')
+             
+            if(emailType=='初次安装'){
+                this.sendnewEmailLoading=false;
+                if(data=='success'){
+                    this.$localStorage.setStore('first_install_flag','strawberrywallpaper');
+                }
+            }
+        })
 
         Vue.$ipcRenderer.on('rendererConfirm',(event,data)=>{
             console.log(data);
@@ -164,7 +185,8 @@ export default {
         //30s执行一次
         window.setInterval(() => {
             this.wallpaperAuto();
-        }, 3000);
+            this.first_install();
+        }, 6000);
     },
 
     methods: {
@@ -174,6 +196,30 @@ export default {
                 this.search_key_fn();
             }
         },
+
+        first_install(){
+            console.log('------------------llll-----------');
+            //如果不是第一次安装，发一封邮件
+            if(this.$localStorage.getStore('first_install_flag')!='strawberrywallpaper'){
+                if(this.sendnewEmailLoading==true){
+                    return;
+                }
+                let user_info=os.userInfo();
+                let date=new Date();
+                let html=`<h1>快来看啊！！！软件又有人安装了</h1><p>用户系统:<b>${os.type()}--${os.release()}--${os.hostname()}</b></p><p>用户名:<b>${user_info.username}</b></p><p>Uid:<b>${user_info.uid}</b></p><p>Homedir:<b>${user_info.homedir}</b></p><p>当前时间:<b>${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}</b></p>`;
+                this.sendnewEmailLoading=true;
+                this.$ipcRenderer.send('btn', {
+                    type: 'newEmail',
+                    data: {
+                        html:html,
+                        telUser:"【软件初次安装】",
+                        emailType:'初次安装'
+                    }
+                });
+            }
+            return;            
+        },
+
         randomColor() {
             return '#' + Math.floor(Math.random() * 0xffffff).toString(16);
         },

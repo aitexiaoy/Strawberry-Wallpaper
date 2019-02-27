@@ -9,3 +9,4 @@ npm-debug.log.*
 thumbs.db
 .user-config.json
 !.gitkeep
+.vscode
