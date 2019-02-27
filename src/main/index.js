@@ -66,23 +66,49 @@ ipcMainInit();
 autoUpdaterInit();
 
 /*** 创建程序锁，保证只能打开单个实例 */
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // Someone tried to run a second instance, we should focus our window.
-    if (mainWindow) {
-      if (!mainWindow.isVisible()){
+if (utils.isWin()) {
+  const gotTheLock = app.requestSingleInstanceLock();
+  if (!gotTheLock) {
+    app.quit();
+  } else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+      // Someone tried to run a second instance, we should focus our window.
+      if (mainWindow) {
+        if (!mainWindow.isVisible()) {
+          mainWindow_show();
+        }
+        mainWindow.focus();
+      }
+    })
+
+    app.on('ready', function () {
+      setTimeout(() => {
+        if (!isDev()) {
+          autoUpdater.logger = log;
+          autoUpdater.autoDownload = false;
+          checkUpdater();
+        }
+        app_init();
+      }, 10)
+
+    })
+
+    app.on('window-all-closed', () => {
+      if (process.platform !== 'darwin') {
+        app.quit();
+      }
+    })
+
+    app.on('activate', () => {
+      if (mainWindow === null) {
+        app_init();
+      } else {
         mainWindow_show();
       }
-      mainWindow.focus();
-    }
-  })
-
-  if (utils.isMac()) {
-    app.dock.hide();
+    })
   }
+} else if (utils.isMac()) {
+  app.dock.hide();
   app.on('ready', function () {
     setTimeout(() => {
       if (!isDev()) {
@@ -108,7 +134,10 @@ if (!gotTheLock) {
       mainWindow_show();
     }
   })
+
 }
+
+
 
 
 
@@ -130,7 +159,7 @@ function createWindow() {
     focusable: true,
     fullscreenable: false,
     skipTaskbar: true,
-    titleBarStyle: 'customButtonsOnHover' 
+    titleBarStyle: 'customButtonsOnHover'
   })
 
   // mainWindow.openDevTools();
@@ -309,7 +338,7 @@ function ipcMainInit() {
 
 
   ipcMain.on('dataWallpaper', (event, arg) => {
-    downloadPic(arg.downloadUrl,mainWindow).then((result) => {
+    downloadPic(arg.downloadUrl, mainWindow).then((result) => {
       console.log(result);
       setOnCurrentSpace(result);
       event.sender.send('dataWallpaper', 'success');
