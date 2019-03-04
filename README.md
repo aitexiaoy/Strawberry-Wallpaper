@@ -97,7 +97,7 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 
 ## LICENSE
 
-Apache License 2.0
+MIT
 
 ## 点👍
 
