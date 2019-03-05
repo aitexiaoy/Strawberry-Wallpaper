@@ -55,7 +55,7 @@ export const get_image = async function (data) {
     }
     let base_url = 'https://api.500px.com/v1/photos';
     let params = {
-      image_size: [100,200,2048,4096,5120,6144,7168],
+      image_size: [100,200,400,600,2048,4096,5120,6144,7168],
       page: data.page,
       rpp: 50, //单页条数
       formats: "jpeg"
@@ -98,7 +98,9 @@ export const get_image = async function (data) {
           let images=item.images;
           let max_size=0;
           for(let i=0;i<images.length;i++){
-            if(images[i].size>=100||images[i].size<500){
+            if(images[i].size>=200&&images[i].size<=700){
+                // console.log(images[i].size)
+                // console.log(images[i].https_url)
                 obj.url=images[i].https_url;
             }
             if(images[i].size>max_size){

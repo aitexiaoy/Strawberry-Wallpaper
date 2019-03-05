@@ -56,6 +56,10 @@
         </div>
     </div>
 
+    <div class="refresh-btn" :class="{'refresh-btn-ing':refresh_btn_ing}">
+        <i class="iconfont icon-shuaxin" @click="refresh_fn"></i>
+    </div>
+
 </div>
 </template>
 
@@ -105,6 +109,7 @@ export default {
             sendnewEmailLoading: false, //邮件发送loading
             progress: 0,
             currentImageBacColor: '#fff',
+            refresh_btn_ing:false,
         }
     },
     beforeCreate() {
@@ -130,6 +135,7 @@ export default {
         Vue.$ipcRenderer.on('datainfo', (event, arg) => {
             if (arg.type == 'urls') {
                 this.get_data_flag = false;
+                this.refresh_btn_ing=false;
                 if (arg.data.length == 0) {
                     this.hava_data_flag = false;
                     return;
@@ -137,7 +143,7 @@ export default {
                 if (this.page == 0) {
                     this.images = [];
                 }
-                vue.get_urls(arg.data);
+                vue.get_url_list(arg.data);
             } else if (arg.type == 'windowShow') {
                 if (arg.data) {
                     this.setterShow = false;
@@ -168,33 +174,10 @@ export default {
             }
         })
 
-        Vue.$ipcRenderer.on('rendererConfirm', (event, data) => {
-            console.log(data);
-            this.$confirm(data.content || '', data.title || '消息提醒', {
-                confirmButtonText: data.suerText || '确定',
-                cancelButtonText: data.cancelText || '取消',
-                type: data.type || 'info'
-            }).then(() => {
-                if (data.sureFn) {
-                    Vue.$ipcRenderer.send('maincallback', data.sureFn, data.argument)
-                }
-            }).catch(() => {
-                if (data.cancelFn) {
-                    Vue.$ipcRenderer.send('maincallback', data.sureFn, data.argument)
-                }
-            });
-        })
-
         this.searchKey = this.$localStorage.getStore('searchKey');
 
         vue.images = [];
         this.get_data();
-
-        // if (this.$localStorage.getStore('aa')) {
-        //     vue.images = [];
-        //     let urls = this.$localStorage.getStore('aa');
-        //     this.urls_deal(urls);
-        // }
 
         //30s执行一次
         window.setInterval(() => {
@@ -268,6 +251,22 @@ export default {
             return width >= height ? false : true;
         },
 
+        //刷新
+        refresh_fn(){
+            if(this.refresh_btn_ing==false){
+                this.destroy_all();
+                vue.images = [];
+                this.get_data();
+            }
+            this.refresh_btn_ing=true;
+        },
+
+        //中断所有的请求
+        destroy_all(){
+
+        },
+
+
         content_mouse(val) {
             // this.setterShow=val;
         },
@@ -313,9 +312,8 @@ export default {
             this.get_data();
         },
 
-        get_urls(urls) {
+        get_url_list(urls) {
             this.urls_deal(urls);
-            // this.$localStorage.setStore('aa', vue.images);
         },
         /*** 对获取到的地址进行处理 */
         urls_deal(urls) {
@@ -334,11 +332,11 @@ export default {
             });
         },
 
-        /*** 滚动条事件 */
+        /*** 滚动条事件,请求下一页 */
         content_scroll(event) {
             let el = event.srcElement || event.target;
             if (this.hava_data_flag == true && this.get_data_flag == false) {
-                if (el.scrollTop + 900 > el.querySelector('.content-main').clientHeight) {
+                if (el.scrollTop + 1800 > el.querySelector('.content-main').clientHeight) {
                     this.page = this.page + 1;
                     this.get_data();
                 }
@@ -368,6 +366,7 @@ export default {
             });
         }
     },
+
 }
 </script>
 
@@ -618,9 +617,35 @@ export default {
         font-size: 12px;
     }
 }
+.refresh-btn{
+    position: fixed;
+    z-index: 999;
+    left: 16px;
+    bottom: 16px;
+    color: #fff;
+    .iconfont{
+        font-size: 24px;
+    }
+}
+.refresh-btn-ing{
+    animation: refreshbtning 1.5s linear infinite;
+    transform-origin: center center;
+    transform: rotate(360deg);
+}
+@keyframes refreshbtning {
+    0%{
+        transform: rotate(360deg)
+    }
+    100%{
+        transform: rotate(0)
+    }
+}
 </style>
 
 <style lang="less">
+
+
+
 .main-content {
     .el-input__inner {
         border: none;

@@ -339,11 +339,12 @@ function ipcMainInit() {
 
   ipcMain.on('dataWallpaper', (event, arg) => {
     downloadPic(arg.downloadUrl, mainWindow).then((result) => {
-      console.log(result);
+      log.info(result);
       setOnCurrentSpace(result);
       event.sender.send('dataWallpaper', 'success');
       log.info('设置壁纸成功');
     }).catch(error => {
+      log.error('设置壁纸失败');
       log.error(error);
     })
   })
