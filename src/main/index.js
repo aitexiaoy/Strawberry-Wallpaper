@@ -23,11 +23,13 @@ const {
 } = require('../file/open-start.js')
 
 const {
-  downloadPic
+  downloadPic,
+  cancelDownloadPic
 } = require('../file/file.js');
 
 const {
-  get_urls
+  get_urls,
+  cancel_urls
 } = require('../get-image/search.js')
 
 const {
@@ -334,6 +336,12 @@ function ipcMainInit() {
     if (typeof mainCallBack[data] != 'undefined') {
       mainCallBack[data](argument);
     }
+  })
+
+  //取消所有请求
+  ipcMain.on('cancelAllRequest', (event, data) => {
+    cancelDownloadPic();
+    cancel_urls();
   })
 
 
