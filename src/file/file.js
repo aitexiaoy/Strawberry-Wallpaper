@@ -124,7 +124,7 @@ export function mkdirSync(dirname) {
 // }
 
 
-
+var myRequest=null;
 
 /** 从指定连接下图片 */
 export const downloadPic = async function (src, mainWindow) {
@@ -147,7 +147,7 @@ export const downloadPic = async function (src, mainWindow) {
     var writeStream = fs.createWriteStream(dstpath, {
       autoClose: true
     });
-    var readStream = request({
+    myRequest = request({
       url: src,
       headers: {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -158,13 +158,15 @@ export const downloadPic = async function (src, mainWindow) {
         'Connection': 'keep-alive'
       }
     })
-    readStream.pipe(writeStream);
-    readStream.on('response', (data) => {
+    myRequest.pipe(writeStream);
+
+    // cancelDownloadPic();
+
+    myRequest.on('response', (data) => {
       // 更新总文件字节大小
       totalBytes = parseInt(data.headers['content-length'], 10);
     });
-
-    readStream.on('data', (chunk) => {
+    myRequest.on('data', (chunk) => {
       // 更新下载的文件块字节大小
       receivedBytes += chunk.length;
       console.log((receivedBytes / totalBytes) * 100);
@@ -174,34 +176,58 @@ export const downloadPic = async function (src, mainWindow) {
       })
     });
 
-    readStream.on('finish', function () {
+    myRequest.on('finish', function () {
+      myRequest=null;
       console.log('文件下载成功');
     });
-    readStream.on('error', function (err) {
+    myRequest.on('error', function (err) {
       console.log("错误信息:" + err);
       reject();
     })
     writeStream.on("finish", function () {
       console.log("文件写入成功");
       writeStream.end();
-      if (isWebp) {
-        webp.dwebp(dstpath, dstpath.replace('webp', 'jpg'), "-o", function (status, error) {
-          //if conversion successful status will be '100'
-          //if conversion fails status will be '101'
-          console.log(status, error);
-          fs.unlink(dstpath, (err) => {
-            if (err) throw err;
-            console.log('文件已删除');
+      myRequest=null;
+      if(receivedBytes==totalBytes){
+        if (isWebp) {
+          webp.dwebp(dstpath, dstpath.replace('webp', 'jpg'), "-o", function (status, error) {
+            //if conversion successful status will be '100'
+            //if conversion fails status will be '101'
+            console.log(status, error);
+            fs.unlink(dstpath, (err) => {
+              if (err) throw err;
+              console.log('文件已删除');
+            });
+            resolve(dstpath.replace('webp', 'jpg'))
           });
-          resolve(dstpath.replace('webp', 'jpg'))
+        } else {
+          resolve(dstpath);
+        }
+      }
+      else{
+        fs.unlink(dstpath, (err) => {
+          if (err) throw err;
+          console.log('文件已删除');
         });
-      } else {
-        resolve(dstpath);
+        mainWindow.webContents.send('datainfo', {
+          type: 'updaterProgress',
+          data: 0
+        })
+        reject();
       }
     });
   })
 }
 
+
+export const cancelDownloadPic=function(){
+  return new Promise((resolve,reject)=>{
+    if(myRequest){
+      myRequest.abort();
+    }
+    resolve();
+  })
+}
 
 // module.exports.downloadPic=downloadPic;
 // downloadPic('https://drscdn.500px.org/photo/296097989/m%3D4096/v2?webp=true&sig=5d2e79b4d23c12db748593a3bfab28988e3f2cf91cde79d21e9ec4cbe3cf22d2')
