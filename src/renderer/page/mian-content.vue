@@ -140,14 +140,10 @@ export default {
 
     this.osType = os.type() == "Darwin" ? "mac" : "win";
 
-    this.image_source =
-      this.$localStorage.getStore("userConfig").imageSource || "pexels";
+    this.image_source =this.$localStorage.getStore("userConfig").imageSource || "pexels";
     Vue.$ipcRenderer.on("dataWallpaper", (event, arg) => {
       //设置一个时间记录最后更新的时间
-      vue.$localStorage.setStore(
-        "lastUpdataTime",
-        parseInt(new Date().getTime() / 1000)
-      );
+      vue.$localStorage.setStore("lastUpdataTime",parseInt(new Date().getTime() / 1000));
       vue.isSetting = false;
       vue.$fbloading.close();
     });
@@ -220,10 +216,7 @@ export default {
 
     first_install() {
       //如果不是第一次安装，发一封邮件
-      if (
-        this.$localStorage.getStore("first_install_flag") !=
-        "strawberrywallpaper"
-      ) {
+      if (this.$localStorage.getStore("first_install_flag") !="strawberrywallpaper") {
         if (this.sendnewEmailLoading == true) {
           return;
         }
@@ -293,7 +286,12 @@ export default {
         this.image_urls = [];
         this.get_data();
       }
+      this.isSetting = false;
       this.refresh_btn_ing = true;
+      //设置一个时间记录最后更新的时间
+      vue.$localStorage.setStore("lastUpdataTime",parseInt(new Date().getTime() / 1000));
+      vue.isSetting = false;
+      vue.$fbloading.close();
     },
 
     //中断所有的请求
