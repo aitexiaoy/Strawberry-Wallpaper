@@ -276,6 +276,7 @@ export default {
         return "4k";
       } else {
         return "2k";
+        
       }
     },
 
@@ -343,7 +344,7 @@ export default {
         return;
       }
       this.$localStorage.setStore("searchKey", this.searchKey);
-      destroy_all();
+      this.destroy_all();
       this.page = 0;
       this.images = [];
       this.image_urls = [];
