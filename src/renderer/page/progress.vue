@@ -7,23 +7,24 @@
 </template>
 
 <script>
-    export default {
-        name:'progress',
-        props:{
-            value:{
-                type:Number,
-                default:0
-            },
-            color:{
-                type:String,
-                default:'#fff'
-            },
-            width:{
-                type:String,
-                default:'300px'
-            }
+export default {
+    name: 'progress',
+    props: {
+        value: {
+            type: Number,
+            default: 0
+        },
+        color: {
+            type: String,
+            default: '#fff'
+        },
+        width: {
+            type: String,
+            default: '300px'
         }
     }
+}
+
 </script>
 
 <style scoped lang='less'>

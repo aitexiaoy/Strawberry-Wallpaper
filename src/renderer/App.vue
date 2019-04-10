@@ -6,12 +6,12 @@
 
 <script>
 
-  export default {
+export default {
     name: 'wallpaper-mac',
     methods: {
       
     }
-  }
+}
 </script>
 
 <style lang='less'>

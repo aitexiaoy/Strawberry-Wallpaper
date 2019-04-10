@@ -1,18 +1,24 @@
-var AutoLaunch = require('auto-launch');
+/*
+ * @Description: 设置开机启动
+ * @Author: yangpeng
+ * @Date: 2019-02-19 10:51:01
+ * @LastEditTime: 2019-04-09 09:48:22
+ */
 
-var minecraftAutoLauncher = new AutoLaunch({
+const AutoLaunch = require('auto-launch')
+
+const minecraftAutoLauncher = new AutoLaunch({
     name: 'Strawberry Wallpaper',
-    // path: '/Applications/Strawberry Wallpaper.app',
-});
+})
  
-export const open_autoStart=function(){
-   return minecraftAutoLauncher.enable();   //设置开机自动启动
+export const openAutoStart = function (){
+    return minecraftAutoLauncher.enable() // 设置开机自动启动
 }
 
-export const open_disStart=function(){
-  return minecraftAutoLauncher.disable();   //禁止开机自动启动
+export const openDisStart = function (){
+    return minecraftAutoLauncher.disable() // 禁止开机自动启动
 }
 
-export const open_type=async function(){
-  return await minecraftAutoLauncher.isEnabled();
+export const openType = async function (){
+    await minecraftAutoLauncher.isEnabled()
 }

@@ -1,48 +1,32 @@
+let type = ''
 
-var new_urls=[];   //新的urls
-var used_urls=[];   //已经使用过的url
-
-var type='';
-
-const get_image_pexels=require('./pexels.js').get_image
-const cancel_image_pexels=require('./pexels.js').cancel_image
-
-const get_image_500px=require('./500px.js').get_image
-const cancel_image_500px=require('./500px.js').cancel_image
-
-
-var cancel_fn={
-  'pexels':cancel_image_pexels,
-  '500px':cancel_image_500px
+const cancelFn = {
+    pexels: require('./pexels.js').cancelImage,
+    '500px': require('./500px.js').cancelImage,
+    paper: require('./paper.js').cancelImage
 }
 
-export const get_urls=function(data){
-  return new Promise((resolve,reject)=>{
-    if(data.imageSource=='pexels'){
-      type='pexels';
-      get_image_pexels(data).then(urls=>{
-        resolve(urls);
-      }).catch(error=>{
-        reject(error)
-      }).finally(_=>{
-        type='';
-      })
-    }
-    else if(data.imageSource=='500px'){
-      type='500px';
-      get_image_500px(data).then(urls=>{
-        resolve(urls)
-      }).catch(error=>{
-        reject(error)
-      }).finally(_=>{
-        type='';
-      })
-    }
-  })
+const getUrl = {
+    pexels: require('./pexels.js').getImage,
+    '500px': require('./500px.js').getImage,
+    paper: require('./paper.js').getImage
 }
 
-export const cancel_urls=function(){
-  if(type!=''){
-    cancel_fn[type]();
-  }
+export const getUrls = function (data) {
+    return new Promise((resolve, reject) => {
+        type = data.imageSource
+        getUrl[type](data).then((urls) => {
+            resolve(urls)
+        }).catch((error) => {
+            reject(error)
+        }).finally(() => {
+            type = ''
+        })
+    })
+}
+
+export const cancelUrls = function () {
+    if (type !== '') {
+        cancelFn[type]()
+    }
 }

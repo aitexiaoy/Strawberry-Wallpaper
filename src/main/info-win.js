@@ -1,36 +1,33 @@
-import {BrowserWindow,screen} from 'electron'
-const {base_url} =require('../utils/utils.js')
+const electron = require('electron')
 
+const { BrowserWindow } = electron
+const { baseUrl } = require('../utils/utils.js')
 
-const winURL = base_url+'#/suggestion'
+const winURL = `${baseUrl}#/suggestion`
 
-var childrenWin=null;
-
+let childrenWin = null;
 
 /**
  * 设置窗口居中
  */
-function infoWinCenter(screen,win){
-  let winWidth=win.getSize()[0];
-  let winHeight=win.getSize()[1];
-  let screens=screen.getAllDisplays();
-  let currentScreen=screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-  let width=0;
-  for(let i=0;i<screens.length;i++){
-    if(screens[i].id!==currentScreen.id){
-      width=width+screens[i].workAreaSize.width;
-    }else{
-      break;
+// eslint-disable-next-line no-shadow
+function infoWinCenter(screen, win){
+    const winWidth = win.getSize()[0];
+    const winHeight = win.getSize()[1];
+    const screens = screen.getAllDisplays();
+    const currentScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    let width = 0;
+    for (let i = 0; i < screens.length; i++){
+        if (screens[i].id !== currentScreen.id){
+            width += screens[i].workAreaSize.width;
+        } else {
+            break;
+        }
     }
-  }
-
-  console.log(width,screens,currentScreen,winWidth,winHeight);
-
-  return {
-    x:parseInt(width+((currentScreen.workAreaSize.width-winWidth)/2)),
-    y:parseInt((currentScreen.workAreaSize.height-winHeight)/2)
-  }
-
+    return {
+        x: parseInt(width + ((currentScreen.workAreaSize.width - winWidth) / 2), 10),
+        y: parseInt((currentScreen.workAreaSize.height - winHeight) / 2, 10)
+    }
 }
 
 
@@ -39,51 +36,41 @@ export function createChildrenWindow() {
      * Initial window options
      */
     childrenWin = new BrowserWindow({
-      height: 500,
-      useContentSize: true,
-      // width: 280,
-      width: 800,
-    //   frame: false,
-    //   transparent: true,
-      resizable:false,     //禁止变化尺寸
-      hasShadow: false, //是否阴影
-      thickFrame: false,
-      scrollBounce: true,
-      backgroundColor: '#222',
-    //   alwaysOnTop:true,
-      focusable:true,
-      fullscreenable:false,
-      skipTaskbar:true,
-      hasShadow:true,
-      vibrancy:'medium-light',
+        height: 500,
+        useContentSize: true,
+        width: 800,
+        resizable: false, // 禁止变化尺寸
+        hasShadow: false, // 是否阴影
+        thickFrame: false,
+        scrollBounce: true,
+        backgroundColor: '#222',
+        focusable: true,
+        fullscreenable: false,
+        skipTaskbar: true,
+        vibrancy: 'medium-light',
     })
   
     childrenWin.loadURL(winURL)
-
-    // childrenWin.openDevTools();
-  
     childrenWin.on('closed', () => {
-      childrenWin = null;
+        childrenWin = null;
     })
-  }
-
+}
   
 
 export function hideChildrenWindow(){
-    if(childrenWin&&childrenWin.isVisible()){
+    if (childrenWin && childrenWin.isVisible()){
         childrenWin.close();
     }
 }
 
 export function showChildrenWinndow(){
-    if(childrenWin==null){
+    if (childrenWin == null){
         createChildrenWindow();
-        let position=infoWinCenter(screen,childrenWin);
-        console.log(position);
-        childrenWin.setPosition(position.x,position.y);
+        const { screen } = electron
+        const position = infoWinCenter(screen, childrenWin);
+        childrenWin.setPosition(position.x, position.y);
     }
     // if(childrenWin&&!childrenWin.isVisible()){
     //     childrenWin.show();
     // }
 }
-
