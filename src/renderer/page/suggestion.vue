@@ -13,46 +13,45 @@
 </template>
 
 <script>
-import wangEditor from 'wangeditor'
+import WangEditor from 'wangeditor'
 
 export default {
     name: 'suggestion',
     data() {
         return {
             editer: null,
-            telUser:'',
-            loading:false,
+            telUser: '',
+            loading: false,
         }
     },
     mounted() {
-        Vue.$ipcRenderer.on('sendnewEmail',(event,data,emailType,error)=>{
-            this.loading=false;
-            if(emailType!=='意见反馈')
-                return;
-            if(data==='success'){
+        this.$ipcRenderer.on('sendnewEmail', (event, data, emailType, error) => {
+            this.loading = false;
+            if (emailType !== '意见反馈') { return; }
+            if (data === 'success'){
                 this.$alert('意见反馈成功，感谢你宝贵的意见', '反馈结果', {
                     confirmButtonText: '关闭',
-                    callback: action => {
-                        Vue.$ipcRenderer.send('btn', {
-                        type: 'openChildren',
-                        data:false,
-                    });
+                    callback: (action) => {
+                        this.$ipcRenderer.send('btn', {
+                            type: 'openChildren',
+                            data: false,
+                        });
                     }
                 });
-            }else{
+            } else {
                 this.$alert(error, '反馈结果', {
                     confirmButtonText: '关闭',
-                    callback: action => {
-                        Vue.$ipcRenderer.send('btn', {
-                        type: 'openChildren',
-                        data:false,
-                    });
+                    callback: (action) => {
+                        this.$ipcRenderer.send('btn', {
+                            type: 'openChildren',
+                            data: false,
+                        });
                     }
                 });
             }
         })
         this.$nextTick(() => {
-            this.editer = new wangEditor(this.$refs.editer)
+            this.editer = new WangEditor(this.$refs.editer)
             this.editer.customConfig.colors = [
                 '#000000',
                 '#eeece0',
@@ -70,23 +69,24 @@ export default {
     },
     methods: {
         sure_post(){
-            let html=this.editer.txt.html();
-            if(html=='<p data-v-6327ab11="" style="color: rgb(204, 204, 204);">非常感谢你提出宝贵的意见...</p><p><br></p>'){
+            const html = this.editer.txt.html();
+            if (html === '<p data-v-6327ab11="" style="color: rgb(204, 204, 204);">非常感谢你提出宝贵的意见...</p><p><br></p>'){
                 this.$message.warning('请填写宝贵意见再提交');
                 return;
             }
-            this.loading=true;
-            Vue.$ipcRenderer.send('btn', {
+            this.loading = true;
+            this.$ipcRenderer.send('btn', {
                 type: 'newEmail',
                 data: {
-                    html:html,
-                    telUser:`[联系方式:${this.telUser}]` ,
-                    emailType:'意见反馈'
+                    html,
+                    telUser: `[联系方式:${this.telUser}]`,
+                    emailType: '意见反馈'
                 }
             });
         }
     },
 }
+
 </script>
 
 <style scoped lang='less'>

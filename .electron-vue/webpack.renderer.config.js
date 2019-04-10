@@ -12,6 +12,10 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 
+function resolve (dir) {
+  return path.join(__dirname, '..', dir)
+}
+
 /**
  * List of node_modules to include in webpack bundle
  *
@@ -21,7 +25,7 @@ const { VueLoaderPlugin } = require('vue-loader')
  */
 // let whiteListedModules = ['vue']
 
-let whiteListedModules = ['vue' , 'vue-router', 'axios', 'vuex', 'vue-electron']
+let whiteListedModules = ['vue', 'vue-router', 'axios', 'vuex', 'vue-electron']
 
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
@@ -32,8 +36,7 @@ let rendererConfig = {
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
   ],
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.scss$/,
         use: ['vue-style-loader', 'css-loader', 'sass-loader']
       },
@@ -61,6 +64,16 @@ let rendererConfig = {
       {
         test: /\.node$/,
         use: 'node-loader'
+      },
+      {
+        test: /\.(js|vue)$/,
+        loader: 'eslint-loader',
+        enforce: 'pre',
+        include: [resolve('src')],
+        options: {
+          formatter: require('eslint-friendly-formatter'),
+          emitWarning: true
+        }
       },
       {
         test: /\.vue$/,
@@ -112,7 +125,9 @@ let rendererConfig = {
   },
   plugins: [
     new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({filename: 'styles.css'}),
+    new MiniCssExtractPlugin({
+      filename: 'styles.css'
+    }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -121,9 +136,9 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
-      nodeModules: process.env.NODE_ENV !== 'production'
-        ? path.resolve(__dirname, '../node_modules')
-        : false
+      nodeModules: process.env.NODE_ENV !== 'production' ?
+        path.resolve(__dirname, '../node_modules') :
+        false
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin()
@@ -137,7 +152,7 @@ let rendererConfig = {
     alias: {
       '@': path.join(__dirname, '../src/renderer'),
       'vue$': 'vue/dist/vue.esm.js',
-      'static':path.join(__dirname,'../static')
+      'static': path.join(__dirname, '../static')
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
   },
@@ -163,13 +178,11 @@ if (process.env.NODE_ENV === 'production') {
 
   rendererConfig.plugins.push(
     // new BabiliWebpackPlugin(),
-    new CopyWebpackPlugin([
-      {
-        from: path.join(__dirname, '../static'),
-        to: path.join(__dirname, '../dist/electron/static'),
-        ignore: ['.*']
-      }
-    ]),
+    new CopyWebpackPlugin([{
+      from: path.join(__dirname, '../static'),
+      to: path.join(__dirname, '../dist/electron/static'),
+      ignore: ['.*']
+    }]),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
     }),
