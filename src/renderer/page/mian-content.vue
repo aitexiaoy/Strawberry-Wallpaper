@@ -440,6 +440,7 @@ export default {
                 page: this.page,
                 imageSource: this.image_source
             }
+            console.log('===============')
             this.$ipcRenderer.send('getImageUrls', obj)
         },
     },

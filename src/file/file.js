@@ -78,6 +78,7 @@ export const downloadPic = async function (src, mainWindow) {
         myRequest.on('data', (chunk) => {
             // 更新下载的文件块字节大小
             receivedBytes += chunk.length
+            console.log(receivedBytes / totalBytes)
             mainWindow.webContents.send('datainfo', {
                 type: 'updaterProgress',
                 data: parseFloat(((receivedBytes / totalBytes) * 100))
