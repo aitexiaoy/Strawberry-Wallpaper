@@ -11,7 +11,6 @@ const { emailUserName, emailPassword } = require('../../.user-config.json')
 // eslint-disable-next-line import/prefer-default-export
 export function newEmail(html, telUser, appInfo){
     return new Promise((resolve, reject) => {
-        // eslint-disable-next-line no-unused-vars
         nodemailer.createTestAccount((err) => {
             // 建立一个邮箱连接
             const transporter = nodemailer.createTransport({
