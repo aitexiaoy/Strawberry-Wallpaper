@@ -40,6 +40,7 @@ function getHtmlPage(data) {
             csrToken = $('meta[name="csrf-token"]')[0].attribs.content
             resolve()
         }).catch((error) => {
+            console.log(error)
             reject(error)
         })
     })
@@ -100,8 +101,6 @@ export const getImage = async function (data) {
                 let maxSize = 0
                 for (let i = 0; i < images.length; i++) {
                     if (images[i].size >= 200 && images[i].size <= 700) {
-                        // console.log(images[i].size)
-                        // console.log(images[i].https_url)
                         obj.url = images[i].https_url
                     }
                     if (images[i].size > maxSize) {

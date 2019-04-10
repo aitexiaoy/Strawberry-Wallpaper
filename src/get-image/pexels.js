@@ -6,9 +6,10 @@ const axios = require('axios')
 const { browserHeader } = require('../utils/config')
 
 const { CancelToken } = axios
-let source = null
 
 const { axiosGet } = require('../utils/axios.js')
+
+let source = null
 
 export const getImage = function (data) {
     return new Promise((resolve, reject) => {
@@ -43,39 +44,33 @@ export const getImage = function (data) {
                 return
             }
             for (let i = 0; i < arr.length; i++) {
-                // console.log(arr[i])
+                const widthReg = /data-image-width=\\.*?\\/i
+                const heightReg = /data-image-height=\\.*?\\/i
+                const urlReg = /data-large-src=\\.*?\\/i
                 const src = arr[i].match(srcReg)
+                const width = arr[i].match(widthReg)
+                const height = arr[i].match(heightReg)
+                const url = arr[i].match(urlReg)
                 // 获取图片地址
-                if (src) {
+                if (src && width && height && url) {
                     // 把图片地址提取出来
                     const aa = /\\.*?\?/i
                     let result = src[0].match(aa)
                     result = result[0].replace(/"/g, '').replace(/\\/g, '').replace(/\?/, '')
-                    const widthReg = /data-image-width=\\.*?\\/i
-                    const heightReg = /data-image-height=\\.*?\\/i
-                    const urlReg = /data-large-src=\\.*?\\/i
-                    const width = arr[i].match(widthReg)
-                    const height = arr[i].match(heightReg)
-                    const url = arr[i].match(urlReg)
                     const obj = {
-                        width: width[0] 
-                            ? width[0].replace(/data-image-width=/g, '').replace(/"/g, '').replace(/\\/g, '') : '',
-                        height: height[0] 
-                            ? height[0].replace(/data-image-height=/g, '').replace(/"/g, '').replace(/\\/g, '') : '',
-                        url: url[0] 
-                            ? url[0].replace(/data-large-src=/g, '').replace(/"/g, '').replace(/\\/g, '') : '',
+                        width: width[0].replace(/data-image-width=/g, '').replace(/"/g, '').replace(/\\/g, ''),
+                        height: height[0].replace(/data-image-height=/g, '').replace(/"/g, '').replace(/\\/g, ''),
+                        url: url[0].replace(/data-large-src=/g, '').replace(/"/g, '').replace(/\\/g, ''),
                         downloadUrl: result,
                     }
-
+                    // 剔除重复的地址
                     if (tempUrls.indexOf(obj.url) === -1) {
                         tempUrls.push(obj.url)
                         urls.push(obj)
                     }
                 }
-                // 当然你也可以替换src属性
             }
             resolve(urls)
-            // downloadUrl(urls)
         }).catch((err) => {
             source = null
             console.log(err)
