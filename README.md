@@ -97,10 +97,13 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 > v0.0.8
 - 修改搜索不能搜索的Bug
 
-> v1.0
+> v1.0.0
 - 修改mac下的图标颜色
 - 增加pap.er壁纸库
 - 增加自动设置壁纸的超时取消
+- 增加eslint对代码进行了格式上的更改
+- 增加设置壁纸失败的处理
+- 修改pexels在某些情况下的Bug
 
 ## 待开发功能
 

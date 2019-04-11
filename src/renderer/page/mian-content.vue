@@ -1,7 +1,7 @@
 <template>
 <div class="main-content" @keydown.enter="keydownEnterFn">
     <el-collapse-transition>
-        <setter class="setter-content" :class="{'setter-content-mac':osType=='mac'}" v-show="setterShow" @imageSourceChange="imageSourceChange"  :get_data_flag="get_data_flag"></setter>
+        <setter class="setter-content" :class="{'setter-content-mac':osType=='mac'}" v-show="setterShow" @imageSourceChange="imageSourceChange"  :getDataFlag="getDataFlag"></setter>
     </el-collapse-transition>
     <!-- mac下显示三角 -->
     <div class="sanjiao" v-if="osType=='mac'"></div>
@@ -20,7 +20,7 @@
                 </div>
             </el-row>
 
-            <div class="header-search" v-if="image_source==='paper'">
+            <div class="header-search" v-if="imageSource==='paper'">
                 <el-select class="header-search-input" v-model="searchKey" size="small" @change="searchKeyFn" @focus="searchKeyFocus=true" @blur="searchKeyFocus=false">
                     <el-option label="最新" :value="'latest'"></el-option>
                     <el-option label="最热" :value="'popular'"></el-option>
@@ -35,7 +35,7 @@
             <sw-progress v-if="progress>0" :value="progress" :color="currentImageBacColor"></sw-progress>
         </div>
 
-        <div class="content" :class="{'content-win':osType=='win'}" @scroll="content_scroll">
+        <div class="content" :class="{'content-win':osType=='win'}" @scroll="contentScroll">
             <div class="content-main" v-if="images.length>0">
                 <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" :style="{'backgroundColor':img.backgroundColor}" @mousemove.stop="currentMouseOverIndex=index,setterShow=false" @mouseleave.stop="currentMouseOverIndex=-1">
                     <div class="image-item-img" v-imagematch="img.url"></div>
@@ -54,13 +54,13 @@
             </div>
 
             <div class="content-main-no" v-else @mousemove.stop="setterShow=false">
-                <span v-if="get_data_flag==true">美好的事情即将发生...</span>
+                <span v-if="getDataFlag==true">美好的事情即将发生...</span>
                 <span v-else>暂时没有搜索到...</span>
             </div>
         </div>
     </div>
 
-    <div class="refresh-btn" :class="{'refresh-btn-ing':refresh_btn_ing}">
+    <div class="refresh-btn" :class="{'refresh-btn-ing':refreshBtnIng}">
         <i class="iconfont icon-shuaxin" @click="refreshFn"></i>
     </div>
 </div>
@@ -71,13 +71,9 @@
 import setter from './setter.vue'
 import swProgress from './progress.vue'
 
-const {
-    shell
-} = require('electron')
+const { shell } = require('electron')
 const os = require('os')
-const {
-    mkdirSync
-} = require('../../file/file.js')
+const { mkdirSync } = require('../../file/file.js')
 
 export default {
     name: 'mainContent',
@@ -93,17 +89,17 @@ export default {
             setterShow: false,
             isSetting: false,
             images: [],
-            image_urls: [],
-            hava_data_flag: true, // 标记是否还有数据
+            imageUrls: [],
+            havaDataFlag: true, // 标记是否还有数据
             page: 0, // 请求数据的页数
-            get_data_flag: false, // 标记页面是否正在请求数据
+            getDataFlag: false, // 标记页面是否正在请求数据
             searchKeyFocus: false,
             osType: 'mac',
-            image_source: 'pexels',
+            imageSource: 'pexels',
             sendnewEmailLoading: false, // 邮件发送loading
             progress: 0,
             currentImageBacColor: '#fff',
-            refresh_btn_ing: false,
+            refreshBtnIng: false,
         }
     },
     beforeCreate() {
@@ -114,10 +110,10 @@ export default {
         // 安装量的统计
         this.firstInstall()
         this.osType = os.type() === 'Darwin' ? 'mac' : 'win'
-        this.image_source = this.$localStorage.getStore('userConfig').imageSource || 'pexels'
+        this.imageSource = this.$localStorage.getStore('userConfig').imageSource || 'pexels'
         this.searchKey = this.$localStorage.getStore('searchKey')
         this.images = []
-        this.image_urls = []
+        this.imageUrls = []
         this.getData()
         this.eventInit()
         this.timeInit()
@@ -131,24 +127,25 @@ export default {
         eventInit() {
             this.$ipcRenderer.on('dataWallpaper', (event, arg) => {
                 // 设置一个时间记录最后更新的时间
-                if (event === 'success') {
-                    this.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000, 10))
+                if (arg === 'success') {
+                    this.currentWallpaperIndex = this.currentWallpaperIndex+1
                 }
+                this.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000, 10))
                 this.isSetting = false
                 this.$fbloading.close()
             })
 
             this.$ipcRenderer.on('datainfo', (event, arg) => {
                 if (arg.type === 'urls') {
-                    this.get_data_flag = false
-                    this.refresh_btn_ing = false
+                    this.getDataFlag = false
+                    this.refreshBtnIng = false
                     if (arg.data.length === 0) {
-                        this.hava_data_flag = false
+                        this.havaDataFlag = false
                         return
                     }
                     if (this.page === 0) {
                         this.images = []
-                        this.image_urls = []
+                        this.imageUrls = []
                     }
                     this.urlsDeal(arg.data)
                 } else if (arg.type === 'windowShow') {
@@ -255,7 +252,6 @@ export default {
             }
             this.$fbloading.open(this.$refs[`image_item_${index}`][0])
             this.$ipcRenderer.send('dataWallpaper', img)
-            this.currentWallpaperIndex = index
             this.currentImageBacColor = this.images[index].backgroundColor
         },
 
@@ -299,15 +295,15 @@ export default {
          * @function refreshFn
          */
         refreshFn() {
-            if (this.refresh_btn_ing === false) {
+            if (this.refreshBtnIng === false) {
                 this.destroyAll()
                 this.page = 0
                 this.images = []
-                this.image_urls = []
+                this.imageUrls = []
                 this.getData()
             }
             this.isSetting = false
-            this.refresh_btn_ing = true
+            this.refreshBtnIng = true
             // 设置一个时间记录最后更新的时间
             this.$localStorage.setStore(
                 'lastUpdataTime',
@@ -336,7 +332,7 @@ export default {
             if (this.isSetting === true || this.images.length === 0) {
                 return
             }
-            if (this.hava_data_flag && this.currentWallpaperIndex === this.images.length - 5) {
+            if (this.havaDataFlag && this.currentWallpaperIndex === this.images.length - 5) {
                 this.page = this.page + 1
                 this.getData()
             }
@@ -369,7 +365,7 @@ export default {
             this.destroyAll()
             this.page = 0
             this.images = []
-            this.image_urls = []
+            this.imageUrls = []
             this.getData()
         },
         
@@ -379,10 +375,10 @@ export default {
          */
         imageSourceChange(val) {
             this.destroyAll()
-            this.image_source = val
+            this.imageSource = val
             this.page = 0
             this.images = []
-            this.image_urls = []
+            this.imageUrls = []
             window.setTimeout(() => {
                 this.getData()
             }, 100)
@@ -394,7 +390,7 @@ export default {
          */
         urlsDeal(urls) {
             urls.forEach((e) => {
-                if (this.image_urls.indexOf(e.url) === -1) {
+                if (this.imageUrls.indexOf(e.url) === -1) {
                     const obj = {
                         url: e.url,
                         name: '',
@@ -405,7 +401,7 @@ export default {
                         height: e.height,
                         backgroundColor: this.randomColor()
                     }
-                    this.image_urls.push(e.url)
+                    this.imageUrls.push(e.url)
                     this.images.push(obj)
                 }
             })
@@ -413,12 +409,12 @@ export default {
 
         /**
          * 滚动条事件,请求下一页
-         * @function content_scroll
+         * @function contentScroll
          * @param {Object} event 事件
          */
-        content_scroll(event) {
+        contentScroll(event) {
             const el = event.srcElement || event.target
-            if (this.hava_data_flag === true && this.get_data_flag === false) {
+            if (this.havaDataFlag === true && this.getDataFlag === false) {
                 if (
                     el.scrollTop + 1800 >
                     el.querySelector('.content-main').clientHeight
@@ -434,18 +430,17 @@ export default {
          * @function getData
          */
         getData() {
-            this.get_data_flag = true
+            this.getDataFlag = true
             const obj = {
                 searchKey: this.searchKey,
                 page: this.page,
-                imageSource: this.image_source
+                imageSource: this.imageSource
             }
-            console.log('===============')
             this.$ipcRenderer.send('getImageUrls', obj)
         },
     },
     watch: {
-        image_source(val) {
+        imageSource(val) {
             if (val === 'paper') {
                 this.searchKey = 'latest'
             } else {
