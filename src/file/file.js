@@ -98,7 +98,7 @@ export const downloadPic = async function (src, mainWindow) {
                 if (isWebp) {
                     webp.dwebp(dstpath, dstpath.replace('webp', 'jpg'), '-o', (status) => {
                         // status 101->fails || 100->successful
-                        if (status === 100){
+                        if (status === '100'){
                             fs.unlink(dstpath, (err) => {
                                 if (err) throw err
                                 console.log('文件已删除')
