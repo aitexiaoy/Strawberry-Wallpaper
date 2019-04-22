@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>strawberrywallpaper - a wallpaper app by electron</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+  <link rel="stylesheet" href="//unpkg.com/vuep/dist/vuep.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="icon" type="image/x-icon" class="js-site-favicon" href="./image/favicon.ico">
+  <!-- 引入element样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+
+  <style>
+    .sidebar-nav-parent-li {
+      position: relative;
+    }
+
+    .sidebar-nav {
+      padding-right: 10px;
+    }
+
+    .sidebar-nav .ul-after {
+      content: '';
+      width: 10px;
+      height: 30px;
+      /* background: red; */
+      position: absolute;
+      right: 10px;
+      top: 0px;
+      display: flex;
+      align-items: center;
+    }
+
+    .ul-after-sanjiao {
+      width: 0;
+      height: 0;
+      border-left: 8px solid #cecece;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      transition: transform 0.3s;
+      position: relative;
+
+    }
+
+    .ul-after-sanjiao::after {
+      content: '';
+      width: 0;
+      height: 0;
+      position: absolute;
+      top: -8px;
+      left: -11px;
+      border-left: 8px solid #fff;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+    }
+
+    .ul-after-sanjiao:hover {
+      border-left: 8px solid #42b983;
+    }
+
+    .sidebar-nav-parent-li-shouqi .ul-after-sanjiao {
+      transform: rotate(90deg);
+      transition: transform 0.3s;
+    }
+
+    .return-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 100%;
+      background: #d8d7d7;
+      display: flex;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .return-top-div {
+      margin-left: 5px;
+      width: 40px;
+      height: 40px;
+      margin-top: 5px;
+      font-size: 14px;
+      color: #5f5959;
+      line-height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+    }
+
+    .return-top:hover {
+      background: #42b983;
+    }
+
+    .return-top:hover .return-top-div {
+      font-size: 18px;
+      color: #fff;
+    }
+  </style>
+
+
+</head>
+
+<body>
+
+  <nav></nav>
+  <div id="app">loading...</div>
+
+  <!-- vue文件在线编辑 -->
+  <script src="//unpkg.com/vue/dist/vue.min.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <!-- 引入组件库 -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+  <script src="//unpkg.com/docsify-demo-box-vue/dist/docsify-demo-box-vue.min.js"></script>
+  <!-- 在线编辑运行Vue的插件 -->
+  <script src="//unpkg.com/vuep/dist/vuep.min.js"></script>
+
+
+
+  <script>
+    // 引入docsify-demo-box-vue
+    var jsResources = '<scr' + 'ipt src="//unpkg.com/vue/dist/vue.js"></scr' + 'ipt>'
+    var cssResources = '@import url("//cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css");'
+    var bootCode = 'var globalVariable = "leon"'
+    var globalVariable = "leon"
+
+    window.$docsify = {
+      // name: 'strawberry wallpaper',
+      loadNavbar: true,
+      maxLevel: 6,
+      auto2top: true,
+      autoHeader: true,
+      loadSidebar: true,
+      subMaxLevel: 3,
+
+      // disqus: 'yangpeng',
+      // 搜索完整配置参数
+      search: {
+        placeholder: '请输入关键字',
+        noData: '暂无结果',
+        // 搜索标题的最大程级, 1 - 6
+        depth: 6
+      },
+
+      plugins: [
+        DemoBoxVue.create(jsResources, cssResources, bootCode),
+        function (hook) {
+          hook.doneEach(function () {
+
+            // let max_cengji = 2;    //默认展开层级深度
+            // //添加箭头
+            // $('.sidebar-nav').find('li').each(function (i, e) {
+            //   var el = e;
+            //   if (el.nextSibling && el.nextSibling.tagName == 'UL') {
+            //     $(el).addClass('sidebar-nav-parent-li').append(
+            //       "<div class='ul-after'><div class='ul-after-sanjiao'></div></div>");
+            //   }
+            // })
+
+            // //初始时候展开层级
+
+            // function find_children_li(dom, current_cengji) {
+            //   if (dom) {
+            //     current_cengji++;
+            //     $($(dom).find('li').each(function (i, e) {
+            //       var el = e;
+            //       if (el.nextSibling && el.nextSibling.tagName == 'UL') {
+            //         if (current_cengji >= max_cengji) {
+            //           $(el.nextSibling).hide();
+            //           $(el).addClass('sidebar-nav-parent-li-shouqi');
+            //         }
+            //         find_children_li(el.nextSibling, current_cengji);
+            //       }
+            //     }))
+            //   } else {
+            //     return
+            //   }
+            // }
+
+            // find_children_li($('.sidebar-nav')[0], 0);
+
+            // //绑定事件
+            // $('.ul-after-sanjiao').on('click', function (e) {
+            //   e.stopPropagation();
+            //   e.preventDefault();
+            //   var el = e.target.parentNode.parentNode.nextSibling;
+            //   if (el) {
+            //     $(el).toggle();
+            //     if ($(e.target.parentNode.parentNode).hasClass('sidebar-nav-parent-li-shouqi')) {
+            //       $(e.target.parentNode.parentNode).removeClass('sidebar-nav-parent-li-shouqi');
+            //     } else {
+            //       $(e.target.parentNode.parentNode).addClass('sidebar-nav-parent-li-shouqi');
+            //     }
+            //   }
+            // })
+
+
+            //回到顶部
+            let return_top = $('<div class="return-top"><div class="return-top-div">顶</div></div>')
+            $('html').append(return_top);
+            $(window).scroll(function () {
+              var scroll = $(window).scrollTop();
+              if (scroll > 1000) {
+                $(return_top).show();
+              } else {
+                $(return_top).hide();
+              }
+            })
+            return_top.on('click', function (e) {
+              $('html,body').animate({
+                scrollTop: 0
+              }, 500)
+            })
+          })
+        }
+      ]
+    }
+  </script>
+
+  <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+
+  <!-- 复制到剪切板 -->
+  <script src="https://unpkg.com/docsify-copy-code@2"></script>
+
+  <!-- 搜索 -->
+  <script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
+
+  <!-- 图片放大 -->
+  <script src="//unpkg.com/docsify/lib/plugins/zoom-image.js"></script>
+
+  <script src="//unpkg.com/docsify/lib/plugins/external-script.min.js"></script>
+ 
+  <!-- Disqus 评论系统-->
+  <!-- <script src="//unpkg.com/docsify/lib/plugins/disqus.min.js"></script> -->
+
+
+  <!-- 分页导航插件 -->
+  <!-- <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script> -->
+
+  <!-- 引入代码块的颜色支持 -->
+  <script src="//unpkg.com/prismjs/components/prism-bash.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-json.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-diff.min.js"></script>
+  <!-- <script src="//unpkg.com/docsify/lib/plugins/ga.min.js"></script> -->
+
+
+
+
+
+</body>
+
+</html>
