@@ -37,7 +37,9 @@
 
         <div class="content" :class="{'content-win':osType=='win'}" @scroll="contentScroll">
             <div class="content-main" v-if="images.length>0">
-                <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" :style="{'backgroundColor':img.backgroundColor}" @mousemove.stop="currentMouseOverIndex=index,setterShow=false" @mouseleave.stop="currentMouseOverIndex=-1">
+                <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" 
+                :style="{'backgroundColor':img.backgroundColor}" 
+                @mousemove.stop="currentMouseOverIndex=index,setterShow=false" @mouseleave.stop="currentMouseOverIndex=-1">
                     <div class="image-item-img" v-imagematch="img.url"></div>
                     <div class="image-set-wallpaper" v-show="currentMouseOverIndex==index&&isSetting==false" @click.stop="setWallpaper(img,index)">
                         <i class="iconfont icon-xianshiqi"></i>
@@ -48,7 +50,8 @@
                         <div class="image-item-flag-direction" v-show="img.directionColumn">
                             <i class="iconfont icon-xiaoqing-tubiao-hengping"></i>
                         </div>
-                        <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
+                        <div class="image-item-tip" 
+                        :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
                     </div>
                 </div>
             </div>
@@ -128,7 +131,7 @@ export default {
             this.$ipcRenderer.on('dataWallpaper', (event, arg) => {
                 // 设置一个时间记录最后更新的时间
                 if (arg === 'success') {
-                    this.currentWallpaperIndex = this.currentWallpaperIndex+1
+                    this.currentWallpaperIndex = this.currentWallpaperIndex + 1
                 }
                 this.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000, 10))
                 this.isSetting = false
@@ -183,11 +186,11 @@ export default {
          * @function timeInit
          */
         timeInit() {
-            // 30s执行一次
+            // 10s执行一次
             window.setInterval(() => {
                 this.wallpaperAuto()
                 this.firstInstall()
-            }, 6000)
+            }, 10000)
         },
 
         /**
@@ -370,7 +373,7 @@ export default {
         },
         
         /**
-         *  改变图片来源
+         * 改变图片来源
          * @function imageSourceChange
          */
         imageSourceChange(val) {
@@ -416,8 +419,7 @@ export default {
             const el = event.srcElement || event.target
             if (this.havaDataFlag === true && this.getDataFlag === false) {
                 if (
-                    el.scrollTop + 1800 >
-                    el.querySelector('.content-main').clientHeight
+                    el.scrollTop + 1800 > el.querySelector('.content-main').clientHeight
                 ) {
                     this.page = this.page + 1
                     this.getData()
