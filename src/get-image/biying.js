@@ -18,7 +18,6 @@ async function getPage(url) {
                 const urls = []
                 for (let index = 0; index < result.length; index++) {
                     const path = `https://cn.bing.com${result[index].url}`
-                    console.log(path)
                     urls.push(path)
                 }
           

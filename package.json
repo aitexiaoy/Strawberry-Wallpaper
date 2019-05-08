@@ -1,6 +1,6 @@
 {
   "name": "strawberrywallpaper",
-  "version": "v1.0.0",
+  "version": "v1.1.0",
   "author": "taoacat,流浪记",
   "description": "a wallpaper app by electron",
   "license": "",
@@ -17,7 +17,8 @@
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
-    "postinstall": ""
+    "postinstall": "",
+    "docs": "docsify serve docs"
   },
   "build": {
     "productName": "Strawberry Wallpaper",
@@ -90,9 +91,11 @@
     "html-webpack-plugin": "^3.2.0",
     "less": "^3.0.4",
     "less-loader": "^4.1.0",
+    "macos-release": "^2.2.0",
     "mini-css-extract-plugin": "0.4.0",
     "multispinner": "^0.2.1",
     "node-loader": "^0.6.0",
+    "os-name": "^3.1.0",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
@@ -114,6 +117,7 @@
     "element-ui": "^2.5.4",
     "fs": "^0.0.1-security",
     "jsdom": "^13.2.0",
+    "node-os-utils": "^1.0.7",
     "nodemailer": "^5.1.1",
     "path": "^0.12.7",
     "progress": "^2.0.3",

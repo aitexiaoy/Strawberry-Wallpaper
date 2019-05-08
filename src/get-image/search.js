@@ -3,13 +3,15 @@ let type = ''
 const cancelFn = {
     pexels: require('./pexels.js').cancelImage,
     '500px': require('./500px.js').cancelImage,
-    paper: require('./paper.js').cancelImage
+    paper: require('./paper.js').cancelImage,
+    unsplash: require('./unsplash.js').cancelImage
 }
 
 const getUrl = {
     pexels: require('./pexels.js').getImage,
     '500px': require('./500px.js').getImage,
-    paper: require('./paper.js').getImage
+    paper: require('./paper.js').getImage,
+    unsplash: require('./unsplash.js').getImage
 }
 
 export const getUrls = function (data) {

@@ -1,11 +1,15 @@
 <template>
 <div class="main-content" @keydown.enter="keydownEnterFn">
     <el-collapse-transition>
-        <setter class="setter-content" :class="{'setter-content-mac':osType=='mac'}" v-show="setterShow" @imageSourceChange="imageSourceChange"  :getDataFlag="getDataFlag"></setter>
+        <setter 
+        class="setter-content" 
+        :class="{'setter-content-mac':osType=='mac'}" 
+        v-show="setterShow" 
+        @imageSourceChange="imageSourceChange"  
+        :getDataFlag="getDataFlag"></setter>
     </el-collapse-transition>
     <!-- mac下显示三角 -->
     <div class="sanjiao" v-if="osType=='mac'"></div>
-
     <div class="image-main-content" :class="{'image-main-content-mac':osType=='mac'}">
         <div class="header">
             <el-row class="header-row-one">
@@ -71,12 +75,21 @@
 
 <script>
 // 在渲染器进程 (网页) 中。
+import { log } from 'util'
+import { mapState, mapActions } from 'vuex'
 import setter from './setter.vue'
 import swProgress from './progress.vue'
+import { version } from '../../../package'
 
 const { shell } = require('electron')
 const os = require('os')
+const osName = require('os-name')
+const macosRelease = require('macos-release')
+const windowsRelease = require('windows-release')
+const osu = require('node-os-utils')
 const { mkdirSync } = require('../../file/file.js')
+const md5 = require('../assets/js/md5.js').md5_32
+const { postRegister, getStatisticActive } = require('../../api/api.js')
 
 export default {
     name: 'mainContent',
@@ -87,7 +100,7 @@ export default {
     data() {
         return {
             currentMouseOverIndex: -1,
-            currentWallpaperIndex: 0,
+            currentWallpaperIndex: 0, // 当前壁纸的索引
             searchKey: '',
             setterShow: false,
             isSetting: false,
@@ -100,14 +113,18 @@ export default {
             osType: 'mac',
             imageSource: 'pexels',
             sendnewEmailLoading: false, // 邮件发送loading
-            progress: 0,
-            currentImageBacColor: '#fff',
+            progress: 0, // 进度值
+            currentImageBacColor: '#fff', 
             refreshBtnIng: false,
         }
     },
     beforeCreate() {
 
     },
+
+    computed: mapState({
+        config: state => state.main.config
+    }),
 
     mounted() {
         // 安装量的统计
@@ -119,15 +136,21 @@ export default {
         this.imageUrls = []
         this.getData()
         this.eventInit()
-        this.timeInit()
     },
 
     methods: {
+        ...mapActions([
+            'changeOsInfoStore', 
+        ]),
+
         /**
          * 主进程过来的消息事件注册
          * @function eventInit
          */
         eventInit() {
+            /**
+             * 设置壁纸完成事件
+             */
             this.$ipcRenderer.on('dataWallpaper', (event, arg) => {
                 // 设置一个时间记录最后更新的时间
                 if (arg === 'success') {
@@ -138,7 +161,45 @@ export default {
                 this.$fbloading.close()
             })
 
+            /**
+             * 定时器
+             */
+            this.$ipcRenderer.on('intervalTime', (event, arg) => {
+                this.wallpaperAuto()
+                this.firstInstall()
+                
+                getStatisticActive(this.$localStorage.getStore('osInfoUid'))
+
+                const nowDate = parseInt((new Date()).getTime() / 1000, 10)
+                const statisticTimeFlag = this.$localStorage.getStore('statisticTimeFlag')
+                if (!statisticTimeFlag){
+                    this.$localStorage.setStore('statisticTimeFlag', nowDate)
+                }
+                const timingWipeDataFlag = this.$localStorage.getStore('timingWipeDataFlag')
+                if (!timingWipeDataFlag){
+                    this.$localStorage.setStore('timingWipeDataFlag', nowDate)
+                }
+
+                // 2小时
+                if (statisticTimeFlag - nowDate >= 2 * 60 * 60){
+                    getStatisticActive(this.$localStorage.getStore('osInfoUid'))
+                    this.$localStorage.setStore('statisticTimeFlag', nowDate)
+                }
+                if (timingWipeDataFlag - nowDate >= 7 * 24 * 60 * 60){
+                    this.$localStorage.setStore('timingWipeDataFlag', nowDate)
+                    // 删除默认文件下的所有内容
+                    this.$ipcRenderer.send('btn', {
+                        type: 'deleteFile',
+                        data: this.config.downloadImagePath
+                    })
+                }
+            })
+
+            /**
+             * 数据相关事件
+             */
             this.$ipcRenderer.on('datainfo', (event, arg) => {
+                // 获得了接口列表
                 if (arg.type === 'urls') {
                     this.getDataFlag = false
                     this.refreshBtnIng = false
@@ -151,13 +212,17 @@ export default {
                         this.imageUrls = []
                     }
                     this.urlsDeal(arg.data)
-                } else if (arg.type === 'windowShow') {
+                } 
+                // 主窗口显示|隐藏
+                else if (arg.type === 'windowShow') {
                     if (arg.data) {
                         this.setterShow = false
                     } else {
                         this.setterShow = false
                     }
-                } else if (arg.type === 'updaterProgress') {
+                } 
+                // 更新进度条
+                else if (arg.type === 'updaterProgress') {
                     this.progress = arg.data
                     if (this.progress >= 100) {
                         const time = setTimeout(() => {
@@ -167,30 +232,6 @@ export default {
                     }
                 }
             })
-
-            this.$ipcRenderer.on('sendnewEmail', (event, data, emailType, error) => {
-                if (emailType === '初次安装') {
-                    this.sendnewEmailLoading = false
-                    if (data === 'success') {
-                        this.$localStorage.setStore(
-                            'first_install_flag',
-                            'strawberrywallpaper'
-                        )
-                    }
-                }
-            })
-        },
-
-        /**
-         * 定时器
-         * @function timeInit
-         */
-        timeInit() {
-            // 10s执行一次
-            window.setInterval(() => {
-                this.wallpaperAuto()
-                this.firstInstall()
-            }, 10000)
         },
 
         /**
@@ -208,27 +249,26 @@ export default {
          * @function firstInstall
          */
         firstInstall() {
-            // 如果不是第一次安装，发一封邮件
-            if (this.$localStorage.getStore('first_install_flag') !== 'strawberrywallpaper') {
-                if (this.sendnewEmailLoading === true) {
-                    return
-                }
-                const userInfo = os.userInfo()
-                const date = new Date()
-                const html = `<h1>快来看啊！！！软件又有人安装了</h1>
-                <p>用户系统:<b>${os.type()}--${os.release()}--${os.hostname()}</b></p>
-                <p>用户名:<b>${userInfo.username}</b></p>
-                <p>Uid:<b>${userInfo.uid}</b></p>
-                <p>Homedir:<b>${userInfo.homedir}</b></p>
-                <p>当前时间:<b>${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}</b></p>`
-                this.sendnewEmailLoading = true
-                this.$ipcRenderer.send('btn', {
-                    type: 'newEmail',
-                    data: {
-                        html,
-                        telUser: '【软件初次安装】',
-                        emailType: '初次安装'
+            // 第一次注册
+            if (this.$localStorage.getStore('first_install_flag_v1.1') !== 'strawberrywallpaper') {
+                Promise.all([osu.osCmd.whoami(), osu.os.oos(), osu.os.arch()]).then((result) => {
+                    const [userName, oss, arch] = result
+                    const time = (new Date()).getTime()
+                    const data = {
+                        os: this.osType, // 系统类型
+                        osVersion: oss, // 系统版本 'Mac OS X 10.14.4'
+                        userName: userName.replace('\n', ''), // 用户名
+                        version, // 软件版本
+                        resTime: time, // 注册时间
+                        uid: md5(`${userName}${oss}${arch}${time}`), // 软件唯一ID,
+                        arch: arch.match('64') ? '64' : '32', // 系统位数
                     }
+                    postRegister(data).then((res) => {
+                        this.changeOsInfoStore(data)
+                        this.$localStorage.setStore('osInfo', data)
+                        this.$localStorage.setStore('osInfoUid', data.uid)
+                        this.$localStorage.setStore('first_install_flag_v1.1', 'strawberrywallpaper')
+                    })
                 })
             }
         },
@@ -279,7 +319,7 @@ export default {
             if (val > 5120 * 2880) {
                 return '5k'
             }
-            if (val > 3840 * 2160) {
+            if (val > 4096 * 2160) {
                 return '4k'
             }
             return '2k'
@@ -308,10 +348,7 @@ export default {
             this.isSetting = false
             this.refreshBtnIng = true
             // 设置一个时间记录最后更新的时间
-            this.$localStorage.setStore(
-                'lastUpdataTime',
-                parseInt(new Date().getTime() / 1000, 10)
-            )
+            this.$localStorage.setStore('lastUpdataTime', parseInt(new Date().getTime() / 1000, 10))
             this.isSetting = false
             this.$fbloading.close()
         },
@@ -449,7 +486,7 @@ export default {
                 this.searchKey = ''
                 this.$localStorage.setStore('searchKey', this.searchKey)
             }
-        }
+        },
     }
 }
 </script>

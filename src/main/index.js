@@ -1,6 +1,7 @@
 const electron = require('electron')
 
 const { app, BrowserWindow, Tray, ipcMain, dialog } = electron
+const fs = require('fs')
 const path = require('path')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
@@ -29,6 +30,7 @@ const mainCallBack = {
 appOpenInit()
 ipcMainInit()
 autoUpdaterInit()
+setTimeIntervalInit()
 
 
 /**
@@ -112,6 +114,16 @@ function createWindow() {
         app.quit()
         mainWindow = null
     })
+}
+
+/**
+ * 设置定时器
+ */
+function setTimeIntervalInit(){
+    // 10s执行一次
+    setInterval(() => {
+        mainWindow.webContents.send('intervalTime')
+    }, 10000)
 }
 
 /**
@@ -274,8 +286,8 @@ function ipcMainInit() {
             event.sender.send('dataWallpaper', 'success')
             log.info('设置壁纸成功')
         }).catch((error) => {
-            log.error('设置壁纸失败')
             event.sender.send('dataWallpaper', 'error')
+            log.error('设置壁纸失败')
             log.error(error)
         })
     })
@@ -318,6 +330,24 @@ function ipcMainInit() {
             })
         } else if (data.type === 'check_newVersion') {
             checkUpdater()
+        }
+        else if (data.type === 'setDefaultDownPath'){
+            mainWindow.setAlwaysOnTop(false)
+            dialog.showOpenDialog({
+                properties: ['openDirectory', 'createDirectory', 'promptToCreate'], 
+                message: '选择要下载图片所在文件夹',
+                defaultPath: data.data },
+            (paths) => {
+                mainWindow.setAlwaysOnTop(true)
+                if (paths){
+                    // 清空原目录中的文件
+                    delPath(data.data)
+                    event.sender.send('defaultPath', paths[0])
+                }
+            }, mainWindow)
+        }
+        else if (data.type === 'deleteFile'){
+            delPath(data.data)
         }
     })
 }
@@ -401,4 +431,33 @@ function autoUpdaterInit() {
             data: progressObj.percent
         })
     })
+}
+
+/**
+ * 删除指定目录
+ * @param {String} filePath 
+ */
+function delPath(filePath){
+    if (!fs.existsSync(filePath)){
+        return '路径不存在'
+    }
+    const info = fs.statSync(filePath)
+    if (info.isDirectory()){ // 目录
+        const data = fs.readdirSync(filePath)
+        if (data.length > 0){
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].match('SW-')){
+                    delPath(`${filePath}/${data[i]}`) // 使用递归
+                    if (i === data.length - 1){ // 删了目录里的内容就删掉这个目录
+                        delPath(`${filePath}`)
+                    }
+                }
+            }
+        } else {
+            fs.rmdirSync(filePath)// 删除空目录
+        }
+    } else if (info.isFile()){
+        fs.unlinkSync(filePath)// 删除文件
+    }
+    return true
 }

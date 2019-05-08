@@ -16,6 +16,8 @@ const cheerio = require('cheerio')
 
 const { axiosGet } = require('../utils/axios.js')
 
+const { imageMinWidth } = require('../utils/config.js')
+
 const { CancelToken } = axios
 let source = null
 
@@ -110,7 +112,9 @@ export const getImage = async function (data) {
                 }
                 obj.height = parseInt(maxSize / obj.width * obj.height, 10)
                 obj.width = maxSize
-                urls.push(obj)
+                if (parseInt(obj.width, 10) > imageMinWidth){
+                    urls.push(obj)
+                }
             })
             resolve(urls)
         }).catch((error) => {

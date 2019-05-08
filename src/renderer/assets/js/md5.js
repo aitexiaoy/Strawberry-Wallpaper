@@ -198,7 +198,7 @@ const MD5 = function (bit, string) {
 const md5_16 = message => MD5(16, message);
 const md5_32 = message => MD5(32, message);
 
-export default {
+export {
     md5_16,
     md5_32
 }

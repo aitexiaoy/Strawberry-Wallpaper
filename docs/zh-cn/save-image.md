@@ -4,11 +4,15 @@
 
 ```js
 export const downloadPic = async function (src, mainWindow) {
+    // 返回一个Promise方便处理
     return new Promise((resolve, reject) => {
-    // 创建文件夹
-        mkdirSync(hostdir)
-        let dstpath = `${hostdir}/${(new Date()).getTime()}_${(new Date()).getMilliseconds()}-${parseInt('', (Math.random() * 100000).toString())}`
+    // 先检测目录，没有相关目录的话会自动创建新的目录
+        mkdirSync(hostdir) 
+        // 自动重命名
+        let dstpath = `${hostdir}/${(new Date()).getTime()}_${(new Date()).getMilliseconds()}`
+        // webp格式的图片标志，500px下载的图片为webp格式的
         let isWebp = false
+        // 判断图片格式
         if (src.match('webp=true')) {
             dstpath += '.webp'
             isWebp = true
@@ -17,12 +21,16 @@ export const downloadPic = async function (src, mainWindow) {
             isWebp = false
         }
 
+        // 已经接受的文件的大小
         let receivedBytes = 0
+        // 文件总的字大小
         let totalBytes = 0
 
+        // 创建一个文件流
         const writeStream = fs.createWriteStream(dstpath, {
             autoClose: true
         })
+        // 创建一个请求
         myRequest = request({
             url: src,
             headers: browserHeader,
@@ -35,7 +43,7 @@ export const downloadPic = async function (src, mainWindow) {
         myRequest.on('data', (chunk) => {
             // 更新下载的文件块字节大小
             receivedBytes += chunk.length
-            console.log(receivedBytes / totalBytes)
+            // 更新进度条
             mainWindow.webContents.send('datainfo', {
                 type: 'updaterProgress',
                 data: parseFloat(((receivedBytes / totalBytes) * 100))
@@ -53,12 +61,13 @@ export const downloadPic = async function (src, mainWindow) {
             myRequest = null
             if (receivedBytes === totalBytes){
                 if (isWebp) {
+                    // 将webp图片转成jpg图片
                     webp.dwebp(dstpath, dstpath.replace('webp', 'jpg'), '-o', (status) => {
                         // status 101->fails || 100->successful
                         if (status === '100'){
                             fs.unlink(dstpath, (err) => {
                                 if (err) throw err
-                                console.log('文件已删除')
+                                // console.log('文件已删除')
                             })
                             resolve(dstpath.replace('webp', 'jpg'))
                         } else {
@@ -72,6 +81,7 @@ export const downloadPic = async function (src, mainWindow) {
                 fs.unlink(dstpath, (err) => {
                     if (err) throw err
                 })
+                // 更新进度条
                 mainWindow.webContents.send('datainfo', {
                     type: 'updaterProgress',
                     data: 0
