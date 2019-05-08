@@ -16,7 +16,7 @@ async function getPage(url) {
             onDownloadProgress(progressEvent) {
                 // 对原生进度事件的处理
                 console.log('--------------------下载图片进度:')
-                console.log(progressEvent)
+                // console.log(progressEvent)
             },
         }).then(async (result) => {
             if (result.status === 200) {
@@ -29,7 +29,6 @@ async function getPage(url) {
                 const urls = []
                 for (let index = 0; index < result.length; index++) {
                     const path = result[index].full_res
-                    console.log(path)
                     urls.push(path)
                 }
                 await downloadUrl(urls)

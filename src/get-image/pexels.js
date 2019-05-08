@@ -3,7 +3,7 @@
  */
 
 const axios = require('axios')
-const { browserHeader } = require('../utils/config')
+const { browserHeader, imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 
@@ -64,7 +64,7 @@ export const getImage = function (data) {
                         downloadUrl: result,
                     }
                     // 剔除重复的地址
-                    if (tempUrls.indexOf(obj.url) === -1) {
+                    if (tempUrls.indexOf(obj.url) === -1 && parseInt(obj.width, 10) > imageMinWidth) {
                         tempUrls.push(obj.url)
                         urls.push(obj)
                     }

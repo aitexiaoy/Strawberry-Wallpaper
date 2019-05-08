@@ -10,15 +10,16 @@ const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const request = require('request')
+const webp = require('webp-converter')
+const store = require('../renderer/store')
 /**
  * webp格式图片转jpg
  */
-const webp = require('webp-converter')
 
 /**
  * @type {String} 图片下载地址 
  */
-const hostdir = path.resolve(`${os.homedir()}/Downloads/wallpaper`)
+
 const { browserHeader } = require('../utils/config')
 /**
  * @type {Object} 保存当前的请求对象
@@ -50,8 +51,10 @@ export function mkdirSync(dirname) {
 export const downloadPic = async function (src, mainWindow) {
     return new Promise((resolve, reject) => {
     // 创建文件夹
+
+        const hostdir = store.default.state.main.config.downloadImagePath
         mkdirSync(hostdir)
-        let dstpath = `${hostdir}/${(new Date()).getTime()}_${(new Date()).getMilliseconds()}`
+        let dstpath = `${hostdir}/SW-${(new Date()).getTime()}_${(new Date()).getMilliseconds()}`
         let isWebp = false
         if (src.match('webp=true')) {
             dstpath += '.webp'

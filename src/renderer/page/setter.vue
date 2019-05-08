@@ -1,8 +1,8 @@
 <template>
   <div
     class="setter"
-    @mouseout.stop.prevent="mouseout_fn(false)"
-    @mouseenter.stop.prevent="mouseout_fn(true)"
+    @mouseout.stop.prevent="mouseoutFn(false)"
+    @mouseenter.stop.prevent="mouseoutFn(true)"
   >
     <div class="setter-sanjiao"></div>
     <div class="setter-content">
@@ -22,19 +22,19 @@
       </div>
 
       <div class="setter-row">
-        <el-checkbox v-model="isOpenStatr" @change="set_open_start">
+        <el-checkbox v-model="isOpenStatr" @change="setOpenStart">
           <span class="checkbox-text">开机自动启动</span>
         </el-checkbox>
       </div>
 
       <div class="setter-row">
-        <el-checkbox v-model="wallpaperAutoUp" @change="wallpaper_auto_change">
+        <el-checkbox v-model="wallpaperAutoUp" @change="wallpaperAutoChange">
           <span class="checkbox-text">壁纸自动更新</span>
         </el-checkbox>
       </div>
 
       <div class="setter-row">
-        <el-radio-group v-model="updataTime" @change="updata_time_change">
+        <el-radio-group v-model="updataTime" @change="updataTimeChange">
           <el-radio label="3600" :disabled="wallpaperAutoUp==false">
             <span class="checkbox-text">每小时</span>
           </el-radio>
@@ -47,12 +47,23 @@
         </el-radio-group>
       </div>
 
+      <div class="setter-row">
+        <span class="nowrap">设置保存地址:</span>
+        <span class="about-pro" @click="setDefalutDownloadPath">{{downloadImagePath}}</span>
+      </div>
+
+      <!-- <div class="setter-row">
+        <el-checkbox v-model="timingWipeData" @change="timingWipeDataChange">
+          <span class="checkbox-text">定时清空图片</span>
+        </el-checkbox>
+      </div> -->
+
       <div class="setter-row image-sourece">图片来源: {{imageSource}}</div>
 
       <div class="setter-row">
         <el-radio-group
           v-model="imageSource"
-          @change="image_source_change"
+          @change="imageSourceChange"
         >
           <template v-for="item in imageSourceType">
             <el-radio :label="item.value" :key="item.value">
@@ -64,16 +75,21 @@
 
       <div class="setter-last-btn">
         <div class="about-pro" @click="suggestion">意见反馈</div>
-        <div class="about-pro" @click="about_pro">关于项目</div>
+        <div class="about-pro" @click="aboutPro">关于项目</div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { shell, ipcRenderer } from 'electron'
+import { shell, ipcRenderer, remote } from 'electron'
+import { mapActions } from 'vuex'
 import { version } from '../../../package'
 import { imageSourceType } from '../../utils/utils'
+
+const os = require('os')
+
+const { dialog } = remote
 
 export default {
     name: 'setter',
@@ -90,22 +106,37 @@ export default {
             updataTime: '3600',
             isOpenStatr: false, // 开机启动
             wallpaperAutoUp: false, // 壁纸自动更新
+            timingWipeData: true, // 定时清空已下载图库
+            downloadImagePath: `${os.homedir()}/Downloads/wallpaper`,
             imageSourceType
         }
     },
     mounted() {
         const data = this.$localStorage.getStore('userConfig')
         if (data) {
-            // eslint-disable-next-line guard-for-in
+            const newData = {}
             for (const index in data) {
-                this[index] = data[index] || this[index]
+                if (Object.prototype.hasOwnProperty.bind(data, index)){
+                    newData[index] = data[index] || this[index]
+                    this[index] = newData[index]
+                }
             }
+            this.changeConfigStore(newData)
         } else {
             this.setLocation()
         }
+        this.$ipcRenderer.on('defaultPath', (event, arg) => {
+            this.downloadImagePath = arg
+            this.setLocation()
+        })
     },
     methods: {
-        set_open_start() {
+
+        ...mapActions([
+            'changeConfigStore',
+        ]),
+        
+        setOpenStart() {
             this.$ipcRenderer.send('btn', {
                 type: 'openStart',
                 data: this.isOpenStatr
@@ -120,16 +151,20 @@ export default {
             })
         },
   
-        // 打开外部链接
-        about_pro() {
+        /**
+         * 关于项目
+         */
+        aboutPro() {
             shell.openExternal('https://github.com/aitexiaoy/Strawberry-Wallpaper')
         },
   
-        mouseout_fn(val) {
+        mouseoutFn(val) {
             this.$emit('contentMouse', val)
         },
   
-        /** * 意见反馈 */
+        /**
+         * 意见反馈
+         */
         suggestion() {
             this.$ipcRenderer.send('btn', {
                 type: 'openChildren',
@@ -139,16 +174,19 @@ export default {
   
         /** *将配置信息存到localstorage中 */
         setLocation() {
-            this.$localStorage.setStore('userConfig', {
-                // version: this.version,
+            const data = {
                 imageSource: this.imageSource,
                 updataTime: this.updataTime,
                 isOpenStatr: this.isOpenStatr, // 开机启动
-                wallpaperAutoUp: this.wallpaperAutoUp // 壁纸自动更新
-            })
+                wallpaperAutoUp: this.wallpaperAutoUp, // 壁纸自动更新
+                timingWipeData: this.timingWipeData,
+                downloadImagePath: this.downloadImagePath
+            }
+            this.$localStorage.setStore('userConfig', data)
+            this.changeConfigStore(data)
         },
   
-        wallpaper_auto_change() {
+        wallpaperAutoChange() {
             if (!this.wallpaperAutoUp) {
                 this.updataTime = -1
             } else {
@@ -156,23 +194,39 @@ export default {
             }
             this.setLocation()
         },
-        updata_time_change() {
+
+        timingWipeDataChange(){
             this.setLocation()
-            this.$localStorage.setStore(
-                'lastUpdataTime',
-                parseInt(new Date().getTime() / 1000, 10)
-            )
         },
-        // 更改图片来源
-        image_source_change(val) {
+
+        updataTimeChange() {
+            this.setLocation()
+            this.$localStorage.setStore('lastUpdataTime', parseInt(new Date().getTime() / 1000, 10))
+        },
+        /**
+         * 更改图片来源
+         */
+        imageSourceChange(val) {
             this.$emit('imageSourceChange', val)
             this.setLocation()
         },
-        /** 检查更新 */
+        /**
+         * 检测更新
+         */
         check_newVersion() {
             this.$ipcRenderer.send('btn', {
                 type: 'check_newVersion',
                 data: true
+            })
+        },
+
+        /**
+         * 设置默认下载图片路径
+         */
+        setDefalutDownloadPath(){
+            this.$ipcRenderer.send('btn', {
+                type: 'setDefaultDownPath',
+                data: this.downloadImagePath
             })
         }
     }
@@ -183,7 +237,7 @@ export default {
 <style lang="less" scoped>
 .setter {
   width: 100%;
-  height: 230px;
+  height: 270px;
   position: absolute;
   z-index: 4000;
   .setter-row {
@@ -229,6 +283,15 @@ export default {
 
   .checkbox-text {
     color: #fff;
+  }
+  .nowrap{
+    white-space: nowrap;
+  }
+
+  .about-pro{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .about-pro:hover {
