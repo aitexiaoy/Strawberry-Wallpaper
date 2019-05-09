@@ -89,7 +89,7 @@ const windowsRelease = require('windows-release')
 const osu = require('node-os-utils')
 const { mkdirSync } = require('../../file/file.js')
 const md5 = require('../assets/js/md5.js').md5_32
-const { postRegister, getStatisticActive } = require('../../api/api.js')
+const { postRegister, apiStatisticActive } = require('../../api/api.js')
 
 export default {
     name: 'mainContent',
@@ -168,7 +168,7 @@ export default {
                 this.wallpaperAuto()
                 this.firstInstall()
                 
-                getStatisticActive(this.$localStorage.getStore('osInfoUid'))
+                apiStatisticActive(this.$localStorage.getStore('osInfoUid'))
 
                 const nowDate = parseInt((new Date()).getTime() / 1000, 10)
                 const statisticTimeFlag = this.$localStorage.getStore('statisticTimeFlag')
@@ -182,7 +182,7 @@ export default {
 
                 // 2小时
                 if (statisticTimeFlag - nowDate >= 2 * 60 * 60){
-                    getStatisticActive(this.$localStorage.getStore('osInfoUid'))
+                    apiStatisticActive(this.$localStorage.getStore('osInfoUid'))
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
                 }
                 if (timingWipeDataFlag - nowDate >= 7 * 24 * 60 * 60){
@@ -255,13 +255,13 @@ export default {
                     const [userName, oss, arch] = result
                     const time = (new Date()).getTime()
                     const data = {
-                        os: this.osType, // 系统类型
-                        osVersion: oss, // 系统版本 'Mac OS X 10.14.4'
-                        userName: userName.replace('\n', ''), // 用户名
+                        platform: this.osType, // 系统类型
+                        platformVersion: oss, // 系统版本 'Mac OS X 10.14.4'
+                        username: userName.replace('\n', ''), // 用户名
                         version, // 软件版本
-                        resTime: time, // 注册时间
+                        // resTime: time, // 注册时间
                         uid: md5(`${userName}${oss}${arch}${time}`), // 软件唯一ID,
-                        arch: arch.match('64') ? '64' : '32', // 系统位数
+                        // arch: arch.match('64') ? '64' : '32', // 系统位数
                     }
                     postRegister(data).then((res) => {
                         this.changeOsInfoStore(data)
@@ -296,6 +296,7 @@ export default {
             this.$fbloading.open(this.$refs[`image_item_${index}`][0])
             this.$ipcRenderer.send('dataWallpaper', img)
             this.currentImageBacColor = this.images[index].backgroundColor
+            this.currentWallpaperIndex = index
         },
 
         /**
@@ -385,7 +386,7 @@ export default {
                         time = parseInt(time, 10)
                         const updataTime = parseInt(userConfig.updataTime, 10)
                         if (Math.abs(currentTime - time) > updataTime) {
-                            const index = this.images[this.currentWallpaperIndex + 1] ? this.currentWallpaperIndex + 1 : 0
+                            const index = this.images[this.currentWallpaperIndex] ? this.currentWallpaperIndex : 0
                             this.setWallpaper(this.images[index], index)
                         }
                     }
