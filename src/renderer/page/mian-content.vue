@@ -36,7 +36,7 @@
                 <i class="iconfont icon-sousuo" @click.stop="searchKeyFn"></i>
             </div>
 
-            <sw-progress v-if="progress>0" :value="progress" :color="currentImageBacColor"></sw-progress>
+            <sw-progress v-if="progressValue>0" :value="progressValue" :color="currentImageBacColor"></sw-progress>
         </div>
 
         <div class="content" :class="{'content-win':osType=='win'}" @scroll="contentScroll">
@@ -83,13 +83,11 @@ import { version } from '../../../package'
 
 const { shell } = require('electron')
 const os = require('os')
-const osName = require('os-name')
-const macosRelease = require('macos-release')
-const windowsRelease = require('windows-release')
 const osu = require('node-os-utils')
-const { mkdirSync } = require('../../file/file.js')
 const md5 = require('../assets/js/md5.js').md5_32
 const { postRegister, apiStatisticActive } = require('../../api/api.js')
+const { mkdirSync } = require('../../file/file.js')
+
 
 export default {
     name: 'mainContent',
@@ -113,7 +111,7 @@ export default {
             osType: 'mac',
             imageSource: 'pexels',
             sendnewEmailLoading: false, // 邮件发送loading
-            progress: 0, // 进度值
+            progressValue: 0, // 进度值
             currentImageBacColor: '#fff', 
             refreshBtnIng: false,
         }
@@ -223,11 +221,11 @@ export default {
                 } 
                 // 更新进度条
                 else if (arg.type === 'updaterProgress') {
-                    this.progress = arg.data
-                    if (this.progress >= 100) {
+                    this.progressValue = arg.data
+                    if (this.progressValue >= 100) {
                         const time = setTimeout(() => {
                             clearTimeout(time)
-                            this.progress = 0
+                            this.progressValue = 0
                         }, 1000)
                     }
                 }
@@ -255,9 +253,9 @@ export default {
                     const [userName, oss, arch] = result
                     const time = (new Date()).getTime()
                     const data = {
-                        platform: this.osType, // 系统类型
-                        platformVersion: oss, // 系统版本 'Mac OS X 10.14.4'
-                        username: userName.replace('\n', ''), // 用户名
+                        // platform: this.osType, // 系统类型
+                        // platformVersion: oss, // 系统版本 'Mac OS X 10.14.4'
+                        username: userName.replace('\n', '').replace('\r', ''), // 用户名
                         version, // 软件版本
                         // resTime: time, // 注册时间
                         uid: md5(`${userName}${oss}${arch}${time}`), // 软件唯一ID,
@@ -359,7 +357,7 @@ export default {
          * @function destroyAll
          */
         destroyAll() {
-            this.progress = 0
+            this.progressValue = 0
             this.isSetting = false
             this.setterShow = false
             this.$fbloading.close()
