@@ -13,12 +13,10 @@ const instance = axios.create({
  * 第一次的时候注册
  */
 export const postRegister = data => new Promise((resolve, reject) => {
-    console.log(qs.stringify(data))
     instance({
         url: '/register',
         method: 'post',
-        data: qs.stringify(data),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        data,
 
     }).then((res) => {
         const { data: result } = res
@@ -35,6 +33,6 @@ export const postRegister = data => new Promise((resolve, reject) => {
 /**
  * 统计用户的使用情况
  */
-export const apiStatisticActive = uid => instance.post('/active', qs.stringify({
+export const apiStatisticActive = uid => instance.post('/active', {
     uid
-}), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+})

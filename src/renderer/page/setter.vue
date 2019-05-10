@@ -35,7 +35,7 @@
 
       <div class="setter-row">
         <el-radio-group v-model="updataTime" @change="updataTimeChange">
-          <el-radio label="20" :disabled="wallpaperAutoUp==false">
+          <el-radio label="3600" :disabled="wallpaperAutoUp==false">
             <span class="checkbox-text">每小时</span>
           </el-radio>
           <el-radio label="86400" :disabled="wallpaperAutoUp==false">

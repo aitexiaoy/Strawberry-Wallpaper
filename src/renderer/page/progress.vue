@@ -8,7 +8,7 @@
 
 <script>
 export default {
-    name: 'progress',
+    name: 'swProgress',
     props: {
         value: {
             type: Number,
