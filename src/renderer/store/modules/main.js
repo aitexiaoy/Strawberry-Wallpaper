@@ -10,11 +10,8 @@ const state = {
         downloadImagePath: `${os.homedir()}/Downloads/wallpaper`,
     },
     osInfo: {
-        os: '', // 系统类型
-        osVersion: '', // 系统版本
-        userName: '', // 用户名
+        username: '', // 用户名
         version: '', // 软件版本
-        resTime: '', // 注册时间
         uid: '', // 软件唯一ID,
     }
 }

@@ -165,9 +165,7 @@ export default {
             this.$ipcRenderer.on('intervalTime', (event, arg) => {
                 this.wallpaperAuto()
                 this.firstInstall()
-                
-                apiStatisticActive(this.$localStorage.getStore('osInfoUid'))
-
+        
                 const nowDate = parseInt((new Date()).getTime() / 1000, 10)
                 const statisticTimeFlag = this.$localStorage.getStore('statisticTimeFlag')
                 if (!statisticTimeFlag){
@@ -183,6 +181,7 @@ export default {
                     apiStatisticActive(this.$localStorage.getStore('osInfoUid'))
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
                 }
+                // 7天
                 if (timingWipeDataFlag - nowDate >= 7 * 24 * 60 * 60){
                     this.$localStorage.setStore('timingWipeDataFlag', nowDate)
                     // 删除默认文件下的所有内容
@@ -253,13 +252,9 @@ export default {
                     const [userName, oss, arch] = result
                     const time = (new Date()).getTime()
                     const data = {
-                        // platform: this.osType, // 系统类型
-                        // platformVersion: oss, // 系统版本 'Mac OS X 10.14.4'
                         username: userName.replace('\n', '').replace('\r', ''), // 用户名
                         version, // 软件版本
-                        // resTime: time, // 注册时间
                         uid: md5(`${userName}${oss}${arch}${time}`), // 软件唯一ID,
-                        // arch: arch.match('64') ? '64' : '32', // 系统位数
                     }
                     postRegister(data).then((res) => {
                         this.changeOsInfoStore(data)
