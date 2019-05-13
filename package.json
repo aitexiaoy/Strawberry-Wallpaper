@@ -115,6 +115,7 @@
     "element-ui": "^2.5.4",
     "fs": "^0.0.1-security",
     "jsdom": "^13.2.0",
+    "macaddress": "^0.2.9",
     "node-os-utils": "^1.0.7",
     "nodemailer": "^5.1.1",
     "path": "^0.12.7",
