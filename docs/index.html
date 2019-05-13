@@ -140,9 +140,8 @@
       maxLevel: 6,
       auto2top: true,
       autoHeader: true,
-      loadSidebar: true,
+      // loadSidebar: true,
       subMaxLevel: 3,
-
       // disqus: 'yangpeng',
       // 搜索完整配置参数
       search: {
@@ -156,55 +155,6 @@
         DemoBoxVue.create(jsResources, cssResources, bootCode),
         function (hook) {
           hook.doneEach(function () {
-
-            // let max_cengji = 2;    //默认展开层级深度
-            // //添加箭头
-            // $('.sidebar-nav').find('li').each(function (i, e) {
-            //   var el = e;
-            //   if (el.nextSibling && el.nextSibling.tagName == 'UL') {
-            //     $(el).addClass('sidebar-nav-parent-li').append(
-            //       "<div class='ul-after'><div class='ul-after-sanjiao'></div></div>");
-            //   }
-            // })
-
-            // //初始时候展开层级
-
-            // function find_children_li(dom, current_cengji) {
-            //   if (dom) {
-            //     current_cengji++;
-            //     $($(dom).find('li').each(function (i, e) {
-            //       var el = e;
-            //       if (el.nextSibling && el.nextSibling.tagName == 'UL') {
-            //         if (current_cengji >= max_cengji) {
-            //           $(el.nextSibling).hide();
-            //           $(el).addClass('sidebar-nav-parent-li-shouqi');
-            //         }
-            //         find_children_li(el.nextSibling, current_cengji);
-            //       }
-            //     }))
-            //   } else {
-            //     return
-            //   }
-            // }
-
-            // find_children_li($('.sidebar-nav')[0], 0);
-
-            // //绑定事件
-            // $('.ul-after-sanjiao').on('click', function (e) {
-            //   e.stopPropagation();
-            //   e.preventDefault();
-            //   var el = e.target.parentNode.parentNode.nextSibling;
-            //   if (el) {
-            //     $(el).toggle();
-            //     if ($(e.target.parentNode.parentNode).hasClass('sidebar-nav-parent-li-shouqi')) {
-            //       $(e.target.parentNode.parentNode).removeClass('sidebar-nav-parent-li-shouqi');
-            //     } else {
-            //       $(e.target.parentNode.parentNode).addClass('sidebar-nav-parent-li-shouqi');
-            //     }
-            //   }
-            // })
-
-
             //回到顶部
             let return_top = $('<div class="return-top"><div class="return-top-div">顶</div></div>')
             $('html').append(return_top);

@@ -298,8 +298,8 @@ export default {
          */
         openDownloadFile() {
             // 判断是否有文件夹
-            mkdirSync(`${os.homedir()}/Downloads/wallpaper`) 
-            shell.openItem(`${os.homedir()}/Downloads/wallpaper`)
+            mkdirSync(this.config.downloadImagePath) 
+            shell.openItem(this.config.downloadImagePath)
         },
 
         /**
