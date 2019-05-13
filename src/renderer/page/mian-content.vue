@@ -84,10 +84,10 @@ import { version } from '../../../package'
 const { shell } = require('electron')
 const os = require('os')
 const osu = require('node-os-utils')
+const macaddress = require('macaddress')
 const md5 = require('../assets/js/md5.js').md5_32
 const { postRegister, apiStatisticActive } = require('../../api/api.js')
 const { mkdirSync } = require('../../file/file.js')
-
 
 export default {
     name: 'mainContent',
@@ -132,6 +132,7 @@ export default {
         this.searchKey = this.$localStorage.getStore('searchKey')
         this.images = []
         this.imageUrls = []
+        this.cleartLocalStorage()
         this.getData()
         this.eventInit()
     },
@@ -140,6 +141,11 @@ export default {
         ...mapActions([
             'changeOsInfoStore', 
         ]),
+
+        cleartLocalStorage(params) {
+            this.$localStorage.removeStore('first_install_flag')
+            this.$localStorage.removeStore('first_install_flag_v1.1')
+        },
 
         /**
          * 主进程过来的消息事件注册
@@ -175,7 +181,7 @@ export default {
                 if (!timingWipeDataFlag){
                     this.$localStorage.setStore('timingWipeDataFlag', nowDate)
                 }
-                
+
                 // 2小时
                 if (nowDate - statisticTimeFlag >= 2 * 60 * 60){
                     apiStatisticActive(this.$localStorage.getStore('osInfoUid'))
@@ -247,20 +253,34 @@ export default {
          */
         firstInstall() {
             // 第一次注册
-            if (this.$localStorage.getStore('first_install_flag_v1.1') !== 'strawberrywallpaper') {
-                Promise.all([osu.osCmd.whoami(), osu.os.oos(), osu.os.arch()]).then((result) => {
-                    const [userName, oss, arch] = result
+           
+            function getMacAddress(){
+                return new Promise((resolve, reject) => {
+                    macaddress.one((err, mac) => {
+                        if (err){
+                            reject()
+                        }
+                        else {
+                            resolve(mac)
+                        }
+                    });
+                })
+            }
+            if (this.$localStorage.getStore('first_install_flag_v1.1.1') !== 'strawberrywallpaper') {
+                Promise.all([osu.osCmd.whoami(), osu.os.oos(), osu.os.arch(), getMacAddress()]).then((result) => {
+                    const [userName, oss, arch, mac] = result
                     const time = (new Date()).getTime()
+                    console.log(mac)
                     const data = {
                         username: userName.replace('\n', '').replace('\r', ''), // 用户名
                         version, // 软件版本
-                        uid: md5(`${userName}${oss}${arch}${time}`), // 软件唯一ID,
+                        uid: md5(`${userName}${oss}${arch}${mac}`), // 软件唯一ID,
                     }
                     postRegister(data).then((res) => {
                         this.changeOsInfoStore(data)
                         this.$localStorage.setStore('osInfo', data)
                         this.$localStorage.setStore('osInfoUid', data.uid)
-                        this.$localStorage.setStore('first_install_flag_v1.1', 'strawberrywallpaper')
+                        this.$localStorage.setStore('first_install_flag_v1.1.1', 'strawberrywallpaper')
                     })
                 })
             }

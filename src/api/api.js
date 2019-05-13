@@ -20,7 +20,7 @@ export const postRegister = data => new Promise((resolve, reject) => {
 
     }).then((res) => {
         const { data: result } = res
-        if (result.code === 0){
+        if (result.code === 0 || result.code === 400){
             resolve()
         }
         else {
