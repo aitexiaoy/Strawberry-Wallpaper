@@ -270,7 +270,6 @@ export default {
                 Promise.all([osu.osCmd.whoami(), osu.os.oos(), osu.os.arch(), getMacAddress()]).then((result) => {
                     const [userName, oss, arch, mac] = result
                     const time = (new Date()).getTime()
-                    console.log(mac)
                     const data = {
                         username: userName.replace('\n', '').replace('\r', ''), // 用户名
                         version, // 软件版本
