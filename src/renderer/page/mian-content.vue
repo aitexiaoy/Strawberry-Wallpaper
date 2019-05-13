@@ -175,14 +175,14 @@ export default {
                 if (!timingWipeDataFlag){
                     this.$localStorage.setStore('timingWipeDataFlag', nowDate)
                 }
-
+                
                 // 2小时
-                if (statisticTimeFlag - nowDate >= 2 * 60 * 60){
+                if (nowDate - statisticTimeFlag >= 2 * 60 * 60){
                     apiStatisticActive(this.$localStorage.getStore('osInfoUid'))
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
                 }
                 // 7天
-                if (timingWipeDataFlag - nowDate >= 7 * 24 * 60 * 60){
+                if (nowDate - timingWipeDataFlag >= 7 * 24 * 60 * 60){
                     this.$localStorage.setStore('timingWipeDataFlag', nowDate)
                     // 删除默认文件下的所有内容
                     this.$ipcRenderer.send('btn', {
