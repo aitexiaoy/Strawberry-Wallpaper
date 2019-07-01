@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { shell, ipcRenderer, remote } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 import { mapActions } from 'vuex'
 import { version } from '../../../package'
 import { imageSourceType } from '../../utils/utils'
@@ -155,7 +155,7 @@ export default {
          * 关于项目
          */
         aboutPro() {
-            shell.openExternal('https://github.com/aitexiaoy/Strawberry-Wallpaper')
+            this.$router.push('/about')
         },
   
         mouseoutFn(val) {
@@ -166,10 +166,7 @@ export default {
          * 意见反馈
          */
         suggestion() {
-            this.$ipcRenderer.send('btn', {
-                type: 'openChildren',
-                data: true
-            })
+            this.$router.push('/suggestion')
         },
   
         /** *将配置信息存到localstorage中 */
@@ -262,7 +259,10 @@ export default {
     }
   }
   .setter-last-btn {
+    width: 100%;
+    height: 30px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
   }
   .setter-content {

@@ -1,3 +1,5 @@
+import { apiTranslation } from '../api/api.js'
+
 let type = ''
 
 const cancelFn = {
@@ -15,8 +17,9 @@ const getUrl = {
 }
 
 export const getUrls = function (data) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         type = data.imageSource
+        data.searchKey = await apiTranslation(data.searchKey)
         getUrl[type](data).then((urls) => {
             resolve(urls)
         }).catch((error) => {

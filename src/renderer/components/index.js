@@ -9,9 +9,11 @@ import Vue from 'vue'
 import fbloading from './fb_loading/fb-loading.js'
 // eslint-disable-next-line import/extensions
 import imageMatch from './image_match/index.js'
+import pageHeader from './page-header/index.vue'
 
 const components = [
     // fbloading,
+    pageHeader
 ]
 
 // eslint-disable-next-line no-shadow
@@ -28,4 +30,5 @@ Vue.use(imageMatch)
 
 export default {
     version: '0.0.1',
+    pageHeader
 }

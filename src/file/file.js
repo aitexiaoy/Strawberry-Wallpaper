@@ -1,31 +1,26 @@
 
 /** 
  * @Description: 下载图片并存到指定文件夹
- * @Author: yangpeng
+ * @Author: --
  * @Date: 2019-01-24 21:35:23
  * @LastEditTime: 2019-04-09 09:39:45
  */
-
 const fs = require('fs')
 const path = require('path')
-const os = require('os')
 const request = require('request')
 const webp = require('webp-converter')
 const store = require('../renderer/store')
-/**
- * webp格式图片转jpg
- */
+const { md5_32: md5 } = require('../utils/md5')
 
 /**
  * @type {String} 图片下载地址 
  */
-
 const { browserHeader } = require('../utils/config')
 /**
  * @type {Object} 保存当前的请求对象
  */
 let myRequest = null
-
+let currentSaveFilePath = ''
 
 /**
  * 创建指定路径文件
@@ -34,12 +29,12 @@ let myRequest = null
 export function mkdirSync(dirname) {
     if (fs.existsSync(dirname)) {
         return true
-    } 
+    }
     if (mkdirSync(path.dirname(dirname))) {
         fs.mkdirSync(dirname)
         return true
     }
-  
+
     return false
 }
 
@@ -50,12 +45,18 @@ export function mkdirSync(dirname) {
  */
 export const downloadPic = async function (src, mainWindow) {
     return new Promise((resolve, reject) => {
-    // 创建文件夹
-
+        // 创建文件夹
         const hostdir = store.default.state.main.config.downloadImagePath
+        // 文件名
+        const fileName = md5(src)
         mkdirSync(hostdir)
-        let dstpath = `${hostdir}/SW-${(new Date()).getTime()}_${(new Date()).getMilliseconds()}`
+        let dstpath = `${hostdir}/SW-${fileName}`
         let isWebp = false
+        // 如图图片已经下载完成了
+        if (fs.existsSync(`${dstpath}.jpg`)){
+            resolve(`${dstpath}.jpg`)
+            return
+        }
         if (src.match('webp=true')) {
             dstpath += '.webp'
             isWebp = true
@@ -63,6 +64,7 @@ export const downloadPic = async function (src, mainWindow) {
             dstpath += '.jpg'
             isWebp = false
         }
+        currentSaveFilePath = dstpath
 
         let receivedBytes = 0
         let totalBytes = 0
@@ -98,14 +100,15 @@ export const downloadPic = async function (src, mainWindow) {
         writeStream.on('finish', () => {
             writeStream.end()
             myRequest = null
-            if (receivedBytes === totalBytes){
+            if (receivedBytes === totalBytes) {
                 if (isWebp) {
                     webp.dwebp(dstpath, dstpath.replace('webp', 'jpg'), '-o', (status) => {
                         // status 101->fails || 100->successful
-                        if (status === '100'){
+                        if (status === '100') {
                             fs.unlink(dstpath, (err) => {
-                                if (err) throw err
-                                console.log('文件已删除')
+                                if (err){
+                                    console.log('图片已删除')
+                                }
                             })
                             resolve(dstpath.replace('webp', 'jpg'))
                         } else {
@@ -117,7 +120,9 @@ export const downloadPic = async function (src, mainWindow) {
                 }
             } else {
                 fs.unlink(dstpath, (err) => {
-                    if (err) throw err
+                    if (err) {
+                        console.log('图片已删除')
+                    }
                 })
                 mainWindow.webContents.send('datainfo', {
                     type: 'updaterProgress',
@@ -132,10 +137,18 @@ export const downloadPic = async function (src, mainWindow) {
 /**
  * 取消下载
  */
-export const cancelDownloadPic = function (){
+export const cancelDownloadPic = function () {
     return new Promise((resolve) => {
-        if (myRequest){
+        if (myRequest) {
             myRequest.abort()
+            // 取消下载的时候删除图片
+            if (fs.existsSync(currentSaveFilePath)){
+                fs.unlink(currentSaveFilePath, (err) => {
+                    if (err) {
+                        console.log('图片已删除')
+                    }
+                })
+            }
         }
         resolve()
     })

@@ -9,7 +9,6 @@ const { setOnCurrentSpace } = require('../wallpaper/outwallpaper.js')
 const { openAutoStart, openDisStart } = require('../file/open-start.js')
 const { downloadPic, cancelDownloadPic } = require('../file/file.js')
 const { getUrls, cancelUrls } = require('../get-image/search.js')
-const { hideChildrenWindow, showChildrenWinndow } = require('./info-win.js')
 const { newEmail } = require('./mail.js')
 
 const { isDev, isMac, isWin, baseUrl } = require('../utils/utils')
@@ -107,7 +106,7 @@ function createWindow() {
     mainWindow.loadURL(baseUrl)
 
     mainWindow.on('blur', () => {
-        mainWindow.hide()
+        // mainWindow.hide()
     })
 
     mainWindow.on('closed', () => {
@@ -313,14 +312,8 @@ function ipcMainInit() {
             } else {
                 openDisStart()
             }
-        } else if (data.type === 'openChildren') {
-            if (data.data) {
-                showChildrenWinndow()
-            } else {
-                hideChildrenWindow()
-            }
         } else if (data.type === 'newEmail') {
-            newEmail(data.data.html, data.data.telUser, {
+            newEmail(data.data.data, data.data.telUser, {
                 version: autoUpdater.currentVersion,
                 emailType: data.data.emailType
             }).then(() => {
