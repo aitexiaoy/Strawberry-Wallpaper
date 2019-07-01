@@ -3,24 +3,33 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-const mainContent = () => import('../page/mian-content.vue')
-const setter = () => import('../page/setter.vue')
+const content = () => import('../page/content.vue')
+const about = () => import('../page/about.vue')
 const suggestion = () => import('../page/suggestion.vue')
+const mian = () => import('../page/main.vue')
 
 export default new Router({
     routes: [
         {
             path: '/',
-            name: 'mainContent',
-            component: mainContent
+            name: 'main',
+            redirect: '/content',
+            component: mian,
+            children: [
+                {
+                    path: '/content',
+                    component: content
+                },
+                {
+                    path: '/about',
+                    component: about
+                },
+                {
+                    path: '/suggestion',
+                    component: suggestion
+                }
+            ]
         },
-        {
-            path: '/set',
-            component: setter
-        },
-        {
-            path: '/suggestion',
-            component: suggestion
-        }
+        
     ]
 })

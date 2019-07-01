@@ -2,14 +2,16 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-import ElementUI from 'element-ui';
+import ElementUI from 'element-ui'
 import App from './App'
 import router from './router'
 import store from './store'
 
-import 'element-ui/lib/theme-chalk/index.css';
+import 'element-ui/lib/theme-chalk/index.css'
 
 import 'static/iconfont/iconfont.css'
+
+import './assets/css/base.css'
 
 import FBmodules from './components/index.js'
 // 自定义全局方法库

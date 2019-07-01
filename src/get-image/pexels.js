@@ -3,69 +3,52 @@
  */
 
 const axios = require('axios')
-const { browserHeader, imageMinWidth } = require('../utils/config')
+const cheerio = require('cheerio')
+const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 
-const { axiosGet } = require('../utils/axios.js')
-
 let source = null
 
+// 下一页的时间参数
+let nextPageSeed = ''
 export const getImage = function (data) {
     return new Promise((resolve, reject) => {
         if (!data) {
             resolve([])
         }
-        let baseUrl = 'https://www.pexels.com/'
+        if (data.page === 0){
+            nextPageSeed = ''
+        }
+        let baseUrl = 'https://www.pexels.com'
         if (data.searchKey) {
-            baseUrl = `https://www.pexels.com/search/${data.searchKey}/`
+            baseUrl = `https://www.pexels.com/search/${data.searchKey}`
         }
         source = CancelToken.source()
-        axiosGet({
-            url: baseUrl,
-            params: {
-                format: 'js',
-                page: data.page,
-            },
-            headers: browserHeader,
+        const url = baseUrl + nextPageSeed
+        axios.get(url, {
             cancelToken: source.token
-        }).then((res) => {
+        }).then((result) => {
             source = null
             const urls = []
-            const tempUrls = []
-
-            // 匹配图片（g表示匹配所有结果i表示区分大小写）
-            const imgReg = /<img.*?(?:>|\/>)/gi
-            // 匹配拥有srcset属性的
-            const srcReg = /srcset=\\.*?\\/i
-            const arr = res.match(imgReg)
-            if (!arr) {
-                resolve([])
-                return
+            const $ = cheerio.load(result.data)
+            if ($('.next_page').length){
+                nextPageSeed = $('.next_page')[0].attribs.href
             }
-            for (let i = 0; i < arr.length; i++) {
-                const widthReg = /data-image-width=\\.*?\\/i
-                const heightReg = /data-image-height=\\.*?\\/i
-                const urlReg = /data-large-src=\\.*?\\/i
-                const src = arr[i].match(srcReg)
-                const width = arr[i].match(widthReg)
-                const height = arr[i].match(heightReg)
-                const url = arr[i].match(urlReg)
-                // 获取图片地址
-                if (src && width && height && url) {
-                    // 把图片地址提取出来
-                    const aa = /\\.*?\?/i
-                    let result = src[0].match(aa)
-                    result = result[0].replace(/"/g, '').replace(/\\/g, '').replace(/\?/, '')
+            const imageItems = $('.photo-item__img')
+            // 是否存在
+            if (nextPageSeed.length){
+                const imageItemsLength = imageItems.length
+                for (let i = 0; i < imageItemsLength; i++){
+                    const { attribs } = imageItems[i]
                     const obj = {
-                        width: width[0].replace(/data-image-width=/g, '').replace(/"/g, '').replace(/\\/g, ''),
-                        height: height[0].replace(/data-image-height=/g, '').replace(/"/g, '').replace(/\\/g, ''),
-                        url: url[0].replace(/data-large-src=/g, '').replace(/"/g, '').replace(/\\/g, ''),
-                        downloadUrl: result,
+                        width: attribs['data-image-width'],
+                        height: attribs['data-image-height'],
+                        url: attribs['data-large-src'],
+                        downloadUrl: attribs['data-big-src'].split('?')[0]
                     }
                     // 剔除重复的地址
-                    if (tempUrls.indexOf(obj.url) === -1 && parseInt(obj.width, 10) > imageMinWidth) {
-                        tempUrls.push(obj.url)
+                    if (parseInt(obj.width, 10) > imageMinWidth) {
                         urls.push(obj)
                     }
                 }
@@ -73,7 +56,7 @@ export const getImage = function (data) {
             resolve(urls)
         }).catch((err) => {
             source = null
-            console.log(err)
+            console.log('------------请求失败pexels:', url)
             reject()
         })
     })

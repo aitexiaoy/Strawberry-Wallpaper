@@ -9,7 +9,7 @@ const { emailUserName, emailPassword } = require('../../.user-config.json')
  * @param {Object} appInfo 邮件的相关信息
  */
 // eslint-disable-next-line import/prefer-default-export
-export function newEmail(html, telUser, appInfo){
+export function newEmail(data, telUser, appInfo){
     return new Promise((resolve, reject) => {
         nodemailer.createTestAccount((err) => {
             // 建立一个邮箱连接
@@ -29,7 +29,13 @@ export function newEmail(html, telUser, appInfo){
                 to: 'taoacat@163.com', // 收件人地址
                 subject: `【${appInfo.emailType}:草莓壁纸】[${appInfo.version}]${telUser}`, // 主题
                 text: '', 
-                html // 内容
+                html: (() => {
+                    let html = ''
+                    for (const [key, value] of Object.entries(data)){
+                        html += `<div><strong>${key}:</strong><span>${value}</span><div>`
+                    }
+                    return html
+                })()
             };
         
             // 发送

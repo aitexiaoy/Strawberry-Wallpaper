@@ -1,16 +1,5 @@
 <template>
-<div class="main-content" @keydown.enter="keydownEnterFn">
-    <el-collapse-transition>
-        <setter 
-        class="setter-content" 
-        :class="{'setter-content-mac':osType=='mac'}" 
-        v-show="setterShow" 
-        @imageSourceChange="imageSourceChange"  
-        :getDataFlag="getDataFlag"></setter>
-    </el-collapse-transition>
-    <!-- mac下显示三角 -->
-    <div class="sanjiao" v-if="osType=='mac'"></div>
-    <div class="image-main-content" :class="{'image-main-content-mac':osType=='mac'}">
+    <div class="main-content" @keydown.enter="keydownEnterFn">
         <div class="header">
             <el-row class="header-row-one">
                 <div class="left">
@@ -25,14 +14,26 @@
             </el-row>
 
             <div class="header-search" v-if="imageSource==='paper'">
-                <el-select class="header-search-input" v-model="searchKey" size="small" @change="searchKeyFn" @focus="searchKeyFocus=true" @blur="searchKeyFocus=false">
+                <el-select
+                    class="header-search-input"
+                    v-model="searchKey"
+                    size="small"
+                    @change="searchKeyFn"
+                    @focus="searchKeyFocus=true"
+                    @blur="searchKeyFocus=false">
                     <el-option label="最新" :value="'latest'"></el-option>
                     <el-option label="最热" :value="'popular'"></el-option>
                 </el-select>
             </div>
 
             <div class="header-search" v-else>
-                <el-input class="header-search-input" v-model="searchKey" placeholder="关键词[英文]" size="small" @focus="searchKeyFocus=true" @blur="searchKeyFocus=false"></el-input>
+                <el-input
+                    class="header-search-input"
+                    v-model="searchKey"
+                    placeholder="请输入关键词"
+                    size="small"
+                    @focus="searchKeyFocus=true"
+                    @blur="searchKeyFocus=false"></el-input>
                 <i class="iconfont icon-sousuo" @click.stop="searchKeyFn"></i>
             </div>
 
@@ -41,9 +42,15 @@
 
         <div class="content" :class="{'content-win':osType=='win'}" @scroll="contentScroll">
             <div class="content-main" v-if="images.length>0">
-                <div class="image-item" :ref="'image_item_'+index" v-for="(img,index) in images" :key="index" :class="{'image-item-img-first':index===0}" 
-                :style="{'backgroundColor':img.backgroundColor}" 
-                @mousemove.stop="currentMouseOverIndex=index,setterShow=false" @mouseleave.stop="currentMouseOverIndex=-1">
+                <div
+                    class="image-item"
+                    :ref="'image_item_'+index"
+                    v-for="(img,index) in images"
+                    :key="index"
+                    :class="{'image-item-img-first':index===0}"
+                    :style="{'backgroundColor':img.backgroundColor}"
+                    @mousemove.stop="currentMouseOverIndex=index,setterShow=false"
+                    @mouseleave.stop="currentMouseOverIndex=-1">
                     <div class="image-item-img" v-imagematch="img.url"></div>
                     <div class="image-set-wallpaper" v-show="currentMouseOverIndex==index&&isSetting==false" @click.stop="setWallpaper(img,index)">
                         <i class="iconfont icon-xianshiqi"></i>
@@ -54,8 +61,7 @@
                         <div class="image-item-flag-direction" v-show="img.directionColumn">
                             <i class="iconfont icon-xiaoqing-tubiao-hengping"></i>
                         </div>
-                        <div class="image-item-tip" 
-                        :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
+                        <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
                     </div>
                 </div>
             </div>
@@ -65,17 +71,24 @@
                 <span v-else>暂时没有搜索到...</span>
             </div>
         </div>
-    </div>
+        <div class="refresh-btn" :class="{'refresh-btn-ing':refreshBtnIng}">
+            <i class="iconfont icon-shuaxin" @click="refreshFn"></i>
+        </div>
+        <el-collapse-transition>
+            <setter
+                class="setter-content"
+                :class="{'setter-content-mac':osType=='mac'}"
+                v-show="setterShow"
+                @imageSourceChange="imageSourceChange"
+                :getDataFlag="getDataFlag"></setter>
+        </el-collapse-transition>
 
-    <div class="refresh-btn" :class="{'refresh-btn-ing':refreshBtnIng}">
-        <i class="iconfont icon-shuaxin" @click="refreshFn"></i>
     </div>
-</div>
 </template>
 
 <script>
 // 在渲染器进程 (网页) 中。
-import { log } from 'util'
+import { log, debuglog } from 'util'
 import { mapState, mapActions } from 'vuex'
 import setter from './setter.vue'
 import swProgress from './progress.vue'
@@ -86,14 +99,18 @@ const os = require('os')
 const osu = require('node-os-utils')
 const macaddress = require('macaddress')
 const md5 = require('../assets/js/md5.js').md5_32
-const { postRegister, apiStatisticActive } = require('../../api/api.js')
+const {
+    postRegister,
+    apiStatisticActive,
+    apiTranslation
+} = require('../../api/api.js')
 const { mkdirSync } = require('../../file/file.js')
 
 export default {
     name: 'mainContent',
     components: {
         setter,
-        swProgress
+        swProgress,
     },
     data() {
         return {
@@ -112,7 +129,7 @@ export default {
             imageSource: 'pexels',
             sendnewEmailLoading: false, // 邮件发送loading
             progressValue: 0, // 进度值
-            currentImageBacColor: '#fff', 
+            currentImageBacColor: '#fff',
             refreshBtnIng: false,
         }
     },
@@ -139,7 +156,7 @@ export default {
 
     methods: {
         ...mapActions([
-            'changeOsInfoStore', 
+            'changeOsInfoStore',
         ]),
 
         cleartLocalStorage(params) {
@@ -171,24 +188,24 @@ export default {
             this.$ipcRenderer.on('intervalTime', (event, arg) => {
                 this.wallpaperAuto()
                 this.firstInstall()
-        
+
                 const nowDate = parseInt((new Date()).getTime() / 1000, 10)
                 const statisticTimeFlag = this.$localStorage.getStore('statisticTimeFlag')
-                if (!statisticTimeFlag){
+                if (!statisticTimeFlag) {
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
                 }
                 const timingWipeDataFlag = this.$localStorage.getStore('timingWipeDataFlag')
-                if (!timingWipeDataFlag){
+                if (!timingWipeDataFlag) {
                     this.$localStorage.setStore('timingWipeDataFlag', nowDate)
                 }
 
-                // 2小时
-                if (nowDate - statisticTimeFlag >= 2 * 60 * 60){
+                // 2小时 统计日活
+                if (nowDate - statisticTimeFlag >= 2 * 60 * 60) {
                     apiStatisticActive(this.$localStorage.getStore('osInfoUid'))
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
                 }
-                // 7天
-                if (nowDate - timingWipeDataFlag >= 7 * 24 * 60 * 60){
+                // 7天 自动清除已下载
+                if (nowDate - timingWipeDataFlag >= 7 * 24 * 60 * 60) {
                     this.$localStorage.setStore('timingWipeDataFlag', nowDate)
                     // 删除默认文件下的所有内容
                     this.$ipcRenderer.send('btn', {
@@ -215,7 +232,7 @@ export default {
                         this.imageUrls = []
                     }
                     this.urlsDeal(arg.data)
-                } 
+                }
                 // 主窗口显示|隐藏
                 else if (arg.type === 'windowShow') {
                     if (arg.data) {
@@ -223,7 +240,7 @@ export default {
                     } else {
                         this.setterShow = false
                     }
-                } 
+                }
                 // 更新进度条
                 else if (arg.type === 'updaterProgress') {
                     this.progressValue = arg.data
@@ -253,14 +270,13 @@ export default {
          */
         firstInstall() {
             // 第一次注册
-           
-            function getMacAddress(){
+
+            function getMacAddress() {
                 return new Promise((resolve, reject) => {
                     macaddress.one((err, mac) => {
-                        if (err){
+                        if (err) {
                             reject()
-                        }
-                        else {
+                        } else {
                             resolve(mac)
                         }
                     });
@@ -317,7 +333,7 @@ export default {
          */
         openDownloadFile() {
             // 判断是否有文件夹
-            mkdirSync(this.config.downloadImagePath) 
+            mkdirSync(this.config.downloadImagePath)
             shell.openItem(this.config.downloadImagePath)
         },
 
@@ -421,7 +437,7 @@ export default {
             this.imageUrls = []
             this.getData()
         },
-        
+
         /**
          * 改变图片来源
          * @function imageSourceChange
@@ -481,7 +497,7 @@ export default {
          * 获取数据接口
          * @function getData
          */
-        getData() {
+        async getData() {
             this.getDataFlag = true
             const obj = {
                 searchKey: this.searchKey,
@@ -505,43 +521,12 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.image-main-content {
-    border-radius: 6px;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    transform: rotate(0deg);
-}
-
-.sanjiao {
-    width: 100%;
-    height: 10px;
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    background-color: transparent;
-}
-
-.sanjiao::before {
-    content: "";
-    width: 0;
-    height: 0;
-    border-width: 0 10px 10px;
-    border-style: solid;
-    border-color: transparent transparent rgb(37, 33, 33);
-    /*透明 透明  灰*/
-}
-
 .setter-content {
     top: 45px;
-}
 
-.setter-content-mac {
-    top: 55px;
-}
-
-.image-main-content-mac {
-    height: calc(100% - 10px);
+    &.setter-content-mac {
+        top: 55px;
+    }
 }
 
 .main-content {
@@ -581,9 +566,6 @@ export default {
                     cursor: default;
                     user-select: none;
                     // z-index: 2;
-                    // -webkit-text-fill-color: transparent;
-                    // -webkit-background-clip: text;
-                    // -webkit-text-stroke: 2px rgba(255,255,255,0.9);
                 }
             }
         }
@@ -777,48 +759,5 @@ export default {
     100% {
         transform: rotate(0);
     }
-}
-</style>
-
-<style lang="less">
-.main-content {
-    .el-input__inner {
-        border: none;
-        background-color: #383838;
-        color: #a5a5a5;
-    }
-
-    ::-webkit-input-placeholder {
-        /* WebKit browsers */
-        color: #8a8484;
-    }
-}
-
-.popper__arrow {
-    border-bottom-color: #383838;
-}
-
-.el-popper[x-placement^="bottom"] .popper__arrow::after {
-    border-bottom-color: #383838;
-}
-
-.el-popper[x-placement^="bottom"] .popper__arrow {
-    border-bottom-color: #383838;
-}
-
-.el-select-dropdown {
-    background-color: #383838;
-    color: #000000;
-    border: none;
-}
-
-.el-select-dropdown__item.selected {
-    color: #ffffff;
-}
-
-.el-select-dropdown__item.hover,
-.el-select-dropdown__item:hover {
-    background-color: #767676;
-    color: #ffffff;
 }
 </style>

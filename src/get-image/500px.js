@@ -110,8 +110,8 @@ export const getImage = async function (data) {
                     }
                     maxSize = images[i].size
                 }
-                obj.height = parseInt(maxSize / obj.width * obj.height, 10)
-                obj.width = maxSize
+                // obj.height = parseInt(maxSize / obj.width * obj.height, 10)
+                // obj.width = maxSize
                 if (parseInt(obj.width, 10) > imageMinWidth){
                     urls.push(obj)
                 }
@@ -119,7 +119,7 @@ export const getImage = async function (data) {
             resolve(urls)
         }).catch((error) => {
             source = null
-            console.log(error)
+            console.log('------------请求失败500px:', baseUrl)
             reject()
         })
     })
