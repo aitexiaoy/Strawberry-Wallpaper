@@ -6,7 +6,7 @@ const path = require('path')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const { setOnCurrentSpace } = require('../wallpaper/outwallpaper')
-const { openAutoStart, openDisStart } = require('../file/open-start')
+const { openAutoStart, openDisStart } = require('../file/auto-open')
 const { downloadPic, cancelDownloadPic } = require('../file/file')
 const { getUrls, cancelUrls } = require('../get-image/search')
 const { newEmail } = require('./mail')
@@ -15,8 +15,9 @@ const { isDev, isMac, isWin, baseUrl } = require('../utils/utils')
 
 log.transports.file.level = 'info'
 
-// 托盘对象
+
 let mainWindow = null
+// 托盘对象
 let appTray = null
 let openAppFlag = true
 
