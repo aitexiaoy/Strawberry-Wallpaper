@@ -1,3 +1,13 @@
+*{
+    margin: 0px;
+    font-family: 'PingFang SC',"Microsoft YaHei";
+    box-sizing: border-box;
+}
+html,body,.app{
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+}
 .el-input__inner {
     border: none;
     background-color: #383838;
@@ -70,6 +80,21 @@ input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
     transition: transform .3s;
 }
 .page-transition-enter, .page-transition-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  transform: translateX(100%);
-  transition: transform .3s;
+    transform: translateX(100%);
+    transition: transform .3s;
+}
+
+
+
+.el-loading-mask{
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    font-size: 20px;
+    color: #fff;
+}
+.el-loading-spinner i {
+    color: #fff;
+    font-size: 50px;
+}
+.el-radio {
+    line-height: 22px;
 }

@@ -54,7 +54,7 @@ export const getImage = function (data) {
                 }
             }
             resolve(urls)
-        }).catch((err) => {
+        }).catch(() => {
             source = null
             console.log('------------请求失败pexels:', url)
             reject()

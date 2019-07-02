@@ -1,6 +1,6 @@
 /* eslint-disable */
 /*
-md5.js
+md5
 */
 const rotateLeft = function (lValue, iShiftBits) {
     return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));

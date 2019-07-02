@@ -2,8 +2,8 @@
 
 const axios = require('axios')
 const { baiDuTranslationAppId, baiDuTranslationAppKey } = require('../../.user-config.json')
-const { MD5: swMd5 } = require('./baidu-md5.js')
-const { apiBaseUrl } = require('../utils/config.js')
+const { MD5: swMd5 } = require('./baidu-md5')
+const { apiBaseUrl } = require('../utils/config')
 
 const instance = axios.create({
     baseURL: apiBaseUrl,
@@ -34,12 +34,10 @@ export const postRegister = data => new Promise((resolve, reject) => {
 /**
  * 统计用户的使用情况
  */
-export const apiStatisticActive = uid => instance.post('/active', {
-    uid
-})
+export const apiStatisticActive = data => instance.post('/active', data)
 
 /**
- * 百度翻译接口，将用户搜索的中卫转成英文
+ * 百度翻译接口，将用户搜索的中文转成英文
  */
 export const apiTranslation = val => new Promise((resolve, reject) => {
     if (val === ''){

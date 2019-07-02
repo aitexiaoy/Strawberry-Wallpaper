@@ -1,19 +1,24 @@
-import { apiTranslation } from '../api/api.js'
+import { apiTranslation } from '../api/api'
 
 let type = ''
 
+const pexels = require('./pexels')
+const fiveHundred = require('./500px')
+const paper = require('./paper')
+const unsplash = require('./unsplash')
+
 const cancelFn = {
-    pexels: require('./pexels.js').cancelImage,
-    '500px': require('./500px.js').cancelImage,
-    paper: require('./paper.js').cancelImage,
-    unsplash: require('./unsplash.js').cancelImage
+    pexels: pexels.cancelImage,
+    '500px': fiveHundred.cancelImage,
+    paper: paper.cancelImage,
+    unsplash: unsplash.cancelImage
 }
 
 const getUrl = {
-    pexels: require('./pexels.js').getImage,
-    '500px': require('./500px.js').getImage,
-    paper: require('./paper.js').getImage,
-    unsplash: require('./unsplash.js').getImage
+    pexels: pexels.getImage,
+    '500px': fiveHundred.getImage,
+    paper: paper.getImage,
+    unsplash: unsplash.getImage
 }
 
 export const getUrls = function (data) {

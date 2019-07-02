@@ -115,6 +115,9 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 - 修复自动命名出现NaN的bug
 - 修改定时功能逻辑，解决在mac下定时更新失败的问题
 
+> 1.1.1
+- 采用新规则生成软件的uid，存储字段：first_install_flag_v1.1.1
+
 > 1.2
 - 针对已经设置完壁纸的图片做缓存处理，不再继续下载
 - 修改意见反馈页面

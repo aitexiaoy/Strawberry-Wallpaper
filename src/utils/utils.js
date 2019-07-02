@@ -19,13 +19,18 @@ const os = require('os');
 
 export const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:9080' : `file://${__dirname}/index.html`
 
-export const osType = os.type();
+const OSTYPES = {
+    Darwin: 'mac',
+    Windows_NT: 'win'
+}
+
+export const osType = OSTYPES[os.type()] || 'win';
 export function isMac() {
-    return osType === 'Darwin'
+    return osType === 'mac'
 }
 
 export function isWin() {
-    return osType === 'Windows_NT'
+    return osType === 'win'
 }
 
 export function isDev() {

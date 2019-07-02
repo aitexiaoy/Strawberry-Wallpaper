@@ -14,9 +14,9 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
 
-const { axiosGet } = require('../utils/axios.js')
+const { axiosGet } = require('../utils/axios')
 
-const { imageMinWidth } = require('../utils/config.js')
+const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 let source = null
@@ -117,7 +117,7 @@ export const getImage = async function (data) {
                 }
             })
             resolve(urls)
-        }).catch((error) => {
+        }).catch(() => {
             source = null
             console.log('------------请求失败500px:', baseUrl)
             reject()

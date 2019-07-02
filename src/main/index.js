@@ -5,11 +5,11 @@ const fs = require('fs')
 const path = require('path')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
-const { setOnCurrentSpace } = require('../wallpaper/outwallpaper.js')
-const { openAutoStart, openDisStart } = require('../file/open-start.js')
-const { downloadPic, cancelDownloadPic } = require('../file/file.js')
-const { getUrls, cancelUrls } = require('../get-image/search.js')
-const { newEmail } = require('./mail.js')
+const { setOnCurrentSpace } = require('../wallpaper/outwallpaper')
+const { openAutoStart, openDisStart } = require('../file/open-start')
+const { downloadPic, cancelDownloadPic } = require('../file/file')
+const { getUrls, cancelUrls } = require('../get-image/search')
+const { newEmail } = require('./mail')
 
 const { isDev, isMac, isWin, baseUrl } = require('../utils/utils')
 
@@ -106,7 +106,7 @@ function createWindow() {
     mainWindow.loadURL(baseUrl)
 
     mainWindow.on('blur', () => {
-        // mainWindow.hide()
+        mainWindow.hide()
     })
 
     mainWindow.on('closed', () => {
@@ -236,6 +236,9 @@ function appInit() {
     }
 }
 
+/**
+ * 主窗口显示，创建一个动画效果
+ */
 function mainWindowShow() {
     let opacity = 0
     mainWindow.show()
@@ -249,6 +252,9 @@ function mainWindowShow() {
     }, 30)
 }
 
+/**
+ * 主窗口隐藏，创建一个动画效果
+ */
 function mainWindowHide() {
     let opacity = 1
     const time = setInterval(() => {
@@ -283,10 +289,10 @@ function ipcMainInit() {
         downloadPic(arg.downloadUrl, mainWindow).then((result) => {
             setOnCurrentSpace(result)
             event.sender.send('dataWallpaper', 'success')
-            log.info('设置壁纸成功')
+            log.info(`设置壁纸成功:${arg.downloadUrl}`)
         }).catch((error) => {
             event.sender.send('dataWallpaper', 'error')
-            log.error('设置壁纸失败')
+            log.error(`设置壁纸失败:${arg.downloadUrl}`)
             log.error(error)
         })
     })
@@ -296,6 +302,11 @@ function ipcMainInit() {
             mainWindow.webContents.send('datainfo', {
                 type: 'urls',
                 data: result
+            })
+        }).catch(() => {
+            mainWindow.webContents.send('datainfo', {
+                type: 'urlsError',
+                data: ''
             })
         })
     })

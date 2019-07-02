@@ -9,7 +9,7 @@ export default {
     name: 'mlPageHeader',
     methods: {
         handleClick(){
-            this.$router.go(-1)
+            this.$router.replace('/')
         }
     }
 }
@@ -24,7 +24,7 @@ export default {
         margin-top: -10px;
         line-height: 60px;
         color: #ffffff;
-        font-size: 18px;
+        font-size: 16px;
         .title-text{
             width: 100%;
             text-align: center;
