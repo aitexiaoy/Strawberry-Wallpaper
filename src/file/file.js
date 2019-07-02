@@ -75,6 +75,7 @@ export const downloadPic = async function (src, mainWindow) {
         myRequest = request({
             url: src,
             headers: browserHeader,
+            timeout: 120000 // 120s
         })
         myRequest.pipe(writeStream)
         myRequest.on('response', (data) => {
@@ -84,7 +85,7 @@ export const downloadPic = async function (src, mainWindow) {
         myRequest.on('data', (chunk) => {
             // 更新下载的文件块字节大小
             receivedBytes += chunk.length
-            console.log(receivedBytes / totalBytes)
+            console.log(receivedBytes, totalBytes)
             mainWindow.webContents.send('datainfo', {
                 type: 'updaterProgress',
                 data: parseFloat(((receivedBytes / totalBytes) * 100))
@@ -95,6 +96,7 @@ export const downloadPic = async function (src, mainWindow) {
             myRequest = null
         })
         myRequest.on('error', () => {
+            deleteDownLoadFile(dstpath)
             reject()
         })
         writeStream.on('finish', () => {
@@ -105,11 +107,7 @@ export const downloadPic = async function (src, mainWindow) {
                     webp.dwebp(dstpath, dstpath.replace('webp', 'jpg'), '-o', (status) => {
                         // status 101->fails || 100->successful
                         if (status === '100') {
-                            fs.unlink(dstpath, (err) => {
-                                if (err){
-                                    console.log('图片已删除')
-                                }
-                            })
+                            deleteDownLoadFile(dstpath)
                             resolve(dstpath.replace('webp', 'jpg'))
                         } else {
                             reject()
@@ -119,15 +117,7 @@ export const downloadPic = async function (src, mainWindow) {
                     resolve(dstpath)
                 }
             } else {
-                fs.unlink(dstpath, (err) => {
-                    if (err) {
-                        console.log('图片已删除')
-                    }
-                })
-                mainWindow.webContents.send('datainfo', {
-                    type: 'updaterProgress',
-                    data: 0
-                })
+                deleteDownLoadFile(dstpath)
                 reject()
             }
         })
@@ -141,15 +131,20 @@ export const cancelDownloadPic = function () {
     return new Promise((resolve) => {
         if (myRequest) {
             myRequest.abort()
-            // 取消下载的时候删除图片
-            if (fs.existsSync(currentSaveFilePath)){
-                fs.unlink(currentSaveFilePath, (err) => {
-                    if (err) {
-                        console.log('图片已删除')
-                    }
-                })
-            }
+            deleteDownLoadFile(currentSaveFilePath)
         }
         resolve()
     })
+}
+
+
+function deleteDownLoadFile(filePath){
+    // 取消下载的时候删除图片
+    if (fs.existsSync(filePath)){
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.log('图片已删除')
+            }
+        })
+    }
 }

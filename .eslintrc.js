@@ -26,7 +26,7 @@ module.exports = {
     settings: {
         'import/resolver': {
             webpack: {
-                config: '.electron-vue/webpack.web.config.js'
+                config: '.electron-vue/webpack.renderer.config.js'
             }
         }
     },

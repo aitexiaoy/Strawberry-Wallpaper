@@ -289,12 +289,12 @@ function ipcMainInit() {
     ipcMain.on('dataWallpaper', (event, arg) => {
         downloadPic(arg.downloadUrl, mainWindow).then((result) => {
             setOnCurrentSpace(result)
-            event.sender.send('dataWallpaper', 'success')
             log.info(`设置壁纸成功:${arg.downloadUrl}`)
+            event.sender.send('dataWallpaper', 'success')
         }).catch((error) => {
-            event.sender.send('dataWallpaper', 'error')
             log.error(`设置壁纸失败:${arg.downloadUrl}`)
             log.error(error)
+            event.sender.send('dataWallpaper', 'error')
         })
     })
 

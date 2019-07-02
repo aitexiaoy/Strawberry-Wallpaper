@@ -110,7 +110,7 @@ const { mkdirSync } = require('../../file/file')
 const INFOSHOW = {
     loading: '美好的事情即将发生...',
     noData: '暂时没有得到想要的内容...',
-    netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。',
+    netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，很可能是网络没有正常连接或者是爬虫的接口已更改导致。请在设置->意见反馈中联系作者，或者在设置中换个图库试试。',
     null: ''
 }
 
@@ -184,6 +184,7 @@ export default {
                 }
                 this.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000, 10))
                 this.isSetting = false
+                this.progressValue = 0
                 this.$swLoading.close()
             })
 
