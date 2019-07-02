@@ -42,7 +42,7 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 
 【软件主页】
 
-用于显示壁纸照片，可以进行关键词搜索[目前只支持英文关键词搜索]。
+用于显示壁纸照片，可以切换图库，可以进行关键词搜索。
 
 <img src="http://file.qiniu.taoacat.com/stwallpaper-1.png" width="300px" />
 
@@ -123,7 +123,7 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 - 修改意见反馈页面
 - 修改pexels地址变化带来的图片加载不出来Bug，优化pexels爬虫逻辑
 - 增加下一页请求中提示，增加请求失败提示。
-- 增加中文关键词的支持
+- 增加搜索中文关键词的支持
 
 ## LICENSE
 

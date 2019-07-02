@@ -96,7 +96,7 @@ let webConfig = {
     new webpack.DefinePlugin({
       'process.env':{
         'IS_WEB': 'true',
-      'myversion':'0.0.1'
+        'myversion':'0.0.1'
       }
     }),
     new webpack.HotModuleReplacementPlugin(),
