@@ -1,6 +1,6 @@
 /*
  * @Description: 常用工具函数合集
- * @Author: yangpeng
+ * @Author: --
  * @Date: 2019-02-14 09:06:39
  * @LastEditTime: 2019-04-09 10:16:30
  */

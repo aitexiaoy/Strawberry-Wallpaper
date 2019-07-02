@@ -1,7 +1,7 @@
 <template>
     <transition name="page-transition">
         <div class="suggestion">
-            <ml-page-header>提建议 🍓🍓🍓</ml-page-header>
+            <ml-page-header>意见反馈</ml-page-header>
             <div class="content">
                 <el-input
                     type="textarea"
@@ -12,7 +12,7 @@
                     size="small"></el-input>
             </div>
             <div class="tel-phone">
-                <el-input placeholder="留下你的联系方式,方便我们找到你" v-model="telUser" size="small"></el-input>
+                <el-input placeholder="请留下你的联系方式，方便我们找到你" v-model="telUser" size="small"></el-input>
             </div>
             <div class="sure-post">
                 <el-button type="primary" @click.stop="sure_post" :loading="loading">提交</el-button>
@@ -83,9 +83,8 @@ export default {
 .suggestion {
     width: 100%;
     height: 100%;
-    padding: 10px;
+    padding: 14px;
     cursor: default;
-
     .edit {
         width: 100%;
     }

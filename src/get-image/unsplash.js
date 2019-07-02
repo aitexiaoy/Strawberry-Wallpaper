@@ -21,12 +21,12 @@
 
 
 const axios = require('axios')
-const { imageMinWidth } = require('../utils/config.js')
+const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 let source = null
 
-const { axiosGet } = require('../utils/axios.js')
+const { axiosGet } = require('../utils/axios')
 
 export const getImage = function (data) {
     return new Promise((resolve, reject) => {
@@ -75,7 +75,7 @@ export const getImage = function (data) {
                 }
             })
             resolve(urls)
-        }).catch((err) => {
+        }).catch(() => {
             source = null
             console.log('------------请求失败unsplash:', baseUrl)
             reject()

@@ -12,14 +12,16 @@
  *  
  */
 
+// https://api.unsplash.com/photos/random?client_id=1c0018090c0878f9556fba12d4b8ba060866de2733de1cc8486c720bf7c9a04e&count=5
+
 
 const axios = require('axios')
-const { imageMinWidth } = require('../utils/config.js')
+const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 let source = null
 
-const { axiosGet } = require('../utils/axios.js')
+const { axiosGet } = require('../utils/axios')
 
 export const getImage = function (data) {
     return new Promise((resolve, reject) => {
@@ -52,7 +54,7 @@ export const getImage = function (data) {
                 }
             })
             resolve(urls)
-        }).catch((err) => {
+        }).catch(() => {
             source = null
             console.log('------------请求失败paper:', baseUrl)
             reject()

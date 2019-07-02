@@ -4,7 +4,7 @@ const { emailUserName, emailPassword } = require('../../.user-config.json')
 
 /**
  * 发送一封邮件
- * @param {*} html 邮件的主体恩内容
+ * @param {Object} data 邮件的主体内容
  * @param {*} telUser 主题中第三个框中的内容
  * @param {Object} appInfo 邮件的相关信息
  */

@@ -1,100 +1,113 @@
 <template>
-  <div
-    class="setter"
-    @mouseout.stop.prevent="mouseoutFn(false)"
-    @mouseenter.stop.prevent="mouseoutFn(true)"
-  >
-    <div class="setter-sanjiao"></div>
-    <div class="setter-content">
-      <div class="setter-row-one">
-        <div>
-          <!-- <i class="iconfont icon-banbenhao"></i> -->
-          {{version1}}
-          <span
-            :style="{fontSize:'12px'}"
-            class="about-pro"
-            @click.stop="check_newVersion"
-          >检查更新</span>
-        </div>
-        <div @click.stop="quit">
-          <i class="iconfont icon-tuichu"></i>
-        </div>
-      </div>
+    <el-collapse-transition>
+        <div
+            class="setter"
+            v-show="show"
+        >
+            <div class="setter-sanjiao"></div>
+            <div class="setter-content">
+                <div class="setter-row-one">
+                    <div>{{version1}}
+                        <span
+                            :style="{fontSize:'12px'}"
+                             class="about-pro"
+                             @click.stop="check_newVersion"
+                            >
+                            检查更新
+                          </span>
+                    </div>
+                    <div @click.stop="quit">
+                        <i class="iconfont icon-tuichu"></i>
+                    </div>
+                </div>
 
-      <div class="setter-row">
-        <el-checkbox v-model="isOpenStatr" @change="setOpenStart">
-          <span class="checkbox-text">开机自动启动</span>
-        </el-checkbox>
-      </div>
+                <div class="setter-row">
+                    <el-checkbox v-model="isOpenStatr" @change="setOpenStart">
+                        <span class="checkbox-text">开机自动启动</span>
+                    </el-checkbox>
+                </div>
 
-      <div class="setter-row">
-        <el-checkbox v-model="wallpaperAutoUp" @change="wallpaperAutoChange">
-          <span class="checkbox-text">壁纸自动更新</span>
-        </el-checkbox>
-      </div>
+                <div class="setter-row">
+                    <el-checkbox v-model="wallpaperAutoUp" @change="wallpaperAutoChange">
+                        <span class="checkbox-text">壁纸自动更新</span>
+                    </el-checkbox>
+                </div>
 
-      <div class="setter-row">
-        <el-radio-group v-model="updataTime" @change="updataTimeChange">
-          <el-radio label="3600" :disabled="wallpaperAutoUp==false">
-            <span class="checkbox-text">每小时</span>
-          </el-radio>
-          <el-radio label="86400" :disabled="wallpaperAutoUp==false">
-            <span class="checkbox-text">每天</span>
-          </el-radio>
-          <el-radio label="604800" :disabled="wallpaperAutoUp==false">
-            <span class="checkbox-text">每周</span>
-          </el-radio>
-        </el-radio-group>
-      </div>
+                <div class="setter-row">
+                    <el-radio-group v-model="updataTime" @change="updataTimeChange">
+                        <el-radio label="3600" :disabled="wallpaperAutoUp==false">
+                            <span class="checkbox-text">每小时</span>
+                        </el-radio>
+                        <el-radio label="86400" :disabled="wallpaperAutoUp==false">
+                            <span class="checkbox-text">每天</span>
+                        </el-radio>
+                        <el-radio label="604800" :disabled="wallpaperAutoUp==false">
+                            <span class="checkbox-text">每周</span>
+                        </el-radio>
+                    </el-radio-group>
+                </div>
 
-      <div class="setter-row">
-        <span class="nowrap">设置保存地址:</span>
-        <span class="about-pro" @click="setDefalutDownloadPath">{{downloadImagePath}}</span>
-      </div>
+                <div class="setter-row">
+                    <span class="nowrap">设置保存地址:</span>
+                    <span class="about-pro" @click="setDefalutDownloadPath">{{downloadImagePath}}</span>
+                </div>
 
-      <!-- <div class="setter-row">
+                <!-- <div class="setter-row">
         <el-checkbox v-model="timingWipeData" @change="timingWipeDataChange">
           <span class="checkbox-text">定时清空图片</span>
         </el-checkbox>
       </div> -->
 
-      <div class="setter-row image-sourece">图片来源: {{imageSource}}</div>
+                <div class="setter-row image-sourece">图片来源: {{imageSource}}</div>
 
-      <div class="setter-row">
-        <el-radio-group
-          v-model="imageSource"
-          @change="imageSourceChange"
-        >
-          <template v-for="item in imageSourceType">
-            <el-radio :label="item.value" :key="item.value">
-              <span class="checkbox-text">{{item.name}}</span>
-            </el-radio>
-          </template>
-        </el-radio-group>
-      </div>
+                <div class="setter-row">
+                    <el-radio-group v-model="imageSource" @change="imageSourceChange">
+                        <template v-for="item in imageSourceType">
+                            <el-radio :label="item.value" :key="item.value">
+                                <span class="checkbox-text">{{item.name}}</span>
+                            </el-radio>
+                        </template>
+                    </el-radio-group>
+                </div>
 
-      <div class="setter-last-btn">
-        <div class="about-pro" @click="suggestion">意见反馈</div>
-        <div class="about-pro" @click="aboutPro">关于项目</div>
-      </div>
-    </div>
-  </div>
+                <div class="setter-last-btn">
+                    <div class="about-pro" @click="suggestion">意见反馈</div>
+                    <div class="about-pro" @click="aboutPro">关于项目</div>
+                </div>
+            </div>
+        </div>
+    </el-collapse-transition>
 </template>
 
 <script>
-import { ipcRenderer, remote } from 'electron'
-import { mapActions } from 'vuex'
-import { version } from '../../../package'
-import { imageSourceType } from '../../utils/utils'
+import {
+    ipcRenderer,
+    remote
+} from 'electron'
+import {
+    mapActions
+} from 'vuex'
+import {
+    version
+} from '../../../package'
+import {
+    imageSourceType
+} from '../../utils/utils'
 
 const os = require('os')
 
-const { dialog } = remote
+const {
+    dialog
+} = remote
 
 export default {
     name: 'setter',
     props: {
         get_data_flag: {
+            type: Boolean,
+            default: false
+        },
+        show: {
             type: Boolean,
             default: false
         }
@@ -116,7 +129,7 @@ export default {
         if (data) {
             const newData = {}
             for (const index in data) {
-                if (Object.prototype.hasOwnProperty.bind(data, index)){
+                if (Object.prototype.hasOwnProperty.bind(data, index)) {
                     newData[index] = data[index] || this[index]
                     this[index] = newData[index]
                 }
@@ -135,7 +148,7 @@ export default {
         ...mapActions([
             'changeConfigStore',
         ]),
-        
+
         setOpenStart() {
             this.$ipcRenderer.send('btn', {
                 type: 'openStart',
@@ -150,25 +163,23 @@ export default {
                 data: ''
             })
         },
-  
+
         /**
          * 关于项目
          */
         aboutPro() {
+            this.$emit('update:show', false)
             this.$router.push('/about')
         },
-  
-        mouseoutFn(val) {
-            this.$emit('contentMouse', val)
-        },
-  
+
         /**
          * 意见反馈
          */
         suggestion() {
+            this.$emit('update:show', false)
             this.$router.push('/suggestion')
         },
-  
+
         /** *将配置信息存到localstorage中 */
         setLocation() {
             const data = {
@@ -182,7 +193,7 @@ export default {
             this.$localStorage.setStore('userConfig', data)
             this.changeConfigStore(data)
         },
-  
+
         wallpaperAutoChange() {
             if (!this.wallpaperAutoUp) {
                 this.updataTime = -1
@@ -192,7 +203,7 @@ export default {
             this.setLocation()
         },
 
-        timingWipeDataChange(){
+        timingWipeDataChange() {
             this.setLocation()
         },
 
@@ -220,7 +231,7 @@ export default {
         /**
          * 设置默认下载图片路径
          */
-        setDefalutDownloadPath(){
+        setDefalutDownloadPath() {
             this.$ipcRenderer.send('btn', {
                 type: 'setDefaultDownPath',
                 data: this.downloadImagePath
@@ -228,110 +239,116 @@ export default {
         }
     }
 }
-
 </script>
 
 <style lang="less" scoped>
 .setter {
-  width: 100%;
-  height: 270px;
-  position: absolute;
-  z-index: 4000;
-  .setter-row {
-    display: flex;
     width: 100%;
-    height: 34px;
-    align-items: center;
-  }
-
-  .image-sourece {
-    height: 30px;
-    font-weight: 500px;
-  }
-
-  .setter-row-one {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    .icon-tuichu {
-      font-size: 20px;
-    }
-  }
-  .setter-last-btn {
-    width: 100%;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .setter-content {
-    background-color: rgba(43, 42, 42, 0.9);
-    width: 100%;
-    height: 100%;
+    height: 270px;
     position: absolute;
-    right: 0px;
-    top: 0px;
-    padding: 20px;
-    color: #fff;
-    user-select: none;
-    cursor: default;
-    font-size: 12px;
-    padding-top: 10px;
-  }
+    z-index: 4000;
 
+    .setter-row {
+        display: flex;
+        width: 100%;
+        height: 34px;
+        align-items: center;
+    }
 
-  .checkbox-text {
-    color: #fff;
-  }
-  .nowrap{
-    white-space: nowrap;
-  }
+    .image-sourece {
+        height: 30px;
+        font-weight: 500px;
+    }
 
-  .about-pro{
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    .setter-row-one {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
 
-  .about-pro:hover {
-    text-decoration: underline;
-  }
+        .icon-tuichu {
+            font-size: 20px;
+        }
+    }
+
+    .setter-last-btn {
+        width: 100%;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .setter-content {
+        background-color: rgba(43, 42, 42, 0.9);
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        padding: 20px;
+        color: #fff;
+        user-select: none;
+        cursor: default;
+        font-size: 12px;
+        padding-top: 10px;
+    }
+
+    .checkbox-text {
+        color: #fff;
+    }
+
+    .nowrap {
+        white-space: nowrap;
+    }
+
+    .about-pro {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .about-pro:hover {
+        text-decoration: underline;
+    }
 }
 
 .setter-sanjiao {
-  content: "";
-  display: block;
-  width: 0;
-  height: 0;
-  position: absolute;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid rgba(43, 42, 42, 0.8);
-  top: -8px;
-  right: 20px;
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    position: absolute;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid rgba(43, 42, 42, 0.8);
+    top: -8px;
+    right: 20px;
 }
 </style>
 
 <style lang="less">
 .setter {
-  .el-checkbox__label {
-    color: #fff;
-  }
+    .el-checkbox__label {
+        color: #fff;
+    }
 
-  .el-radio__label {
-    color: #fff;
-  }
-  .el-checkbox__inner {
-    background-color: rgba(52, 52, 53, 0.2) !important;
-    border-color: #f3f3f3 !important;
-  }
-  .el-radio__inner {
-    background-color: rgba(52, 52, 53, 0.2) !important;
-    border-color: #f3f3f3 !important;
-  }
-  .el-radio {
-    margin-right: 10px !important;
-  }
+    .el-radio__label {
+        color: #fff;
+    }
+
+    .el-checkbox__inner {
+        background-color: rgba(52, 52, 53, 0.2) !important;
+        border-color: #f3f3f3 !important;
+    }
+
+    .el-radio__inner {
+        background-color: rgba(52, 52, 53, 0.2) !important;
+        border-color: #f3f3f3 !important;
+    }
+
+    .el-radio {
+        margin-right: 10px !important;
+    }
 }
 </style>

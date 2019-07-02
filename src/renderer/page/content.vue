@@ -1,5 +1,7 @@
 <template>
-    <div class="main-content" @keydown.enter="keydownEnterFn">
+    <div class="main-content" 
+    @mouseleave="handleMouseLeave"
+    @keydown.enter="keydownEnterFn">
         <div class="header">
             <el-row class="header-row-one">
                 <div class="left">
@@ -64,47 +66,53 @@
                         <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
                     </div>
                 </div>
+                 <div class="is-loading" v-if="infoShow!==''">
+                     <i v-if="getDataFlag" class="el-icon-loading"></i>
+                     <span v-html="infoShow"></span>
+                </div>
             </div>
 
             <div class="content-main-no" v-else @mousemove.stop="setterShow=false">
-                <span v-if="getDataFlag==true">美好的事情即将发生...</span>
-                <span v-else>暂时没有搜索到...</span>
+                <span v-html="infoShow"></span>
             </div>
         </div>
         <div class="refresh-btn" :class="{'refresh-btn-ing':refreshBtnIng}">
             <i class="iconfont icon-shuaxin" @click="refreshFn"></i>
         </div>
-        <el-collapse-transition>
-            <setter
-                class="setter-content"
-                :class="{'setter-content-mac':osType=='mac'}"
-                v-show="setterShow"
-                @imageSourceChange="imageSourceChange"
-                :getDataFlag="getDataFlag"></setter>
-        </el-collapse-transition>
+
+        <setter
+            :class="['setter-content',osType=='mac'?'setter-content-mac':'']"
+            :show.sync="setterShow"
+            @imageSourceChange="imageSourceChange"
+            :getDataFlag="getDataFlag">
+        </setter>
 
     </div>
 </template>
 
 <script>
 // 在渲染器进程 (网页) 中。
-import { log, debuglog } from 'util'
+import { log, debuglog, osType } from 'util'
 import { mapState, mapActions } from 'vuex'
-import setter from './setter.vue'
-import swProgress from './progress.vue'
 import { version } from '../../../package'
+import setter from './setter'
+import swProgress from './progress'
 
 const { shell } = require('electron')
 const os = require('os')
 const osu = require('node-os-utils')
 const macaddress = require('macaddress')
-const md5 = require('../assets/js/md5.js').md5_32
-const {
-    postRegister,
-    apiStatisticActive,
-    apiTranslation
-} = require('../../api/api.js')
-const { mkdirSync } = require('../../file/file.js')
+const md5 = require('../../utils/md5').md5_32
+
+const { postRegister, apiStatisticActive } = require('../../api/api')
+const { mkdirSync } = require('../../file/file')
+
+const INFOSHOW = {
+    loading: '美好的事情即将发生...',
+    noData: '暂时没有得到想要的内容...',
+    netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。',
+    null: ''
+}
 
 export default {
     name: 'mainContent',
@@ -114,27 +122,23 @@ export default {
     },
     data() {
         return {
-            currentMouseOverIndex: -1,
+            currentMouseOverIndex: -1, // 当前鼠标在那个图片上
             currentWallpaperIndex: 0, // 当前壁纸的索引
-            searchKey: '',
-            setterShow: false,
-            isSetting: false,
-            images: [],
-            imageUrls: [],
-            havaDataFlag: true, // 标记是否还有数据
             page: 0, // 请求数据的页数
-            getDataFlag: false, // 标记页面是否正在请求数据
-            searchKeyFocus: false,
-            osType: 'mac',
-            imageSource: 'pexels',
-            sendnewEmailLoading: false, // 邮件发送loading
             progressValue: 0, // 进度值
-            currentImageBacColor: '#fff',
-            refreshBtnIng: false,
+            searchKey: '', // 搜索关键字
+            setterShow: false, // 是否显示设置
+            isSetting: false, // 是否正在设置壁纸
+            havaDataFlag: true, // 标记是否还有数据
+            getDataFlag: false, // 标记页面是否正在请求数据
+            searchKeyFocus: false, // 标记当前搜索框是否正在焦点中
+            refreshBtnIng: false, // 是否正在刷新
+            images: [], // 图片列表
+            osType, // 系统类型
+            imageSource: 'pexels', // 图片来源
+            currentImageBacColor: '#fff', // 进度条的颜色
+            infoShow: INFOSHOW.loading // 相关提示信息
         }
-    },
-    beforeCreate() {
-
     },
 
     computed: mapState({
@@ -144,11 +148,9 @@ export default {
     mounted() {
         // 安装量的统计
         this.firstInstall()
-        this.osType = os.type() === 'Darwin' ? 'mac' : 'win'
         this.imageSource = this.$localStorage.getStore('userConfig').imageSource || 'pexels'
         this.searchKey = this.$localStorage.getStore('searchKey')
         this.images = []
-        this.imageUrls = []
         this.cleartLocalStorage()
         this.getData()
         this.eventInit()
@@ -159,6 +161,9 @@ export default {
             'changeOsInfoStore',
         ]),
 
+        /**
+         * 清除因版本更新后不再使用字段
+         */
         cleartLocalStorage(params) {
             this.$localStorage.removeStore('first_install_flag')
             this.$localStorage.removeStore('first_install_flag_v1.1')
@@ -179,7 +184,7 @@ export default {
                 }
                 this.$localStorage.setStore('lastUpdataTime', parseInt((new Date()).getTime() / 1000, 10))
                 this.isSetting = false
-                this.$fbloading.close()
+                this.$swLoading.close()
             })
 
             /**
@@ -201,7 +206,10 @@ export default {
 
                 // 2小时 统计日活
                 if (nowDate - statisticTimeFlag >= 2 * 60 * 60) {
-                    apiStatisticActive(this.$localStorage.getStore('osInfoUid'))
+                    apiStatisticActive({
+                        uid: this.$localStorage.getStore('osInfoUid'),
+                        version
+                    })
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
                 }
                 // 7天 自动清除已下载
@@ -218,32 +226,38 @@ export default {
             /**
              * 数据相关事件
              */
-            this.$ipcRenderer.on('datainfo', (event, arg) => {
+            this.$ipcRenderer.on('datainfo', (event, { type = '', data }) => {
                 // 获得了接口列表
-                if (arg.type === 'urls') {
+                if (type === 'urls') {
                     this.getDataFlag = false
+                    this.infoShow = INFOSHOW.null
                     this.refreshBtnIng = false
-                    if (arg.data.length === 0) {
+                    if (data.length === 0) {
                         this.havaDataFlag = false
+                        this.infoShow = INFOSHOW.noData
                         return
                     }
                     if (this.page === 0) {
                         this.images = []
-                        this.imageUrls = []
                     }
-                    this.urlsDeal(arg.data)
+                    this.urlsDeal(data)
+                }
+                else if (type === 'urlsError'){
+                    this.refreshBtnIng = false
+                    this.getDataFlag = false
+                    this.infoShow = INFOSHOW.netError
                 }
                 // 主窗口显示|隐藏
-                else if (arg.type === 'windowShow') {
-                    if (arg.data) {
+                else if (type === 'windowShow') {
+                    if (data) {
                         this.setterShow = false
                     } else {
                         this.setterShow = false
                     }
                 }
                 // 更新进度条
-                else if (arg.type === 'updaterProgress') {
-                    this.progressValue = arg.data
+                else if (type === 'updaterProgress') {
+                    this.progressValue = data
                     if (this.progressValue >= 100) {
                         const time = setTimeout(() => {
                             clearTimeout(time)
@@ -270,7 +284,6 @@ export default {
          */
         firstInstall() {
             // 第一次注册
-
             function getMacAddress() {
                 return new Promise((resolve, reject) => {
                     macaddress.one((err, mac) => {
@@ -321,7 +334,7 @@ export default {
             if (!this.$refs[`image_item_${index}`][0]) {
                 return
             }
-            this.$fbloading.open(this.$refs[`image_item_${index}`][0])
+            this.$swLoading.open(this.$refs[`image_item_${index}`][0])
             this.$ipcRenderer.send('dataWallpaper', img)
             this.currentImageBacColor = this.images[index].backgroundColor
             this.currentWallpaperIndex = index
@@ -371,7 +384,6 @@ export default {
                 this.destroyAll()
                 this.page = 0
                 this.images = []
-                this.imageUrls = []
                 this.getData()
             }
             this.isSetting = false
@@ -379,7 +391,7 @@ export default {
             // 设置一个时间记录最后更新的时间
             this.$localStorage.setStore('lastUpdataTime', parseInt(new Date().getTime() / 1000, 10))
             this.isSetting = false
-            this.$fbloading.close()
+            this.$swLoading.close()
         },
 
         /**
@@ -390,7 +402,7 @@ export default {
             this.progressValue = 0
             this.isSetting = false
             this.setterShow = false
-            this.$fbloading.close()
+            this.$swLoading.close()
             this.$ipcRenderer.send('cancelAllRequest', true) // 取消所有请求
         },
 
@@ -401,6 +413,7 @@ export default {
             if (this.isSetting === true || this.images.length === 0) {
                 return
             }
+            // 自动设置壁纸的时候还剩下5张就请求下一页
             if (this.havaDataFlag && this.currentWallpaperIndex === this.images.length - 5) {
                 this.page = this.page + 1
                 this.getData()
@@ -432,9 +445,7 @@ export default {
             }
             this.$localStorage.setStore('searchKey', this.searchKey)
             this.destroyAll()
-            this.page = 0
             this.images = []
-            this.imageUrls = []
             this.getData()
         },
 
@@ -447,7 +458,6 @@ export default {
             this.imageSource = val
             this.page = 0
             this.images = []
-            this.imageUrls = []
             window.setTimeout(() => {
                 this.getData()
             }, 100)
@@ -459,20 +469,17 @@ export default {
          */
         urlsDeal(urls) {
             urls.forEach((e) => {
-                if (this.imageUrls.indexOf(e.url) === -1) {
-                    const obj = {
-                        url: e.url,
-                        name: '',
-                        tip: this.imageTip(e.width, e.height),
-                        directionColumn: this.imageDirection(e.width, e.height),
-                        downloadUrl: e.downloadUrl,
-                        width: e.width,
-                        height: e.height,
-                        backgroundColor: this.randomColor()
-                    }
-                    this.imageUrls.push(e.url)
-                    this.images.push(obj)
+                const obj = {
+                    url: e.url,
+                    name: '',
+                    tip: this.imageTip(e.width, e.height),
+                    directionColumn: this.imageDirection(e.width, e.height),
+                    downloadUrl: e.downloadUrl,
+                    width: e.width,
+                    height: e.height,
+                    backgroundColor: this.randomColor()
                 }
+                this.images.push(obj)
             })
         },
 
@@ -484,9 +491,7 @@ export default {
         contentScroll(event) {
             const el = event.srcElement || event.target
             if (this.havaDataFlag === true && this.getDataFlag === false) {
-                if (
-                    el.scrollTop + 1800 > el.querySelector('.content-main').clientHeight
-                ) {
+                if (el.scrollTop + 1800 > el.querySelector('.content-main').clientHeight) {
                     this.page = this.page + 1
                     this.getData()
                 }
@@ -499,6 +504,7 @@ export default {
          */
         async getData() {
             this.getDataFlag = true
+            this.infoShow = INFOSHOW.loading
             const obj = {
                 searchKey: this.searchKey,
                 page: this.page,
@@ -506,6 +512,12 @@ export default {
             }
             this.$ipcRenderer.send('getImageUrls', obj)
         },
+
+        handleMouseLeave(){
+            if (this.setterShow){
+                this.setterShow = false
+            }
+        }
     },
     watch: {
         imageSource(val) {
@@ -632,7 +644,6 @@ export default {
         padding: 1px;
         background-color: #222222;
         border-radius: 5px;
-
         .image-item {
             width: 100%;
             height: 180px;
@@ -716,6 +727,19 @@ export default {
                 font-size: 12px;
             }
         }
+        .is-loading{
+            width: 100%;
+            height: 40px;
+            color: #fff;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            i{
+                font-size: 16px;
+                margin-right: 5px;
+            }
+        }
     }
 
     .content-win {
@@ -728,6 +752,8 @@ export default {
         justify-content: center;
         width: 100%;
         height: 100%;
+        padding: 20px;
+        line-height: 20px;
         color: #ccc;
         font-size: 12px;
     }
@@ -736,8 +762,8 @@ export default {
 .refresh-btn {
     position: fixed;
     z-index: 999;
-    left: 16px;
-    bottom: 16px;
+    left: 14px;
+    bottom: 8px;
     color: #fff;
 
     .iconfont {
