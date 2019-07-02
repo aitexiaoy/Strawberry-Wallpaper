@@ -5,6 +5,7 @@ process.env.BABEL_ENV = 'main'
 const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
+const DropConsoleWebpackPlugin = require('drop-console-webpack-plugin')
 
 // const BabiliWebpackPlugin = require('babili-webpack-plugin')
 
@@ -17,11 +18,6 @@ let mainConfig = {
   ],
   module: {
     rules: [
-      // {
-      //   test: /\.js$/,
-      //   use: 'babel-loader',
-      //   exclude: /node_modules/
-      // },
       {
         test: /\.node$/,
         use: 'node-loader'
@@ -62,7 +58,8 @@ if (process.env.NODE_ENV !== 'production') {
  */
 if (process.env.NODE_ENV === 'production') {
   mainConfig.plugins.push(
-    // new BabiliWebpackPlugin(),
+    // 移除log
+    new DropConsoleWebpackPlugin({ drop_log: true }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
     })

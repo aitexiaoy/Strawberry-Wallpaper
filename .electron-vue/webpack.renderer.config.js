@@ -11,6 +11,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
+const DropConsoleWebpackPlugin = require('drop-console-webpack-plugin')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -36,14 +37,7 @@ let rendererConfig = {
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
   ],
   module: {
-    rules: [{
-        test: /\.scss$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader']
-      },
-      {
-        test: /\.sass$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader?indentedSyntax']
-      },
+    rules: [
       {
         test: /\.less$/,
         use: ['vue-style-loader', 'css-loader', 'less-loader']
@@ -55,15 +49,6 @@ let rendererConfig = {
       {
         test: /\.html$/,
         use: 'vue-html-loader'
-      },
-      // {
-      //   test: /\.js$/,
-      //   use: 'babel-loader',
-      //   exclude: /node_modules/
-      // },
-      {
-        test: /\.node$/,
-        use: 'node-loader'
       },
       {
         test: /\.(js|vue)$/,
@@ -177,7 +162,8 @@ if (process.env.NODE_ENV === 'production') {
   rendererConfig.devtool = ''
 
   rendererConfig.plugins.push(
-    // new BabiliWebpackPlugin(),
+    // 移除log
+    new DropConsoleWebpackPlugin({ drop_log: true }),
     new CopyWebpackPlugin([{
       from: path.join(__dirname, '../static'),
       to: path.join(__dirname, '../dist/electron/static'),

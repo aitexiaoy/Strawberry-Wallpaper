@@ -4,7 +4,7 @@
 
 const axios = require('axios')
 const cheerio = require('cheerio')
-const { imageMinWidth } = require('../utils/config')
+const { imageMinWidth, browserHeader } = require('../utils/config')
 
 const { CancelToken } = axios
 
@@ -27,7 +27,8 @@ export const getImage = function (data) {
         source = CancelToken.source()
         const url = baseUrl + nextPageSeed
         axios.get(url, {
-            cancelToken: source.token
+            cancelToken: source.token,
+            headers: browserHeader,
         }).then((result) => {
             source = null
             const urls = []
@@ -54,7 +55,7 @@ export const getImage = function (data) {
                 }
             }
             resolve(urls)
-        }).catch(() => {
+        }).catch((err) => {
             source = null
             console.log('------------请求失败pexels:', url)
             reject()
