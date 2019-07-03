@@ -18,7 +18,7 @@ export function newEmail(data, telUser, appInfo){
                 port: 465,
                 secure: true, // true for 465, false for other ports
                 auth: {
-                    user: `${emailUserName}1`, // 用户名
+                    user: emailUserName, // 用户名
                     pass: emailPassword // 密码
                 }
             });
