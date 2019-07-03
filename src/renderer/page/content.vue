@@ -23,8 +23,7 @@
                     @change="searchKeyFn"
                     @focus="searchKeyFocus=true"
                     @blur="searchKeyFocus=false">
-                    <el-option label="最新" :value="'latest'"></el-option>
-                    <el-option label="最热" :value="'popular'"></el-option>
+                    <el-option v-for="item in paperClass" :key="item.value" :label="item.name" :value="item.value"></el-option>
                 </el-select>
             </div>
 
@@ -137,7 +136,8 @@ export default {
             osType, // 系统类型
             imageSource: 'pexels', // 图片来源
             currentImageBacColor: '#fff', // 进度条的颜色
-            infoShow: INFOSHOW.loading // 相关提示信息
+            infoShow: INFOSHOW.loading, // 相关提示信息
+            paperClass: [] // paper的分类
         }
     },
 
@@ -152,6 +152,9 @@ export default {
         this.searchKey = this.$localStorage.getStore('searchKey')
         this.images = []
         this.cleartLocalStorage()
+        if (this.imageSource === 'paper'){
+            this.paperInit()
+        }
         this.getData()
         this.eventInit()
     },
@@ -518,12 +521,24 @@ export default {
             if (this.setterShow){
                 this.setterShow = false
             }
+        },
+
+        paperInit(){
+            if (this.paperClass.length === 0){
+                this.paperClass = this.$ipcRenderer.sendSync('runFunc', 'getPaperSetting')
+                if (this.paperClass.length){
+                    this.searchKey = this.paperClass[0].value
+                }
+                else {
+                    this.searchKey = ''
+                }
+            }
         }
     },
     watch: {
         imageSource(val) {
             if (val === 'paper') {
-                this.searchKey = 'latest'
+                this.paperInit()
             } else {
                 this.searchKey = ''
                 this.$localStorage.setStore('searchKey', this.searchKey)

@@ -24,7 +24,7 @@
 </template>
 
 <script>
-// import WangEditor from 'wangeditor'
+let timer = 0
 
 export default {
     name: 'suggestion',
@@ -37,6 +37,7 @@ export default {
             suggestionResult: '' // 反馈结果
         }
     },
+
     mounted() {
         this.$ipcRenderer.on('sendnewEmail', (event, data, emailType, error) => {
             this.loading = false;
@@ -45,7 +46,7 @@ export default {
             }
             if (data === 'success') {
                 this.suggestionResult = '意见反馈成功，感谢你宝贵的意见'
-                window.setTimeout(() => {
+                timer = window.setTimeout(() => {
                     this.suggestionResult = ''
                 }, 5000)
             } else {
@@ -53,6 +54,13 @@ export default {
             }
         })
         this.$nextTick(() => {})
+    },
+    beforeRouteLeave(to, from, next) {
+        this.content = ''
+        this.telUser = ''
+        this.suggestionResult = ''
+        window.clearTimeout(timer)
+        next()
     },
     methods: {
         sure_post() {

@@ -1,19 +1,3 @@
-/**
- * paper
- * 接口地址
- * https://api.unsplash.com/photos?client_id=1c0018090c0878f9556fba12d4b8ba060866de2733de1cc8486c720bf7c9a04e&order_by=latest&page=1&per_page=20
- * 
- * url:https://api.unsplash.com/photos
- * 参数：
- *      client_id:1c0018090c0878f9556fba12d4b8ba060866de2733de1cc8486c720bf7c9a04e
- *      order_by:latest|popular   最新|最热
- *      page:1
- *      per_page:20
- *  
- */
-
-// https://api.unsplash.com/photos/random?client_id=1c0018090c0878f9556fba12d4b8ba060866de2733de1cc8486c720bf7c9a04e&count=5
-
 
 const axios = require('axios')
 const { imageMinWidth } = require('../utils/config')
@@ -23,19 +7,37 @@ let source = null
 
 const { axiosGet } = require('../utils/axios')
 
+export const getPaperSetting = function (data){
+    const returnResult = []
+    return new Promise((resolve, reject) => {
+        axiosGet({
+            url: 'https://service.paper.meiyuan.in/api/v2/columns'
+        }).then((result) => {
+            for (const item of result){
+                returnResult.push({
+                    name: item.langs['zh-Hans-CN'],
+                    value: item._id
+                })
+            }
+            resolve(returnResult)
+        }).catch(() => {
+            resolve(returnResult)
+        })
+    })
+}
+
 export const getImage = function (data) {
     return new Promise((resolve, reject) => {
-        if (!data) {
+        if (!data || !data.searchKey) {
             resolve([])
+            return
         }
-        const baseUrl = 'https://api.unsplash.com/photos/'
+        const baseUrl = `https://service.paper.meiyuan.in/api/v2/columns/flow/${data.searchKey}`
         source = CancelToken.source()
         axiosGet({
             url: baseUrl,
             params: {
-                page: data.page,
-                client_id: '1c0018090c0878f9556fba12d4b8ba060866de2733de1cc8486c720bf7c9a04e',
-                order_by: data.searchKey || 'latest',
+                page: data.page + 1,
                 per_page: 50
             },
             cancelToken: source.token
@@ -47,16 +49,16 @@ export const getImage = function (data) {
                     width: item.width,
                     height: item.height,
                     url: item.urls.small,
-                    downloadUrl: item.urls.full,
+                    downloadUrl: item.urls.raw,
                 }
                 if (parseInt(obj.width, 10) > imageMinWidth){
                     urls.push(obj)
                 }
             })
             resolve(urls)
-        }).catch(() => {
+        }).catch((error) => {
             source = null
-            console.log('------------请求失败paper:', baseUrl)
+            console.log('------------请求失败paper:', error)
             reject()
         })
     })
