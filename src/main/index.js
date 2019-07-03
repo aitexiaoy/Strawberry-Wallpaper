@@ -309,6 +309,8 @@ function ipcMainInit() {
 
     ipcMain.on('btn', (event, data) => {
         if (data.type === 'quit') {
+            // 窗口设置了closeable为false后不能退出程序，手动再设置一下
+            mainWindow.setClosable(true)
             app.quit()
         // eslint-disable-next-line no-empty
         } else if (data.type === 'searchKey') {
