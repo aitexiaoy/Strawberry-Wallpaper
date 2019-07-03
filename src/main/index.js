@@ -181,12 +181,19 @@ function createAppTray() {
                     winPositionX = Math.max(Math.min(currentScreen.bounds.width + currentScreen.bounds.x - winWidth, cursorPosition.x - (winWidth / 2)), currentScreen.bounds.x)
                     winPositionY = currentScreen.bounds.height + currentScreen.bounds.y - trayPositionSize - winHeight
                 } else if (trayPositionType === 'left') {
-                    winPositionX = currentScreen.bounds.x + currentScreen.bounds.width + trayPositionSize
+                    winPositionX = currentScreen.bounds.x + trayPositionSize
                     winPositionY = Math.max(Math.min(currentScreen.bounds.height + currentScreen.bounds.y - winHeight, cursorPosition.y - (winHeight / 2)), currentScreen.bounds.y)
                 } else if (trayPositionType === 'right') {
                     winPositionX = currentScreen.bounds.x + currentScreen.bounds.width - trayPositionSize - winWidth
                     winPositionY = Math.max(Math.min(currentScreen.bounds.height + currentScreen.bounds.y - winHeight, cursorPosition.y - (winHeight / 2)), currentScreen.bounds.y)
                 }
+                log.info('--------------------------------')
+                log.info('currentScreen:', currentScreen)
+                log.info('position:', winPositionX, winPositionY)
+                log.info('trayPositionType:', trayPositionType)
+                log.info('trayPositionSize', trayPositionSize)
+                log.info('cursorPosition:', cursorPosition)
+                log.info('--------------------------------')
                 win.setPosition(parseInt(winPositionX, 10), winPositionY)
             } catch (error) {
                 log.error(error)

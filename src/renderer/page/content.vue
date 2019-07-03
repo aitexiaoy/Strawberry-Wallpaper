@@ -91,8 +91,8 @@
 
 <script>
 // 在渲染器进程 (网页) 中。
-import { log, debuglog, osType } from 'util'
 import { mapState, mapActions } from 'vuex'
+import { osType } from '../../utils/utils'
 import { version } from '../../../package'
 import setter from './setter'
 import swProgress from './progress'
