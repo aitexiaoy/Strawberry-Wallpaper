@@ -58,7 +58,7 @@ export const getImage = function (data) {
             resolve(urls)
         }).catch((error) => {
             source = null
-            console.log('------------请求失败paper:', error)
+            console.log('------------请求失败paper:', baseUrl, data)
             reject()
         })
     })
