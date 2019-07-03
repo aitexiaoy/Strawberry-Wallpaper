@@ -12,6 +12,7 @@ const { getUrls, cancelUrls } = require('../get-image/search')
 const { newEmail } = require('./mail')
 
 const { isDev, isMac, isWin, baseUrl } = require('../utils/utils')
+const { getPaperSetting } = require('../get-image/paper')
 
 log.transports.file.level = 'info'
 
@@ -353,6 +354,21 @@ function ipcMainInit() {
         }
         else if (data.type === 'deleteFile'){
             delPath(data.data)
+        }
+    })
+
+    // 渲染函数运行过来
+    ipcMain.on('runFunc', async (event, data) => {
+        // 存放一些函数
+        const FUNCLIST = {
+            getPaperSetting, // 获取paper的设置
+        }
+        if (FUNCLIST[data]){
+            FUNCLIST[data]().then((result) => {
+                event.returnValue = result
+            }).catch(() => {
+                event.returnValue = false
+            })
         }
     })
 }

@@ -42,7 +42,7 @@ function getHtmlPage(data) {
             csrToken = $('meta[name="csrf-token"]')[0].attribs.content
             resolve()
         }).catch((error) => {
-            console.log(error)
+            console.log('-------------------500px获取cookie出错')
             reject(error)
         })
     })

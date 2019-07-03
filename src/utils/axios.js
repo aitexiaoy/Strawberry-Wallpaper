@@ -23,8 +23,8 @@ export const axiosGet = function (url, option) {
                 reject();
             }
         }).catch((error) => {
-            console.log('error', error);
-            reject();
+            console.log('axiosGet请求出错');
+            reject(error);
         });
     });
 };
