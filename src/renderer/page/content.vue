@@ -109,7 +109,8 @@ const { mkdirSync } = require('../../file/file')
 const INFOSHOW = {
     loading: '美好的事情即将发生...',
     noData: '暂时没有得到想要的内容...',
-    netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，很可能是网络没有正常连接或者是爬虫的接口已更改导致。请在设置->意见反馈中联系作者，或者在设置中换个图库试试。',
+    netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，请求不到数据了。可能是网络没有正常连接，请确保网络已连接。'
+    + '也可能是所选择图库相关接口以修改，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。非常感谢你的支持。',
     null: ''
 }
 
@@ -525,12 +526,18 @@ export default {
 
         paperInit(){
             if (this.paperClass.length === 0){
+                // 发送同步消息，主进程通过returnValue返回 [注意：同步消息会阻塞渲染进程，会阻塞。也就是在此期间渲染进程什么都干不了！！干不了！！]
                 this.paperClass = this.$ipcRenderer.sendSync('runFunc', 'getPaperSetting')
                 if (this.paperClass.length){
                     this.searchKey = this.paperClass[0].value
                 }
                 else {
-                    this.searchKey = ''
+                    window.setTimeout(() => {
+                        this.searchKey = ''
+                        this.refreshBtnIng = false
+                        this.getDataFlag = false
+                        this.infoShow = INFOSHOW.netError
+                    }, 100)
                 }
             }
         }

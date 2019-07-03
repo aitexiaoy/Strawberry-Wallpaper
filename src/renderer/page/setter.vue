@@ -17,7 +17,8 @@
                           </span>
                     </div>
                     <div @click.stop="quit">
-                        <i class="iconfont icon-tuichu"></i>
+                        <!-- <i class="iconfont icon-tuichu"></i> -->
+                        退出
                     </div>
                 </div>
 
