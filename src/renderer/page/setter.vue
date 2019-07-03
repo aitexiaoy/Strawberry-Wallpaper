@@ -16,7 +16,7 @@
                             检查更新
                           </span>
                     </div>
-                    <div @click.stop="quit">
+                    <div @click.stop="quit" class="about-pro">
                         <!-- <i class="iconfont icon-tuichu"></i> -->
                         退出
                     </div>
