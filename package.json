@@ -12,7 +12,7 @@
     "build-mac": "electron-builder --mac",
     "build": "npm run build-r && npm run build-win && npm run build-mac",
     "build:dir": "cross-env node .electron-vue/build.js && electron-builder --dir",
-    "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
+    "clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "dev": "node .electron-vue/dev-runner.js",
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
