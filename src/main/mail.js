@@ -20,6 +20,7 @@ export function newEmail(data, telUser, appInfo){
                 auth: {
                     user: emailUserName, // 用户名
                     pass: emailPassword // 密码
+                    
                 }
             });
 
