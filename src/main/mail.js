@@ -27,7 +27,7 @@ export function newEmail(data, telUser, appInfo){
             // 设置发件内容
             const mailOptions = {
                 from: 'strawberrypaper@163.com', // 发件人地址
-                to: 'taoacat@163.com', // 收件人地址
+                to: 'strawberrypaper@163.com', // 收件人地址
                 subject: `【${appInfo.emailType}:草莓壁纸】[${appInfo.version}]${telUser}`, // 主题
                 text: '', 
                 html: (() => {
