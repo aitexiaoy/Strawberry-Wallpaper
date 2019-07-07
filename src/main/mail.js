@@ -1,6 +1,10 @@
 
+import userConfig from '../../.user-config.js'
+
 const nodemailer = require('nodemailer')
-const { emailUserName, emailPassword } = require('../../.user-config.json')
+
+const { emailUserName, emailPassword } = userConfig
+
 
 /**
  * 发送一封邮件
