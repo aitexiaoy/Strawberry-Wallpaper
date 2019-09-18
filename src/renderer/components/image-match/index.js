@@ -3,15 +3,15 @@ export default {
     // tip 的展示方向
         Vue.directive('imagematch', {
             bind(el, binding) {
-                const matchType = ['width', 'height', 'auto'];
-                const q = matchType.filter(placement => binding.modifiers[placement]);
-                let time = 0;
-                el._type = q.length ? q[0] : 'auto';
+                const matchType = ['width', 'height', 'auto']
+                const q = matchType.filter(placement => binding.modifiers[placement])
+                let time = 0
+                el._type = q.length ? q[0] : 'auto'
 
                 // eslint-disable-next-line camelcase
                 function _choponent_size_fn(e) {
-                    const parentWidth = el.clientWidth;
-                    const parentHeight = el.clientHeight;
+                    const parentWidth = el.clientWidth
+                    const parentHeight = el.clientHeight
                     
                     // 宽度与高度自适应
                     if (el._type === 'auto') {
@@ -42,22 +42,22 @@ export default {
                     //   return;
                     // }
                     time = window.setTimeout(() => {
-                        window.clearTimeout(time);
-                        time = 0;
-                        _choponent_size_fn(e);
+                        window.clearTimeout(time)
+                        time = 0
+                        _choponent_size_fn(e)
                     }, 100)
                 }
 
-                let children = document.createElement('img');
-                children.src = binding.value;
-                el.appendChild(children);
+                let children = document.createElement('img')
+                children.src = binding.value
+                el.appendChild(children)
                 children.onload = function () {
-                    el._childrenWidth = children.width;
-                    el._childrenHeight = children.height;
-                    el._children = children;
-                    _choponent_size_fn();
+                    el._childrenWidth = children.width
+                    el._childrenHeight = children.height
+                    el._children = children
+                    _choponent_size_fn()
                     window.addEventListener('resize', () => {
-                        el._choponent_size();
+                        el._choponent_size()
                     })
                 }
 
@@ -77,7 +77,7 @@ export default {
 
             unbind(el) {
                 if (el._choponent_size) {
-                    window.removeEventListener('resize', el._choponent_size);
+                    window.removeEventListener('resize', el._choponent_size)
                 }
             }
         })

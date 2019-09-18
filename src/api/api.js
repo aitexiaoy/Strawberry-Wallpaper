@@ -53,15 +53,15 @@ export const apiTranslation = val => new Promise((resolve, reject) => {
         resolve(val)
         return
     }
-    const appid = baiDuTranslationAppId;
-    const key = baiDuTranslationAppKey;
-    const salt = (new Date()).getTime();
-    const query = val;
+    const appid = baiDuTranslationAppId
+    const key = baiDuTranslationAppKey
+    const salt = (new Date()).getTime()
+    const query = val
     // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
-    const from = 'zh';
-    const to = 'en';
-    const str1 = appid + query + salt + key;
-    const sign = swMd5(str1);
+    const from = 'zh'
+    const to = 'en'
+    const str1 = appid + query + salt + key
+    const sign = swMd5(str1)
 
     axios({
         url: 'http://api.fanyi.baidu.com/api/trans/vip/translate',

@@ -17,7 +17,7 @@ export default {
         Vue.prototype.$deepClone = deepClone
         Vue.prototype.$localStorage = localStorage
         Vue.prototype.$typeOf = typeOf
-        Vue.prototype.$ipcRenderer = ipcRenderer;
+        Vue.prototype.$ipcRenderer = ipcRenderer
         Vue.prototype.$http = axios
     },
 }

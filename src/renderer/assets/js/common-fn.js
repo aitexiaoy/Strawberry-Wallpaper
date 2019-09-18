@@ -37,7 +37,7 @@ export const deepClone = function (obj, cache = []) {
   * @param {*} obj 
   */
 export const typeOf = (obj) => {
-    const { toString } = Object.prototype;
+    const { toString } = Object.prototype
     const map = {
         '[object Boolean]': 'boolean',
         '[object Number]': 'number',
@@ -49,6 +49,6 @@ export const typeOf = (obj) => {
         '[object Undefined]': 'undefined',
         '[object Null]': 'null',
         '[object Object]': 'object'
-    };
-    return map[toString.call(obj)];
+    }
+    return map[toString.call(obj)]
 }

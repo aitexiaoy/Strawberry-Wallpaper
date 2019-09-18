@@ -14,9 +14,9 @@ import vueFn from './assets/js/vue-fn'
 
 Vue.use(require('vue-electron'))
 
-Vue.use(ElementUI);
-Vue.use(vueModules);
-Vue.use(vueFn);
+Vue.use(ElementUI)
+Vue.use(vueModules)
+Vue.use(vueFn)
 
 const mainVue = new Vue({
     components: { App },
@@ -25,4 +25,4 @@ const mainVue = new Vue({
     template: '<App/>'
 }).$mount('#app')
 
-global.Vue = mainVue;
+global.Vue = mainVue

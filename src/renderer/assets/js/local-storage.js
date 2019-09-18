@@ -6,12 +6,12 @@
  */
 const setStore = (name, value) => {
     if (!name) {
-        return false;
+        return false
     }
     if (typeof value !== 'string') {
-        value = JSON.stringify(value);
+        value = JSON.stringify(value)
     }
-    window.localStorage.setItem(name, value);
+    window.localStorage.setItem(name, value)
     return true
 }
 
@@ -20,20 +20,20 @@ const setStore = (name, value) => {
  * @param {String} name 
  */
 const getStore = (name) => {
-    if (!name) return false;
+    if (!name) return false
     try {
         if (window.localStorage.getItem(name) && window.localStorage.getItem(name).length > 1) {
-            const returnString = window.localStorage.getItem(name);
+            const returnString = window.localStorage.getItem(name)
             try {
-                return JSON.parse(returnString);
+                return JSON.parse(returnString)
             } catch (error) {
-                return returnString;
+                return returnString
             }
         }
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
-    return '';
+    return ''
 }
 
 /**
@@ -41,8 +41,8 @@ const getStore = (name) => {
  * @param {String} name 
  */
 const removeStore = (name) => {
-    if (!name || !window.localStorage.getItem(name)) return false;
-    window.localStorage.removeItem(name);
+    if (!name || !window.localStorage.getItem(name)) return false
+    window.localStorage.removeItem(name)
     return true
 }
 
