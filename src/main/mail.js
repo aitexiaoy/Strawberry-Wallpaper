@@ -26,7 +26,7 @@ export function newEmail(data, telUser, appInfo){
                     pass: emailPassword // 密码
                     
                 }
-            });
+            })
 
             // 设置发件内容
             const mailOptions = {
@@ -41,16 +41,16 @@ export function newEmail(data, telUser, appInfo){
                     }
                     return html
                 })()
-            };
+            }
         
             // 发送
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error || !info) {
                     reject(error.response)
                 } else {
-                    resolve(info);
+                    resolve(info)
                 }
-            });
-        });
+            })
+        })
     })
 } 

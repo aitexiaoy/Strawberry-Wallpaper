@@ -2,21 +2,33 @@
     <transition name="page-transition">
         <div class="suggestion">
             <ml-page-header>意见反馈</ml-page-header>
-            <div class="content">
-                <el-input
-                    type="textarea"
-                    :rows="10"
-                    resize="none"
-                    placeholder="非常感谢你的建议，你的建议将会帮助我们更好的完善此项目"
-                    v-model="content"
-                    size="small"></el-input>
-            </div>
-            <div class="tel-phone">
-                <el-input placeholder="请留下你的联系方式，方便我们找到你" v-model="telUser" size="small"></el-input>
-            </div>
-            <div class="sure-post">
-                <el-button type="primary" @click.stop="sure_post" :loading="loading">提交</el-button>
-            </div>
+            <el-form :model="formData" ref="form">
+                <div class="content">
+                    <el-form-item prop="content" :rules="[
+                        {required: true, message: '反馈建议不能为空', trigger: 'blur'},
+                    ]">
+                        <el-input
+                            type="textarea"
+                            :rows="10"
+                            resize="none"
+                            placeholder="请在此处填写你的想法，帮助我完善此项目"
+                            v-model="formData.content"
+                            size="small"></el-input>
+                    </el-form-item>
+                </div>
+                <div class="tel-phone">
+                    <el-form-item prop="telUser" :rules="[
+                        {required: true, message: '联系方式不能为空', trigger: 'blur'},
+                        { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                    ]">
+                        <el-input placeholder="请留下您的邮箱，方便作者与您联系" v-model="formData.telUser" size="small"></el-input>
+                    </el-form-item>
+                </div>
+
+                <div class="sure-post">
+                    <el-button type="primary" @click.stop="sure_post" :loading="loading">提交</el-button>
+                </div>
+            </el-form>
 
             <div class="result">{{suggestionResult}}</div>
         </div>
@@ -31,18 +43,21 @@ export default {
     data() {
         return {
             editer: null,
-            telUser: '',
+
             loading: false,
-            content: '',
+            formData: {
+                content: '',
+                telUser: '',
+            },
             suggestionResult: '' // 反馈结果
         }
     },
 
     mounted() {
         this.$ipcRenderer.on('sendnewEmail', (event, data, emailType, error) => {
-            this.loading = false;
+            this.loading = false
             if (emailType !== '意见反馈') {
-                return;
+                return
             }
             if (data === 'success') {
                 this.suggestionResult = '意见反馈成功，感谢你宝贵的意见'
@@ -56,33 +71,36 @@ export default {
         this.$nextTick(() => {})
     },
     beforeRouteLeave(to, from, next) {
-        this.content = ''
-        this.telUser = ''
+        this.formData.content = ''
+        this.formData.telUser = ''
         this.suggestionResult = ''
         window.clearTimeout(timer)
         next()
     },
     methods: {
         sure_post() {
-            if (this.content === '') {
-                return;
-            }
-            const { uid = '', version = '', username = '' } = this.$localStorage.getStore('osInfo')
-            this.loading = true;
-            this.$ipcRenderer.send('btn', {
-                type: 'newEmail',
-                data: {
-                    telUser: `[联系方式:${this.telUser}]`,
-                    emailType: '意见反馈',
-                    data: {
-                        uid,
-                        version,
-                        username,
-                        content: this.content
-                    }
+            this.$refs.form.validate((valid) => {
+                if (valid) {
+                    const { uid = '', version = '', username = '' } = this.$localStorage.getStore('osInfo')
+                    this.loading = true
+                    this.$ipcRenderer.send('btn', {
+                        type: 'newEmail',
+                        data: {
+                            telUser: `[联系方式:${this.formData.telUser}]`,
+                            emailType: '意见反馈',
+                            data: {
+                                uid,
+                                version,
+                                username,
+                                content: this.formData.content
+                            }
+                        }
+                    })
+                } else {
+                    console.log('error submit!!')
                 }
-            });
-        },
+            })
+        }
     },
 }
 </script>
@@ -93,6 +111,7 @@ export default {
     height: 100%;
     padding: 14px;
     cursor: default;
+
     .edit {
         width: 100%;
     }
@@ -102,15 +121,20 @@ export default {
         height: 50px;
         display: flex;
         align-items: center;
-        // padding-left: 20px;
     }
+
+    .el-form-item {
+        width: 100%;
+    }
+
     .sure-post {
         width: 100%;
         height: 50px;
         display: flex;
         align-items: center;
     }
-    .result{
+
+    .result {
         padding-top: 10px;
         color: #a5a5a5;
         font-size: 14px;

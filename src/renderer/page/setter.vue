@@ -42,10 +42,18 @@
                         <el-radio label="86400" :disabled="wallpaperAutoUp==false">
                             <span class="checkbox-text">每天</span>
                         </el-radio>
-                        <el-radio label="604800" :disabled="wallpaperAutoUp==false">
+                        <!-- <el-radio label="604800" :disabled="wallpaperAutoUp==false">
                             <span class="checkbox-text">每周</span>
-                        </el-radio>
+                        </el-radio> -->
                     </el-radio-group>
+                    <el-input
+                            :disabled="wallpaperAutoUp==false"
+                            class="myselef-time"
+                            @input="updataTimeInputChange"
+                            @change="updataTimeChange"
+                            placeholder="自定义" size="small" :value="updataTime">
+                              <span slot="suffix">秒</span>
+                    </el-input>
                 </div>
 
                 <div class="setter-row">
@@ -212,6 +220,15 @@ export default {
             this.setLocation()
             this.$localStorage.setStore('lastUpdataTime', parseInt(new Date().getTime() / 1000, 10))
         },
+        updataTimeInputChange(val){
+            const value = parseInt(val, 10)
+            if (Number.isNaN(value)){
+                this.updataTime = 3600
+            }
+            else {
+                this.updataTime = Math.min(Math.max(value, 120), 864000)
+            }
+        },
         /**
          * 更改图片来源
          */
@@ -238,6 +255,8 @@ export default {
                 data: this.downloadImagePath
             })
         }
+    },
+    watch: {
     }
 }
 </script>
@@ -299,6 +318,11 @@ export default {
         color: #fff;
     }
 
+    .myselef-time{
+        width:100px;
+        margin-left: 20px;
+    }
+
     .nowrap {
         white-space: nowrap;
     }
@@ -350,6 +374,18 @@ export default {
 
     .el-radio {
         margin-right: 10px !important;
+    }
+    .el-input__suffix{
+            line-height:30px;
+    }
+    .el-input__inner{
+        padding-left:5px;
+        padding-right:15px;
+        height:30px;
+        line-height:30px;
+    }
+    .el-input.is-disabled .el-input__inner{
+        background-color: #383838;
     }
 }
 </style>

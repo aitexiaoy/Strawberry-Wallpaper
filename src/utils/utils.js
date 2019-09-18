@@ -1,6 +1,6 @@
-const elog = require('electron-log');
+const elog = require('electron-log')
 
-elog.transports.file.level = 'debug';
+elog.transports.file.level = 'debug'
 
 
 /**
@@ -13,9 +13,9 @@ if (process.env.NODE_ENV !== 'development') {
     global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-export const log = elog;
+export const log = elog
 
-const os = require('os');
+const os = require('os')
 
 export const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:9080' : `file://${__dirname}/index.html`
 
@@ -24,7 +24,7 @@ const OSTYPES = {
     Windows_NT: 'win'
 }
 
-export const osType = OSTYPES[os.type()] || 'win';
+export const osType = OSTYPES[os.type()] || 'win'
 export function isMac() {
     return osType === 'mac'
 }
@@ -57,4 +57,9 @@ export const imageSourceType = [{
     value: 'unsplash',
     search: true
 },
+{
+    name: 'wallhaven',
+    value: 'wallhaven',
+    search: true
+}
 ]

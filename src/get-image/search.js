@@ -6,19 +6,22 @@ const pexels = require('./pexels')
 const fiveHundred = require('./500px')
 const paper = require('./paper')
 const unsplash = require('./unsplash')
+const wallhaven = require('./wallhaven')
 
 const cancelFn = {
     pexels: pexels.cancelImage,
     '500px': fiveHundred.cancelImage,
     paper: paper.cancelImage,
-    unsplash: unsplash.cancelImage
+    unsplash: unsplash.cancelImage,
+    wallhaven: unsplash.cancelImage,
 }
 
 const getUrl = {
     pexels: pexels.getImage,
     '500px': fiveHundred.getImage,
     paper: paper.getImage,
-    unsplash: unsplash.getImage
+    unsplash: unsplash.getImage,
+    wallhaven: wallhaven.getImage,
 }
 
 export const getUrls = function (data) {

@@ -38,17 +38,27 @@
                 <i class="iconfont icon-sousuo" @click.stop="searchKeyFn"></i>
             </div>
 
+            <div class="header-tag" v-if="imageSource!=='paper'&&searchKeyList.length>0">
+                <div :class="['header-tag-item',tag === searchKey? 'active' : '']"   
+                    v-for="(tag) in searchKeyList" 
+                    :key="tag"
+                    @click="searchItemClick(tag)"
+                >
+                    <div class="header-tag-item-text">{{tag}}</div>
+                    <span class="header-tag-item-del" @click.stop="searchKeyListDelete(tag)">x</span>
+                </div>
+            </div>
+
             <sw-progress v-if="progressValue>0" :value="progressValue" :color="currentImageBacColor"></sw-progress>
         </div>
 
         <div class="content" :class="{'content-win':osType=='win'}" @scroll="contentScroll">
-            <div class="content-main" v-if="images.length>0">
+            <div class="content-main" ref="content_main" v-if="images.length>0">
                 <div
                     class="image-item"
                     :ref="'image_item_'+index"
                     v-for="(img,index) in images"
                     :key="index"
-                    :class="{'image-item-img-first':index===0}"
                     :style="{'backgroundColor':img.backgroundColor}"
                     @mousemove.stop="currentMouseOverIndex=index,setterShow=false"
                     @mouseleave.stop="currentMouseOverIndex=-1">
@@ -113,6 +123,9 @@ const INFOSHOW = {
     + '也可能是所选择图库相关接口以修改，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。非常感谢你的支持。',
     null: ''
 }
+// 定义存储最近搜索的最大长度
+const SEARCHKEYSMAX = 8
+const DEFAULTSEARCHLIST = ['cat', 'dog', '沙漠', '自然', '食物']
 
 export default {
     name: 'mainContent',
@@ -127,6 +140,7 @@ export default {
             page: 0, // 请求数据的页数
             progressValue: 0, // 进度值
             searchKey: '', // 搜索关键字
+            searchKeyList: DEFAULTSEARCHLIST, // 储存最近搜索的10次关键字
             setterShow: false, // 是否显示设置
             isSetting: false, // 是否正在设置壁纸
             havaDataFlag: true, // 标记是否还有数据
@@ -136,9 +150,9 @@ export default {
             images: [], // 图片列表
             osType, // 系统类型
             imageSource: 'pexels', // 图片来源
-            currentImageBacColor: '#fff', // 进度条的颜色
+            currentImageBacColor: '#ddd', // 进度条的颜色
             infoShow: INFOSHOW.loading, // 相关提示信息
-            paperClass: [] // paper的分类
+            paperClass: [], // paper的分类
         }
     },
 
@@ -150,7 +164,8 @@ export default {
         // 安装量的统计
         this.firstInstall()
         this.imageSource = this.$localStorage.getStore('userConfig').imageSource || 'pexels'
-        this.searchKey = this.$localStorage.getStore('searchKey')
+        this.searchKey = this.$localStorage.getStore('searchKey') || ''
+        this.searchKeyList = this.$localStorage.getStore('searchKeyList') || DEFAULTSEARCHLIST
         this.images = []
         this.cleartLocalStorage()
         if (this.imageSource === 'paper'){
@@ -158,6 +173,7 @@ export default {
         }
         this.getData()
         this.eventInit()
+        this.domContentMainMatch()
     },
 
     methods: {
@@ -243,6 +259,7 @@ export default {
                         return
                     }
                     if (this.page === 0) {
+                        this.domContentMainMatch()
                         this.images = []
                     }
                     this.urlsDeal(data)
@@ -273,6 +290,14 @@ export default {
             })
         },
 
+        domContentMainMatch(){
+            this.$nextTick(() => {
+                if (this.$refs.content_main){
+                    this.$refs.content_main.style.paddingTop = `${document.querySelector('.header').offsetHeight}px`
+                }
+            })
+        },
+
         /**
          * enter按键 搜索
          * @function keydownEnterFn 
@@ -297,7 +322,7 @@ export default {
                         } else {
                             resolve(mac)
                         }
-                    });
+                    })
                 })
             }
             if (this.$localStorage.getStore('first_install_flag_v1.1.1') !== 'strawberrywallpaper') {
@@ -445,13 +470,25 @@ export default {
          * @function searchKeyFn
          */
         searchKeyFn() {
-            if (this.searchKey === this.$localStorage.getStore('searchKey')) {
-                return
-            }
             this.$localStorage.setStore('searchKey', this.searchKey)
+            if (!this.searchKeyList.includes(this.searchKey) && this.searchKey !== ''){
+                this.domContentMainMatch()
+                this.searchKeyList.unshift(this.searchKey)
+                if (this.searchKeyList.length > SEARCHKEYSMAX){
+                    this.searchKeyList.pop()
+                }
+                this.$localStorage.setStore('searchKeyList', this.searchKeyList)
+            }
             this.destroyAll()
             this.images = []
             this.getData()
+        },
+
+        searchItemClick(tag){
+            console.log(tag)
+            
+            this.searchKey = tag
+            this.searchKeyFn()
         },
 
         /**
@@ -524,6 +561,11 @@ export default {
             }
         },
 
+        searchKeyListDelete(tag){
+            this.searchKeyList = this.searchKeyList.filter(i => i !== tag)
+            this.domContentMainMatch()
+        },
+
         paperInit(){
             if (this.paperClass.length === 0){
                 // 发送同步消息，主进程通过returnValue返回 [注意：同步消息会阻塞渲染进程，会阻塞。也就是在此期间渲染进程什么都干不了！！干不了！！]
@@ -543,12 +585,9 @@ export default {
         }
     },
     watch: {
-        imageSource(val) {
+        imageSource(val, oldVal) {
             if (val === 'paper') {
                 this.paperInit()
-            } else {
-                this.searchKey = ''
-                this.$localStorage.setStore('searchKey', this.searchKey)
             }
         },
     }
@@ -578,7 +617,7 @@ export default {
     .header {
         position: fixed;
         width: 100%;
-        height: 96px;
+        min-height:96px;
         z-index: 3000;
         padding-left: 20px;
         padding-right: 20px;
@@ -597,7 +636,7 @@ export default {
                 height: 100%;
 
                 .text {
-                    color: rgba(255, 255, 255, 0.9);
+                    color: #ddd;
                     cursor: default;
                     user-select: none;
                     // z-index: 2;
@@ -606,7 +645,7 @@ export default {
         }
 
         .iconfont {
-            color: #fff;
+            color: #ddd;
             margin-left: 10px;
         }
 
@@ -640,23 +679,55 @@ export default {
                 right: 5px;
             }
         }
-    }
+        .header-tag{
+            display: flex;
+            padding:5px 0;
+            cursor: default;
+            user-select:none;
+            flex-wrap: wrap;
+            .header-tag-item{
+                position:relative;
+                height:20px;
+                line-height:20px;
+                font-size:12px;
+                color:#a5a5a5;
+                padding: 0 6px;
+                .header-tag-item-text{
+                    width:auto;
+                    height:100%;
+                    max-width:100px;
+                    overflow: hidden;
+                    text-overflow:ellipsis;
+                    white-space: nowrap;
+                }
+                .header-tag-item-del{
+                    display:none;
+                    width:12px;
+                    height:12px;
+                    border-radius:100%;
+                    background-color: rgba(#aaa, 0.6);
+                    text-align:center;
+                    line-height:12px;
+                    font-size:12px;
+                    position:absolute;
+                    right: -3px;
+                    top: -2px;
+                }
+                &:hover {
+                    font-weight:bold;
+                    color:#ddd;
+                    .header-tag-item-del{
+                        display:inline-block;
+                    }
+                }
+                
+            }
+            .active{
+                font-weight:bold;
+                color:#ddd;
+            }
 
-    .header::before {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        height: 100%;
-        filter: blur(50px);
-        /* opacity: 0.9; */
-        background-color: rgba(37, 31, 30, 0.9);
-    }
-
-    .image-item-img-first {
-        margin-top: 95px;
+        }
     }
 
     .content {
@@ -690,7 +761,7 @@ export default {
                 width: 120px;
                 line-height: 33px;
                 cursor: default;
-                color: #fff;
+                color: #ddd;
                 text-align: center;
                 border-radius: 15px;
 
@@ -716,7 +787,7 @@ export default {
                     width: 26px;
                     height: 26px;
                     border-radius: 4px;
-                    color: #fff;
+                    color: #ddd;
                     background-color: rgba(0, 0, 0, 0.6);
                     line-height: 26px;
                     text-align: center;
@@ -753,7 +824,7 @@ export default {
         .is-loading{
             width: 100%;
             height: 40px;
-            color: #fff;
+            color: #ddd;
             font-size: 12px;
             display: flex;
             align-items: center;
@@ -767,6 +838,10 @@ export default {
 
     .content-win {
         width: calc(~"100% + 17px");
+    }
+
+    .content-main{
+        padding-top:96px;
     }
 
     .content-main-no {
@@ -787,7 +862,7 @@ export default {
     z-index: 999;
     left: 14px;
     bottom: 8px;
-    color: #fff;
+    color: #ddd;
 
     .iconfont {
         font-size: 24px;

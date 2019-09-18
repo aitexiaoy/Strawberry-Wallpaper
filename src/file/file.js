@@ -27,15 +27,18 @@ let currentSaveFilePath = ''
  * @param {String} dirname 
  */
 export function mkdirSync(dirname) {
-    if (fs.existsSync(dirname)) {
-        return true
+    try {
+        if (fs.existsSync(dirname)) {
+            return true
+        }
+        if (mkdirSync(path.dirname(dirname))) {
+            fs.mkdirSync(dirname)
+            return true
+        }
+        return false
+    } catch (error) {
+        return false
     }
-    if (mkdirSync(path.dirname(dirname))) {
-        fs.mkdirSync(dirname)
-        return true
-    }
-
-    return false
 }
 
 /**
@@ -91,10 +94,7 @@ export const downloadPic = async function (src, mainWindow) {
                 data: parseFloat(((receivedBytes / totalBytes) * 100))
             })
         })
-
-        myRequest.on('finish', () => {
-            myRequest = null
-        })
+        
         myRequest.on('error', () => {
             deleteDownLoadFile(dstpath)
             reject()
@@ -139,12 +139,16 @@ export const cancelDownloadPic = function () {
 
 
 function deleteDownLoadFile(filePath){
-    // 取消下载的时候删除图片
-    if (fs.existsSync(filePath)){
-        fs.unlink(filePath, (err) => {
-            if (err) {
-                console.log('图片已删除')
-            }
-        })
+    try {
+        // 取消下载的时候删除图片
+        if (fs.existsSync(filePath)){
+            fs.unlink(filePath, (err) => {
+                if (err) {
+                    console.log('图片已删除')
+                }
+            })
+        }
+    } catch (error) {
+        console.log(error)
     }
 }

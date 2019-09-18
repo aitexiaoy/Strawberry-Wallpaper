@@ -32,7 +32,7 @@ module.exports = {
     },
     rules: {
         // 句尾分号可以省略
-        'semi': 'off',
+        'semi': ['error', 'never'],
         // 代码中console/debugger处理
         'no-console': 'off',
         'no-debugger': 'off',
