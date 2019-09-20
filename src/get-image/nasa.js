@@ -14,41 +14,12 @@ const PUBLICURL = 'https://www.nasa.gov/sites/default/files/styles/image_card_4x
 const DOWNLOADPUBLICURL = 'https://www.nasa.gov/sites/default/files/'
 
 const axios = require('axios')
-// const { imageMinWidth } = require('../utils/config')
-const imageMinWidth = 1600
+const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 let source = null
 
-
-// const { axiosGet } = require('../utils/axios')
-
-const axiosGet = function (url, option) {
-    option = option || {}
-    if (url && typeof url === 'string') {
-        option = {
-            ...option,
-            ...{
-                url,
-                method: 'get',
-            },
-        }
-    } else {
-        option = url
-    }
-    return new Promise((resolve, reject) => {
-        axios.request(option).then(async (result) => {
-            if (result.status === 200) {
-                resolve(result.data)
-            } else {
-                reject()
-            }
-        }).catch((error) => {
-            console.log('axiosGet请求出错')
-            reject(error)
-        })
-    })
-}
+const { axiosGet } = require('../utils/axios')
 
 export const getImage = function (data) {
     return new Promise((resolve, reject) => {

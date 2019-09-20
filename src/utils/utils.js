@@ -40,7 +40,7 @@ export function isDev() {
 export const imageSourceType = [{
     name: 'pexels',
     value: 'pexels',
-    search: true
+    search: true,
 },
 {
     name: '500px',
@@ -65,6 +65,12 @@ export const imageSourceType = [{
 {
     name: 'nasa',
     value: 'nasa',
-    search: false
+    search: false,
 },
+{
+    name: '电影',
+    value: 'themoviedb',
+    search: true,
+    isSupportChinaSearch: true // 是否支持中文搜索
+}
 ]
