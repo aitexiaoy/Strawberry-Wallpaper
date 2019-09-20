@@ -1,6 +1,9 @@
 /* eslint-disable max-len */
 
-const APIKEY = 'b8d482bfd2dde2f94f0b83890845a99a'
+import userConfig from '../../.user-config'
+
+const { themoviedbAppKey } = userConfig
+const APIKEY = themoviedbAppKey
 const MOVELISTAPI = 'https://api.themoviedb.org/3/discover/movie'
 const ALLSEARCHAPI = 'https://api.themoviedb.org/3/search/multi'
 const MOVELISTPARAMS = {
@@ -15,7 +18,7 @@ const MOVELISTPARAMS = {
 const BASEIMAGEDOWNURL = 'https://image.tmdb.org/t/p/original'
 const BASEIMAGEURL = 'https://image.tmdb.org/t/p/w500'
 
-// const GETMOVEIMAGEURL='https://api.themoviedb.org/3/movie/${moveid}/images?api_key=b8d482bfd2dde2f94f0b83890845a99a'
+// const GETMOVEIMAGEURL='https://api.themoviedb.org/3/movie/${moveid}/images?api_key='
 
 
 const axios = require('axios')
@@ -76,12 +79,12 @@ export const getImage = function (data) {
                 include_adult: false,
                 query: data.searchKey
             }
-        } 
+        }
         axiosGet({ url, params, cancelToken: source.token }).then(async (result) => {
             const { results } = result
             let urls = []
             await Promise.all(results.map(async (item) => {
-                const { id, media_type: mediaType } = item
+                const { id, media_type: mediaType = 'movie' } = item
                 const movieImages = await getImages(id, mediaType)
                 urls = [...movieImages, ...urls]
                 return Promise.resolve
