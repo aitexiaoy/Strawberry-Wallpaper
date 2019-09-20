@@ -27,7 +27,7 @@
                 </el-select>
             </div>
 
-            <div class="header-search" v-else>
+            <div class="header-search" v-else-if="currentImageSource.search">
                 <el-input
                     class="header-search-input"
                     v-model="searchKey"
@@ -38,7 +38,7 @@
                 <i class="iconfont icon-sousuo" @click.stop="searchKeyFn"></i>
             </div>
 
-            <div class="header-tag" v-if="imageSource!=='paper'&&searchKeyList.length>0">
+            <div class="header-tag" v-if="currentImageSource.search&&searchKeyList.length>0">
                 <div :class="['header-tag-item',tag === searchKey? 'active' : '']"   
                     v-for="(tag) in searchKeyList" 
                     :key="tag"
@@ -102,15 +102,17 @@
 <script>
 // 在渲染器进程 (网页) 中。
 import { mapState, mapActions } from 'vuex'
-import { osType } from '../../utils/utils'
+import { osType, imageSourceType } from '../../utils/utils'
 import { version } from '../../../package'
 import setter from './setter'
 import swProgress from './progress'
+
 
 const { shell } = require('electron')
 const os = require('os')
 const osu = require('node-os-utils')
 const macaddress = require('macaddress')
+
 const md5 = require('../../utils/md5').md5_32
 
 const { postRegister, apiStatisticActive } = require('../../api/api')
@@ -135,6 +137,7 @@ export default {
     },
     data() {
         return {
+            imageSourceType,
             currentMouseOverIndex: -1, // 当前鼠标在那个图片上
             currentWallpaperIndex: 0, // 当前壁纸的索引
             page: 0, // 请求数据的页数
@@ -157,7 +160,8 @@ export default {
     },
 
     computed: mapState({
-        config: state => state.main.config
+        config: state => state.main.config,
+        currentImageSource() { return imageSourceType.find(item => item.value === this.imageSource) }
     }),
 
     mounted() {
@@ -533,10 +537,12 @@ export default {
         contentScroll(event) {
             const el = event.srcElement || event.target
             if (this.havaDataFlag === true && this.getDataFlag === false) {
-                if (el.scrollTop + 1800 > el.querySelector('.content-main').clientHeight) {
-                    this.page = this.page + 1
-                    this.getData()
-                }
+                this.$nextTick(() => {
+                    if (el.scrollTop + 1800 > el.querySelector('.content-main').clientHeight) {
+                        this.page = this.page + 1
+                        this.getData()
+                    }
+                })
             }
         },
 
@@ -617,7 +623,7 @@ export default {
     .header {
         position: fixed;
         width: 100%;
-        min-height:96px;
+        min-height:50px;
         z-index: 3000;
         padding-left: 20px;
         padding-right: 20px;

@@ -133,6 +133,9 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 - 增加保存最近搜索词，可作为快速分类
 - 增加wallhaven图库
 
+> 1.3.1
+- 增加nasa图库
+
 ## 用户统计
 草莓壁纸会针对用户安装量以及用户的活跃量进行统计，根据用户的网卡信息生成唯一UID。统计信息只获取用户的电脑系统，用户电脑用户名。
 可以打开[草莓壁纸后台统计平台](http://sw.taoacat.com)进行查看相关统计数据。后台统计相关接口采用go语言开发，[项目地址](https://github.com/wangkaibo/strawberry-wallpaper)：https://github.com/wangkaibo/strawberry-wallpaper 欢迎点赞，支持。
