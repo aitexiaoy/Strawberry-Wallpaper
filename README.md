@@ -134,7 +134,7 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 - 增加wallhaven图库
 
 > 1.3.1
-- 增加nasa图库
+- 增加NASA图库
 - 增加电影壁纸图库themoviedb
 
 ## 用户统计

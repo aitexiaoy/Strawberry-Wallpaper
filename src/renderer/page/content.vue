@@ -258,7 +258,7 @@ export default {
                     this.infoShow = INFOSHOW.null
                     this.refreshBtnIng = false
                     if (data.length === 0) {
-                        this.havaDataFlag = false
+                        // this.havaDataFlag = false
                         this.infoShow = INFOSHOW.noData
                         return
                     }
@@ -671,6 +671,7 @@ export default {
 
         .header-search {
             width: 100%;
+            padding-bottom:6px;
             display: flex;
             align-items: center;
             position: relative;
@@ -731,7 +732,7 @@ export default {
             .active{
                 font-weight:bold;
                 color:#ddd;
-            }
+            } 
 
         }
     }

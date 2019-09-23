@@ -69,7 +69,7 @@
 
                 <div class="setter-row image-sourece">图片来源: {{imageSource}}</div>
 
-                <div class="setter-row">
+                <div class="setter-row image-sourece-options">
                     <el-radio-group v-model="imageSource" @change="imageSourceChange">
                         <template v-for="item in imageSourceType">
                             <el-radio :label="item.value" :key="item.value">
@@ -264,7 +264,8 @@ export default {
 <style lang="less" scoped>
 .setter {
     width: 100%;
-    height: 270px;
+    min-height: 270px;
+    height:auto;
     position: absolute;
     z-index: 4000;
 
@@ -278,6 +279,10 @@ export default {
     .image-sourece {
         height: 30px;
         font-weight: 500px;
+    }
+    .image-sourece-options{
+        height:auto;
+        padding:5px 0;
     }
 
     .setter-row-one {
@@ -302,11 +307,12 @@ export default {
     .setter-content {
         background-color: rgba(43, 42, 42, 0.9);
         width: 100%;
-        height: 100%;
+        height: auto;
         position: absolute;
         right: 0px;
         top: 0px;
         padding: 20px;
+        padding-bottom:0px;
         color: #fff;
         user-select: none;
         cursor: default;

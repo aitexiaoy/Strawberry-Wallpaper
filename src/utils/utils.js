@@ -63,7 +63,7 @@ export const imageSourceType = [{
     search: true
 },
 {
-    name: 'nasa',
+    name: 'NASA',
     value: 'nasa',
     search: false,
 },
