@@ -1,6 +1,6 @@
 {
   "name": "strawberrywallpaper",
-  "version": "v1.3.1",
+  "version": "v1.3.2",
   "author": "taoacat，流浪记",
   "description": "a wallpaper app by electron",
   "license": "",
@@ -28,7 +28,7 @@
     },
     "publish": {
       "provider": "generic",
-      "url": "https://swallpaper.oss-cn-beijing.aliyuncs.com/version/"
+      "url": "http://sw.taoacat.com/version/"
     },
     "files": [
       "dist/electron/**/*"
@@ -74,10 +74,10 @@
     "devtron": "^1.4.0",
     "drop-console-webpack-plugin": "^3.0.2",
     "electron": "^4.0.1",
-    "electron-builder": "^20.38.5",
+    "electron-builder": "^21.2.0",
     "electron-debug": "^2.1.0",
     "electron-devtools-installer": "^2.2.4",
-    "electron-rebuild": "^1.8.4",
+    "electron-rebuild": "^1.8.6",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-friendly-formatter": "^4.0.1",

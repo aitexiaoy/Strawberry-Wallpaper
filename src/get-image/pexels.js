@@ -42,15 +42,17 @@ export const getImage = function (data) {
                 const imageItemsLength = imageItems.length
                 for (let i = 0; i < imageItemsLength; i++){
                     const { attribs } = imageItems[i]
-                    const obj = {
-                        width: attribs['data-image-width'],
-                        height: attribs['data-image-height'],
-                        url: attribs['data-large-src'],
-                        downloadUrl: attribs['data-big-src'].split('?')[0]
-                    }
-                    // 剔除重复的地址
-                    if (parseInt(obj.width, 10) > imageMinWidth) {
-                        urls.push(obj)
+                    if (attribs['data-big-src']){
+                        const obj = {
+                            width: attribs['data-image-width'],
+                            height: attribs['data-image-height'],
+                            url: attribs['data-large-src'],
+                            downloadUrl: attribs['data-big-src'].split('?')[0]
+                        }
+                        // 剔除重复的地址
+                        if (parseInt(obj.width, 10) > imageMinWidth) {
+                            urls.push(obj)
+                        }
                     }
                 }
             }

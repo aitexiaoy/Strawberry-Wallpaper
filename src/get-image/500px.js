@@ -61,7 +61,7 @@ export const getImage = async function (data) {
             image_size: [100, 200, 400, 600, 2048, 4096, 5120, 6144, 7168],
             page: data.page,
             rpp: 50, // 单页条数
-            formats: 'jpeg'
+            formats: 'jpeg,lytro'
         }
         if (data.searchKey) {
             baseUrl = 'https://api.500px.com/v1/photos/search'
@@ -72,6 +72,7 @@ export const getImage = async function (data) {
         } else {
             baseUrl = 'https://api.500px.com/v1/photos'
             params.feature = 'popular'
+            params.only = 'All photographers,Pulse'
             params.include_licensing = true
             params.include_states = true
         }
@@ -79,12 +80,13 @@ export const getImage = async function (data) {
         axiosGet({
             url: baseUrl,
             params,
+            responseType: 'json',
             headers: {
-                Accept: 'application/json, text/javascript, */* q=0.01',
+                Accept: 'application/json',
                 Origin: 'https://500px.com',
                 Referer: htmlAddress,
                 'User-Agent': 'Mozilla/5.0 (Macintosh Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
-                'X-CSRF-Token': csrToken,
+                'x-csrf-token': null,
                 cookie: cookies
             },
             cancelToken: source.token
@@ -117,7 +119,7 @@ export const getImage = async function (data) {
                 }
             })
             resolve(urls)
-        }).catch(() => {
+        }).catch((err) => {
             source = null
             console.log('------------请求失败500px:', baseUrl)
             reject()

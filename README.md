@@ -33,9 +33,9 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 
 提供两个打包好的下载地址:
 
-[Strawberry Wallpaper-mac](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-mac.dmg) 
+[Strawberry Wallpaper-mac](http://sw.taoacat.com/Strawberry%20Wallpaper-mac.dmg) 
 
-[Strawberry Wallpaper-win](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-win.exe)
+[Strawberry Wallpaper-win](http://sw.taoacat.com/Strawberry%20Wallpaper-win.exe)
 
 
 #### 2.软件介绍
@@ -136,6 +136,10 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 > 1.3.1
 - 增加NASA图库
 - 增加电影壁纸图库themoviedb
+
+> 1.3.2
+- 修复pexels与500px壁纸库加载失败问题
+
 
 ## 用户统计
 草莓壁纸会针对用户安装量以及用户的活跃量进行统计，根据用户的网卡信息生成唯一UID。统计信息只获取用户的电脑系统，用户电脑用户名。

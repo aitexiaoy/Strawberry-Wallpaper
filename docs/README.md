@@ -31,5 +31,5 @@
 ###### 更多功能欢迎下载软件试用...
 
 ##### [项目地址](https://github.com/aitexiaoy/Strawberry-Wallpaper)
-##### [Windows下载](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-win.exe)
-##### [Mac下载](https://swallpaper.oss-cn-beijing.aliyuncs.com/Strawberry%20Wallpaper-mac.dmg)
+##### [Windows下载](http://sw.taoacat.com/Strawberry%20Wallpaper-win.exe)
+##### [Mac下载](http://sw.taoacat.com/Strawberry%20Wallpaper-mac.dmg)
