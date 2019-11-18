@@ -99,7 +99,7 @@ export const getImage = async function (data) {
                     width: item.width,
                     height: item.height,
                     url: '',
-                    downloadUrl: result,
+                    downloadUrl: '',
                 }
                 const { images } = item
                 let maxSize = 0
@@ -107,10 +107,13 @@ export const getImage = async function (data) {
                     if (images[i].size >= 200 && images[i].size <= 700) {
                         obj.url = images[i].https_url
                     }
-                    if (images[i].size > maxSize) {
-                        obj.downloadUrl = images[i].https_url
+                    const realSize = images[i].https_url.match(/m%3D(\d*)/)
+                    if (realSize && realSize[1]){
+                        if (parseInt(realSize[1], 10) > maxSize) {
+                            obj.downloadUrl = images[i].https_url
+                        }
+                        maxSize = parseInt(realSize[1], 10)
                     }
-                    maxSize = images[i].size
                 }
                 // obj.height = parseInt(maxSize / obj.width * obj.height, 10)
                 // obj.width = maxSize
