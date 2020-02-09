@@ -1,3 +1,5 @@
+import fullWindow from './full-window'
+
 const electron = require('electron')
 
 const { app, BrowserWindow, Tray, ipcMain, dialog } = electron
@@ -5,7 +7,7 @@ const fs = require('fs')
 const path = require('path')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
-const { setOnCurrentSpace } = require('../wallpaper/outwallpaper')
+const { setCurrentWallpaper, changeWallpaperScale } = require('../wallpaper/outwallpaper')
 const { openAutoStart, openDisStart } = require('../file/auto-open')
 const { downloadPic, cancelDownloadPic } = require('../file/file')
 const { getUrls, cancelUrls } = require('../get-image/search')
@@ -21,6 +23,7 @@ let mainWindow = null
 // 托盘对象
 let appTray = null
 let openAppFlag = true
+let currentScreenIndex = 0 // 当前屏幕的索引
 
 const mainCallBack = {
     'autoUpdater.downloadUpdate': () => {
@@ -57,6 +60,7 @@ function appOpenInit(){
         app.dock.hide()  
     }
     app.on('ready', () => {
+        // fullWindow.openWindow()
         setTimeout(() => {
             if (!isDev()) {
                 autoUpdater.logger = log
@@ -127,7 +131,7 @@ function createWindow() {
 function setTimeIntervalInit(){
     // 10s执行一次
     setInterval(() => {
-        mainWindow.webContents.send('intervalTime')
+        sendData('intervalTime')
     }, 10000)
 }
 
@@ -156,6 +160,10 @@ function createAppTray() {
                 const winHeight = mainWindow.getSize()[1]
                 const cursorPosition = screen.getCursorScreenPoint()
                 const currentScreen = screen.getDisplayNearestPoint(cursorPosition)
+                const screenLists = screen.getAllDisplays()
+
+                currentScreenIndex = screenLists.findIndex(i => i.id === currentScreen.id)
+
 
                 // 保证永远在图标的中心位置,因为没有做其他方向的三角，所以暂不考虑高
                 cursorPosition.x = trayBounds.x + trayBounds.width / 2
@@ -201,13 +209,13 @@ function createAppTray() {
         }
         try {
             if (mainWindow.isVisible()) {
-                mainWindow.webContents.send('datainfo', {
+                sendData('datainfo', {
                     type: 'windowShow',
                     data: false
                 })
                 mainWindowHide()
             } else {
-                mainWindow.webContents.send('datainfo', {
+                sendData('datainfo', {
                     type: 'windowShow',
                     data: true
                 })
@@ -237,6 +245,17 @@ function appInit() {
     if (appTray == null) {
         createAppTray() // 创建系统托盘    
     }
+}
+
+/**
+ * 给所有的的渲染进程发消息
+ */
+function sendData(...args){
+    [mainWindow, fullWindow].forEach((i) => {
+        if (i && i.webContents){
+            i.webContents.send(...args) 
+        }
+    })
 }
 
 /**
@@ -287,11 +306,31 @@ function ipcMainInit() {
         cancelUrls()
     })
 
+    ipcMain.on('fullWindow', (event, data) => {
+        if (data){
+            fullWindow.openWindow()
+        }
+        else {
+            fullWindow.closeWindow()
+        }
+    })
+
 
     ipcMain.on('dataWallpaper', (event, arg) => {
-        downloadPic(arg.downloadUrl, mainWindow).then((result) => {
-            setOnCurrentSpace(result)
-            log.info(`设置壁纸成功:${arg.downloadUrl}`)
+        console.log('=================', arg)
+        downloadPic(arg.downloadUrl, mainWindow).then((filePath) => {
+            const { options } = arg
+            if (isMac() && options.isAutoSet === false){
+                setCurrentWallpaper(filePath, {
+                    ...options,
+                    screen: currentScreenIndex,
+                })
+            }
+            else {
+                setCurrentWallpaper(filePath)
+            }
+            
+            log.info(`设置壁纸成功:${filePath}`)
             event.sender.send('dataWallpaper', 'success')
         }).catch((error) => {
             log.error(`设置壁纸失败:${arg.downloadUrl}`)
@@ -302,12 +341,12 @@ function ipcMainInit() {
 
     ipcMain.on('getImageUrls', (event, data) => {
         getUrls(data).then((result) => {
-            mainWindow.webContents.send('datainfo', {
+            sendData('datainfo', {
                 type: 'urls',
                 data: result
             })
         }).catch(() => {
-            mainWindow.webContents.send('datainfo', {
+            sendData('datainfo', {
                 type: 'urlsError',
                 data: ''
             })
@@ -337,7 +376,7 @@ function ipcMainInit() {
             }).catch((error) => {
                 event.sender.send('sendnewEmail', 'error', data.data.emailType, error)
             })
-        } else if (data.type === 'check_newVersion') {
+        } else if (data.type === 'checkNewVersion') {
             checkUpdater()
         }
         else if (data.type === 'setDefaultDownPath'){
@@ -357,6 +396,10 @@ function ipcMainInit() {
         }
         else if (data.type === 'deleteFile'){
             delPath(data.data)
+        }
+
+        else if (data.type === 'changeWallpaperScale'){
+            changeWallpaperScale({ scale: data.data })
         }
     })
 
@@ -450,7 +493,7 @@ function autoUpdaterInit() {
 
     // 更新下载进度
     autoUpdater.on('download-progress', (progressObj) => {
-        mainWindow.webContents.send('datainfo', {
+        sendData('datainfo', {
             type: 'updaterProgress',
             data: progressObj.percent
         })

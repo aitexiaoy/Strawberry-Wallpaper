@@ -28,27 +28,29 @@ export default {
 </script>
 
 <style scoped lang='less'>
-.progress-main{
+.progress-main {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: transparent;
     width: 100%;
     height: 3px;
-    position: absolute;
-    bottom: 0px;
-    left: 0px;    
-    background-color: transparent;
 
-    .progress-content-val{
-        height: 100%;
+    .progress-content-val {
         position: absolute;
-        left: 0px;
-        top: 0px;
-        border-radius:5px; 
+        top: 0;
+        left: 0;
+        border-radius: 5px;
+        height: 100%;
         overflow: hidden;
     }
-    .progress-content-bac{
-        height: 100%;
+
+    .progress-content-bac {
         position: absolute;
-        left: 0px;
-        top: 0px;  
+        top: 0;
+        left: 0;
+        height: 100%;
     }
 }
+
 </style>

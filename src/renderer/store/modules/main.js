@@ -1,14 +1,7 @@
-const os = require('os')
+const { defaultConfig } = require('../../../utils/config')
 
 const state = {
-    config: {
-        imageSource: 'pexels', // 图片来源
-        isOpenStatr: false, // 开机启动
-        wallpaperAutoUp: false, // 壁纸自动更新
-        updataTime: '3600', // 自动更新时间
-        timingWipeData: true, // 定时清空已下载图库
-        downloadImagePath: `${os.homedir()}/Downloads/wallpaper`,
-    },
+    config: { ...defaultConfig },
     osInfo: {
         username: '', // 用户名
         version: '', // 软件版本

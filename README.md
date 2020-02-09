@@ -25,7 +25,7 @@ npm run build-win
 
 ### 1.适用范围
 
-Works on macOS 10.12+, and Windows 10, Windows7.
+Works on macOS 10.12+, and Windows 10+.
 
 目前只在mac10.14.3与win10上进行了测试
 
@@ -143,6 +143,8 @@ Works on macOS 10.12+, and Windows 10, Windows7.
 > 1.3.3
 - 修复500px设置壁纸图片不清晰的问题
 
+> 1.3.4
+- 修复pexels图库加载不成功问题
 
 ## 用户统计
 草莓壁纸会针对用户安装量以及用户的活跃量进行统计，根据用户的网卡信息生成唯一UID。统计信息只获取用户的电脑系统，用户电脑用户名。

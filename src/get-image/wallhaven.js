@@ -16,7 +16,6 @@
 
 const axios = require('axios')
 const cheerio = require('cheerio')
-const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 let source = null
@@ -66,9 +65,7 @@ export const getImage = function (data) {
                     url,
                     downloadUrl,
                 }
-                if (parseInt(obj.width, 10) > imageMinWidth){
-                    urls.push(obj)
-                }
+                urls.push(obj)
             })
             resolve(urls)
         }).catch(() => {

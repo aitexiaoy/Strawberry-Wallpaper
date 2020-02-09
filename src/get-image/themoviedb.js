@@ -22,7 +22,6 @@ const BASEIMAGEURL = 'https://image.tmdb.org/t/p/w500'
 
 
 const axios = require('axios')
-const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 let source = null
@@ -42,14 +41,12 @@ const getImages = function (movieId, type){
             const urls = []
             backdrops.forEach((item) => {
                 const { width, height, file_path: filePath } = item
-                if (parseInt(width, 10) > imageMinWidth){
-                    urls.push({
-                        width,
-                        height,
-                        url: `${BASEIMAGEURL}${filePath}`,
-                        downloadUrl: `${BASEIMAGEDOWNURL}${filePath}`,
-                    })
-                }
+                urls.push({
+                    width,
+                    height,
+                    url: `${BASEIMAGEURL}${filePath}`,
+                    downloadUrl: `${BASEIMAGEDOWNURL}${filePath}`,
+                })
             })
             resolve(urls)
         }).catch((err) => {

@@ -1,3 +1,4 @@
+const os = require('os')
 /**
  * 浏览器请求头
  */
@@ -9,6 +10,19 @@ export const browserHeader = {
     Connection: 'keep-alive'
 }
 
-export const imageMinWidth = 1600
-
 export const apiBaseUrl = 'http://strawberry.wangkaibo.com'
+
+export const defaultConfig = {
+    imageSource: 'pexels', // 图片来源
+    isOpenStatr: false, // 开机启动
+    wallpaperAutoUp: false, // 壁纸自动更新
+    updataTime: 3600, // 自动更新时间
+    timingWipeData: true, // 定时清空已下载图库
+    downloadImagePath: `${os.homedir()}/Downloads/wallpaper`,
+    wallpaperScale: 'auto', // 壁纸填充方式
+    autoClearnDownloadFilesTime: 7, // 自动清空下载文件夹
+
+    wallpaperSizeWidth: 1600, // 筛选的宽
+    wallpaperSizeHeight: 1080, // 筛选的高
+    wallpaperSizeDirection: [], // 筛选方向 'heng', 'su'
+}

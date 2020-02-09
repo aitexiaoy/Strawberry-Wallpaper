@@ -21,7 +21,6 @@
 
 
 const axios = require('axios')
-const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 let source = null
@@ -70,9 +69,7 @@ export const getImage = function (data) {
                     url: item.urls.small,
                     downloadUrl: item.urls.full,
                 }
-                if (parseInt(obj.width, 10) > imageMinWidth){
-                    urls.push(obj)
-                }
+                urls.push(obj)
             })
             resolve(urls)
         }).catch(() => {

@@ -8,6 +8,7 @@
                     <h1 class="text">Strawberry</h1>
                 </div>
                 <div class="right">
+                    <i class="iconfont icon-quanping" @click.stop="handleOpenFullWindow"></i>
                     <i class="iconfont icon-wenjianjia" @click.stop="openDownloadFile"></i>
                     <div class="header-set">
                         <i class="iconfont icon-shezhi" @click.stop="setterShow=!setterShow"></i>
@@ -69,8 +70,8 @@
                     </div>
 
                     <div class="image-item-flag" v-show="currentMouseOverIndex==index&&isSetting==false">
-                        <div class="image-item-flag-direction" v-show="img.directionColumn">
-                            <i class="iconfont icon-xiaoqing-tubiao-hengping"></i>
+                        <div class="image-item-flag-direction" v-show="img.direction==='su'">
+                            <i class="iconfont icon-su-ping"></i>
                         </div>
                         <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
                     </div>
@@ -112,9 +113,7 @@ const { shell } = require('electron')
 const os = require('os')
 const osu = require('node-os-utils')
 const macaddress = require('macaddress')
-
 const md5 = require('../../utils/md5').md5_32
-
 const { postRegister, apiStatisticActive } = require('../../api/api')
 const { mkdirSync } = require('../../file/file')
 
@@ -123,7 +122,8 @@ const INFOSHOW = {
     noData: '暂时没有得到想要的内容...',
     netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，请求不到数据了。可能是网络没有正常连接，请确保网络已连接。'
     + '也可能是所选择图库相关接口以修改，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。非常感谢你的支持。',
-    null: ''
+    null: '',
+    noMatchFilter: '请求到了内容但不满足筛选条件，请更换筛选条件...'
 }
 // 定义存储最近搜索的最大长度
 const SEARCHKEYSMAX = 8
@@ -220,13 +220,14 @@ export default {
                 this.firstInstall()
 
                 const nowDate = parseInt((new Date()).getTime() / 1000, 10)
+                
                 const statisticTimeFlag = this.$localStorage.getStore('statisticTimeFlag')
                 if (!statisticTimeFlag) {
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
                 }
-                const timingWipeDataFlag = this.$localStorage.getStore('timingWipeDataFlag')
-                if (!timingWipeDataFlag) {
-                    this.$localStorage.setStore('timingWipeDataFlag', nowDate)
+                const lastCleararnDownloadFilesTime = this.$localStorage.getStore('lastCleararnDownloadFilesTime')
+                if (!lastCleararnDownloadFilesTime) {
+                    this.$localStorage.setStore('lastCleararnDownloadFilesTime', nowDate)
                 }
 
                 // 2小时 统计日活
@@ -238,8 +239,8 @@ export default {
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
                 }
                 // 7天 自动清除已下载
-                if (nowDate - timingWipeDataFlag >= 7 * 24 * 60 * 60) {
-                    this.$localStorage.setStore('timingWipeDataFlag', nowDate)
+                if (nowDate - lastCleararnDownloadFilesTime >= (this.config.autoClearnDownloadFilesTime || 7) * 24 * 60 * 60) {
+                    this.$localStorage.setStore('lastCleararnDownloadFilesTime', nowDate)
                     // 删除默认文件下的所有内容
                     this.$ipcRenderer.send('btn', {
                         type: 'deleteFile',
@@ -361,15 +362,17 @@ export default {
          * @function setWallpaper
          * @param {Object} img 当前图片数据
          * @param {Number} index 数组索引
+         * @param {Boolearn} isAutoSet 是否是自动设置触发的
          */
-        setWallpaper(img, index) {
+        setWallpaper(img, index, isAutoSet = false) {
             this.isSetting = true
             this.setterShow = false
             if (!this.$refs[`image_item_${index}`][0]) {
                 return
             }
+            const { wallpaperScale } = this.config
             this.$swLoading.open(this.$refs[`image_item_${index}`][0])
-            this.$ipcRenderer.send('dataWallpaper', img)
+            this.$ipcRenderer.send('dataWallpaper', { ...img, options: { scale: wallpaperScale, isAutoSet } })
             this.currentImageBacColor = this.images[index].backgroundColor
             this.currentWallpaperIndex = index
         },
@@ -382,6 +385,14 @@ export default {
             // 判断是否有文件夹
             mkdirSync(this.config.downloadImagePath)
             shell.openItem(this.config.downloadImagePath)
+        },
+
+        /**
+         * 打开图片存的文件夹
+         * @function openDownloadFile
+         */
+        handleOpenFullWindow(){
+            this.$ipcRenderer.send('fullWindow', true) // 打开全屏 ， false 关闭全屏
         },
 
         /**
@@ -406,7 +417,7 @@ export default {
          * @function imageDirection
          */
         imageDirection(width, height) {
-            return !(width >= height)
+            return width >= height ? 'heng' : 'su'
         },
 
         /**
@@ -462,7 +473,7 @@ export default {
                         const updataTime = parseInt(userConfig.updataTime, 10)
                         if (Math.abs(currentTime - time) > updataTime) {
                             const index = this.images[this.currentWallpaperIndex] ? this.currentWallpaperIndex : 0
-                            this.setWallpaper(this.images[index], index)
+                            this.setWallpaper(this.images[index], index, true)
                         }
                     }
                 }
@@ -519,14 +530,21 @@ export default {
                     url: e.url,
                     name: '',
                     tip: this.imageTip(e.width, e.height),
-                    directionColumn: this.imageDirection(e.width, e.height),
+                    direction: this.imageDirection(e.width, e.height),
                     downloadUrl: e.downloadUrl,
                     width: e.width,
                     height: e.height,
                     backgroundColor: this.randomColor()
                 }
-                this.images.push(obj)
+                const { wallpaperSizeWidth = 1600, wallpaperSizeHeight = 1080, wallpaperSizeDirection = [] } = this.config
+                const { width, height, direction } = obj
+                if (width > wallpaperSizeWidth && height > wallpaperSizeHeight 
+                && (wallpaperSizeDirection.length === 0 || wallpaperSizeDirection.includes(direction))) 
+                { this.images.push(obj) }
             })
+            if (this.images.length === 0){
+                this.infoShow = INFOSHOW.noMatchFilter
+            }
         },
 
         /**
@@ -610,31 +628,30 @@ export default {
 }
 
 .main-content {
+    position: relative;
+    box-sizing: border-box;
+    background-color: transparent;
     // padding-top: 30px;
     width: 100%;
     height: 100%;
     overflow: hidden;
-    box-sizing: border-box;
-    position: relative;
-
-    background-color: transparent;
 
     // background-color: red;
     .header {
         position: fixed;
-        width: 100%;
-        min-height:50px;
         z-index: 3000;
-        padding-left: 20px;
-        padding-right: 20px;
         background-color: rgba(34, 34, 34, 0.9);
+        width: 100%;
+        min-height: 50px;
         overflow: hidden;
+        padding-right: 20px;
+        padding-left: 20px;
 
         .header-row-one {
             display: flex;
+            justify-content: space-between;
             width: 100%;
             height: 56px;
-            justify-content: space-between;
 
             .left {
                 position: relative;
@@ -642,8 +659,9 @@ export default {
                 height: 100%;
 
                 .text {
-                    color: #ddd;
                     cursor: default;
+                    color: #dddddd;
+
                     user-select: none;
                     // z-index: 2;
                 }
@@ -651,8 +669,8 @@ export default {
         }
 
         .iconfont {
-            color: #ddd;
             margin-left: 10px;
+            color: #dddddd;
         }
 
         .left {
@@ -660,8 +678,8 @@ export default {
         }
 
         .right {
-            flex: none;
             display: flex;
+            flex: none;
             align-items: center;
         }
 
@@ -670,15 +688,15 @@ export default {
         }
 
         .header-search {
-            width: 100%;
-            padding-bottom:6px;
             display: flex;
             align-items: center;
             position: relative;
+            width: 100%;
+            padding-bottom: 6px;
 
             .header-search-input {
-                width: 100%;
                 flex: none;
+                width: 100%;
             }
 
             .iconfont {
@@ -686,73 +704,80 @@ export default {
                 right: 5px;
             }
         }
-        .header-tag{
+
+        .header-tag {
             display: flex;
-            padding:5px 0;
-            cursor: default;
-            user-select:none;
             flex-wrap: wrap;
-            .header-tag-item{
-                position:relative;
-                height:20px;
-                line-height:20px;
-                font-size:12px;
-                color:#a5a5a5;
+            cursor: default;
+            padding: 5px 0;
+
+            user-select: none;
+
+            .header-tag-item {
+                position: relative;
+                height: 20px;
                 padding: 0 6px;
-                .header-tag-item-text{
-                    width:auto;
-                    height:100%;
-                    max-width:100px;
+                line-height: 20px;
+                color: #a5a5a5;
+                font-size: 12px;
+
+                .header-tag-item-text {
+                    width: auto;
+                    max-width: 100px;
+                    height: 100%;
                     overflow: hidden;
-                    text-overflow:ellipsis;
+                    text-overflow: ellipsis;
                     white-space: nowrap;
                 }
-                .header-tag-item-del{
-                    display:none;
-                    width:12px;
-                    height:12px;
-                    border-radius:100%;
-                    background-color: rgba(#aaa, 0.6);
-                    text-align:center;
-                    line-height:12px;
-                    font-size:12px;
-                    position:absolute;
-                    right: -3px;
+
+                .header-tag-item-del {
+                    display: none;
+                    position: absolute;
                     top: -2px;
+                    right: -3px;
+                    border-radius: 100%;
+                    background-color: rgba(#aaaaaa, 0.6);
+                    width: 12px;
+                    height: 12px;
+                    text-align: center;
+                    line-height: 12px;
+                    font-size: 12px;
                 }
+
                 &:hover {
-                    font-weight:bold;
-                    color:#ddd;
-                    .header-tag-item-del{
-                        display:inline-block;
+                    color: #dddddd;
+                    font-weight: bold;
+
+                    .header-tag-item-del {
+                        display: inline-block;
                     }
                 }
-                
             }
-            .active{
-                font-weight:bold;
-                color:#ddd;
-            } 
 
+            .active {
+                color: #dddddd;
+                font-weight: bold;
+            }
         }
     }
 
     .content {
+        border-radius: 5px;
+        background-color: #222222;
         width: calc(~"100% + 15px");
         height: 100%;
         overflow-x: hidden;
         overflow-y: scroll;
         padding: 1px;
-        background-color: #222222;
-        border-radius: 5px;
+
         .image-item {
-            width: 100%;
-            height: 180px;
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #bbb;
+            position: relative;
+            border-bottom: 1px solid #bbbbbb;
+            width: 100%;
+            height: 180px;
 
             .image-item-img {
                 width: 100%;
@@ -762,15 +787,15 @@ export default {
 
             .image-set-wallpaper {
                 position: absolute;
-                background-color: rgba(0, 0, 0, 0.4);
-                width: auto;
-                height: 33px;
-                width: 120px;
-                line-height: 33px;
-                cursor: default;
-                color: #ddd;
-                text-align: center;
                 border-radius: 15px;
+                background-color: rgba(0, 0, 0, 0.4);
+                cursor: default;
+                width: auto;
+                width: 120px;
+                height: 33px;
+                text-align: center;
+                line-height: 33px;
+                color: #dddddd;
 
                 .iconfont {
                     margin-right: 8px;
@@ -782,63 +807,65 @@ export default {
             }
 
             .image-item-flag {
+                display: flex;
+                justify-content: flex-end;
                 position: absolute;
                 top: 10px;
                 right: 14px;
-                display: flex;
-                justify-content: flex-end;
                 width: auto;
                 height: 26px;
 
                 .image-item-flag-direction {
+                    margin-right: 10px;
+                    border-radius: 4px;
+                    background-color: rgba(0, 0, 0, 0.6);
+                    cursor: default;
                     width: 26px;
                     height: 26px;
-                    border-radius: 4px;
-                    color: #ddd;
-                    background-color: rgba(0, 0, 0, 0.6);
-                    line-height: 26px;
                     text-align: center;
-                    cursor: default;
+                    line-height: 26px;
+                    color: #dddddd;
                     font-size: 12px;
-                    margin-right: 10px;
                 }
 
                 .image-item-tip {
+                    border-radius: 4px;
+                    background-color: rgba(0, 0, 0, 0.6);
+                    cursor: default;
                     width: 26px;
                     height: 26px;
-                    border-radius: 4px;
-                    color: #52b7fc;
-                    background-color: rgba(0, 0, 0, 0.6);
-                    line-height: 26px;
                     text-align: center;
-                    cursor: default;
+                    line-height: 26px;
+                    color: #52b7fc;
                     font-size: 12px;
                 }
             }
 
             .image-item-tip {
+                border-radius: 4px;
+                background-color: rgba(0, 0, 0, 0.6);
+                cursor: default;
                 width: 26px;
                 height: 26px;
-                border-radius: 4px;
-                color: #52b7fc;
-                background-color: rgba(0, 0, 0, 0.6);
-                line-height: 26px;
                 text-align: center;
-                cursor: default;
+                line-height: 26px;
+                color: #52b7fc;
                 font-size: 12px;
             }
         }
-        .is-loading{
-            width: 100%;
-            height: 40px;
-            color: #ddd;
-            font-size: 12px;
+
+        .is-loading {
             display: flex;
             align-items: center;
             justify-content: center;
-            i{
-                font-size: 16px;
+            width: 100%;
+            height: 40px;
+            color: #dddddd;
+            font-size: 12px;
+
+            i {
                 margin-right: 5px;
+                font-size: 16px;
             }
         }
     }
@@ -847,8 +874,8 @@ export default {
         width: calc(~"100% + 17px");
     }
 
-    .content-main{
-        padding-top:96px;
+    .content-main {
+        padding-top: 96px;
     }
 
     .content-main-no {
@@ -859,17 +886,17 @@ export default {
         height: 100%;
         padding: 20px;
         line-height: 20px;
-        color: #ccc;
+        color: #cccccc;
         font-size: 12px;
     }
 }
 
 .refresh-btn {
     position: fixed;
-    z-index: 999;
-    left: 14px;
     bottom: 8px;
-    color: #ddd;
+    left: 14px;
+    z-index: 999;
+    color: #dddddd;
 
     .iconfont {
         font-size: 24px;
@@ -877,9 +904,10 @@ export default {
 }
 
 .refresh-btn-ing {
-    animation: refreshbtning 1.5s linear infinite;
-    transform-origin: center center;
     transform: rotate(360deg);
+    transform-origin: center center;
+
+    animation: refreshbtning 1.5s linear infinite;
 }
 
 @keyframes refreshbtning {
@@ -891,4 +919,5 @@ export default {
         transform: rotate(0);
     }
 }
+
 </style>

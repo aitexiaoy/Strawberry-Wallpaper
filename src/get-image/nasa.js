@@ -14,7 +14,6 @@ const PUBLICURL = 'https://www.nasa.gov/sites/default/files/styles/image_card_4x
 const DOWNLOADPUBLICURL = 'https://www.nasa.gov/sites/default/files/'
 
 const axios = require('axios')
-const { imageMinWidth } = require('../utils/config')
 
 const { CancelToken } = axios
 let source = null
@@ -51,9 +50,7 @@ export const getImage = function (data) {
                     url: uri.replace('public://', PUBLICURL),
                     downloadUrl: uri.replace('public://', DOWNLOADPUBLICURL),
                 }
-                if (parseInt(obj.width, 10) > imageMinWidth){
-                    urls.push(obj)
-                }
+                urls.push(obj)
             })
             resolve(urls)
         }).catch((error) => {
