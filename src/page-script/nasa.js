@@ -1,4 +1,3 @@
-const { ipcRenderer } = require('electron')
 const { render } = require('./render')
 
 const PUBLICURL = '/sites/default/files/styles/image_card_4x3_ratio/public/'
@@ -22,7 +21,7 @@ const mouseoverFn = function (e){
                 parentNode.addChild = render(options)
                 parentNode.appendChild(parentNode.addChild)
             }
-        }, 30)
+        }, 80)
     }
 }
 
@@ -36,16 +35,10 @@ const mouseoutFn = function (e){
                     parentNode.removeChild(parentNode.addChild)
                     parentNode.addChild = null
                 }
-            }, 30)
+            }, 80)
         }
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    ipcRenderer.sendToHost('event', 'DOMContentLoaded')
-})
-
-window.onload = () => {
-    document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
-    document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
-}
+document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
+document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)

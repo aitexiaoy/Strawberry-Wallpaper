@@ -1,4 +1,3 @@
-const { ipcRenderer } = require('electron')
 const { render } = require('./render')
 
 const isImg = target => target.tagName === 'IMG' && target.parentNode.tagName === 'A' && target.parentNode.parentNode.className === 'image_content'
@@ -19,7 +18,7 @@ const mouseoverFn = function (e){
                 parentNode.addChild = render(options)
                 parentNode.appendChild(parentNode.addChild)
             }
-        }, 30)
+        }, 80)
     }
 }
 
@@ -33,16 +32,10 @@ const mouseoutFn = function (e){
                     parentNode.removeChild(parentNode.addChild)
                     parentNode.addChild = null
                 }
-            }, 30)
+            }, 80)
         }
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    ipcRenderer.sendToHost('event', 'DOMContentLoaded')
-})
-
-window.onload = () => {
-    document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
-    document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
-}
+document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
+document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)

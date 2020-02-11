@@ -107,6 +107,7 @@ import { osType, imageSourceType } from '../../utils/utils'
 import { version } from '../../../package'
 import setter from './setter'
 import swProgress from './progress'
+import { defaultConfig } from '../../utils/config'
 
 
 const { shell } = require('electron')
@@ -156,6 +157,7 @@ export default {
             currentImageBacColor: '#ddd', // 进度条的颜色
             infoShow: INFOSHOW.loading, // 相关提示信息
             paperClass: [], // paper的分类
+            config: { ...defaultConfig }
         }
     },
 
@@ -167,7 +169,12 @@ export default {
     mounted() {
         // 安装量的统计
         this.firstInstall()
-        this.imageSource = this.$localStorage.getStore('userConfig').imageSource || 'pexels'
+        // 获得配置
+        const config = this.$localStorage.getStore('userConfig')
+        if (config){
+            this.config = { ...config }
+        }
+        this.imageSource = this.config.imageSource
         this.searchKey = this.$localStorage.getStore('searchKey') || ''
         this.searchKeyList = this.$localStorage.getStore('searchKeyList') || DEFAULTSEARCHLIST
         this.images = []
@@ -181,10 +188,6 @@ export default {
     },
 
     methods: {
-        ...mapActions([
-            'changeOsInfoStore',
-        ]),
-
         /**
          * 清除因版本更新后不再使用字段
          */
@@ -340,7 +343,6 @@ export default {
                         uid: md5(`${userName}${oss}${arch}${mac}`), // 软件唯一ID,
                     }
                     postRegister(data).then((res) => {
-                        this.changeOsInfoStore(data)
                         this.$localStorage.setStore('osInfo', data)
                         this.$localStorage.setStore('osInfoUid', data.uid)
                         this.$localStorage.setStore('first_install_flag_v1.1.1', 'strawberrywallpaper')

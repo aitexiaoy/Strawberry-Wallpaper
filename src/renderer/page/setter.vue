@@ -134,7 +134,6 @@
 
 <script>
 import { ipcRenderer, remote, shell } from 'electron'
-import { mapActions } from 'vuex'
 import { version } from '../../../package'
 import { imageSourceType, wallpaperScaleOptions, isMac, } from '../../utils/utils'
 import { defaultConfig } from '../../utils/config'
@@ -174,7 +173,6 @@ export default {
                     this[index] = newData[index]
                 }
             }
-            this.changeConfigStore(newData)
         } else {
             this.setLocation()
         }
@@ -184,10 +182,6 @@ export default {
         })
     },
     methods: {
-
-        ...mapActions([
-            'changeConfigStore',
-        ]),
 
         setOpenStart() {
             this.$ipcRenderer.send('btn', {
@@ -234,10 +228,8 @@ export default {
                 wallpaperSizeWidth: this.wallpaperSizeWidth, // 筛选的宽
                 wallpaperSizeHeight: this.wallpaperSizeHeight, // 筛选的高
                 wallpaperSizeDirection: this.wallpaperSizeDirection, // 筛选方向
-                
             }
             this.$localStorage.setStore('userConfig', data)
-            this.changeConfigStore(data)
         },
 
         // 壁纸自动更新

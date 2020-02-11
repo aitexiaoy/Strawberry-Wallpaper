@@ -271,7 +271,7 @@ function mainWindowShow() {
         }
         mainWindow.setOpacity(opacity)
         opacity = parseFloat((opacity + 0.1).toFixed(1))
-    }, 30)
+    }, 80)
 }
 
 /**
@@ -287,7 +287,7 @@ function mainWindowHide() {
         }
         mainWindow.setOpacity(opacity)
         opacity = parseFloat((opacity - 0.1).toFixed(1))
-    }, 30)
+    }, 80)
 }
 
 

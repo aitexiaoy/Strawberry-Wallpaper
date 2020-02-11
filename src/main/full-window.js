@@ -1,7 +1,7 @@
 const electron = require('electron')
-const { isDev, isMac, isWin, baseUrl } = require('../utils/utils')
+const { baseUrl } = require('../utils/utils')
 
-const { app, BrowserWindow, Tray, ipcMain, dialog } = electron
+const { BrowserWindow } = electron
 
 let fullWindow = null
 
@@ -15,7 +15,7 @@ function createWindow() {
         height: 700,
     })
     // fullWindow.openDevTools()
-    fullWindow.loadURL(`${baseUrl}/#/fullWindow`)
+    fullWindow.loadURL(`${baseUrl}#/fullWindow`)
 
     fullWindow.on('close', () => {
         fullWindow = null
@@ -25,6 +25,7 @@ function createWindow() {
 function openWindow(){
     if (!fullWindow){
         createWindow()
+        fullWindow.openDevTools()
     }
     else {
         fullWindow.show()

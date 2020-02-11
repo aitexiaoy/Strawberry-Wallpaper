@@ -23,6 +23,7 @@
         <div class="webview">
             <webview ref="fullWindowView" 
             :src="currentPath" 
+            nodeintegration
             class="position content"></webview>
             <div
                 v-show="isLoading"
@@ -41,7 +42,13 @@ import chromeIcon from '../components/chrome-icon/index.vue'
 import { imageSourceType } from '../../utils/utils'
 import swProgress from './progress'
 
-global.kk = null
+const { resolve } = require('path')
+const fs = require('fs')
+
+const fileBasePath = file => resolve(__dirname, `../../page-script/${file}`)
+const readFileSync = file => fs.readFileSync(fileBasePath(file)).toString()
+
+const renderFile = readFileSync('render.js')
 
 export default {
     name: 'fullWindowCtrl',
@@ -62,71 +69,112 @@ export default {
         config: state => state.main.config,
     }),
     mounted() {
-        this.$nextTick(() => {
-            this.handleNavClick(this.imageSourceType[1])
-            const webview = this.$refs.fullWindowView
+        this.handleNavClick(this.imageSourceType[0])
+        this.webviewEventInit()
+        this.renderEventInit()
+        this.registerKeyEvent()
+    },
+    methods: {
 
-            webview.addEventListener('did-start-loading', () => {
-                webview.setAttribute('preload', `file://${require('path').resolve(__dirname, `../../page-script/${this.currentSourceValue}.js`)}`)
+        webviewEventInit(){
+            this.$nextTick(() => {
+                const webview = this.$refs.fullWindowView
+                webview.addEventListener('did-start-loading', () => {
+                    console.log('did-start-loading')
+                    webview.setAttribute('preload', fileBasePath(`${this.currentSourceValue}.js`))
+                })
+
+                webview.addEventListener('dom-ready', () => {
+                    this.isLoading = false
+                    console.log('==============dom-ready')
+                    // webview.setAttribute('preload', fileBasePath(`${this.currentSourceValue}.js`))
+                    // webview.openDevTools()
+                    const ll = readFileSync(`${this.currentSourceValue}.js`)
+                        .replace('const { render } = require(\'./render\')\n', renderFile)
+                    console.log(ll)
+                    webview.executeJavaScript(ll)
+                })
+
+                webview.addEventListener('update-target-url', () => {
+                    this.backDisabled = !webview.canGoBack()
+                    this.forwadDisabled = !webview.canGoForward()
+                })
+
+                webview.addEventListener('console-message', (e) => {
+                    console.log(`webview: ${e.message}`)
+                })
+                webview.addEventListener('ipc-message', (event) => {
+                    const { channel, args: [data] } = event
+                    if (channel === 'download'){
+                        webview.downloadURL(data)
+                    }
+                    else if (channel === 'setWallpaper'){
+                        this.$ipcRenderer.send('dataWallpaper', { ...data, options: { scale: this.config.wallpaperScale, isAutoSet: true } })
+                    }
+                    else if (channel === 'event'){
+                        if (data === 'DOMContentLoaded'){
+                            this.isLoading = false
+                            console.log('我以为我执行完了', new Date())
+                        }
+                    }
+                })
             })
+        },
 
-            webview.addEventListener('dom-ready', () => {
-                this.isLoading = false
-            })
-
-            webview.addEventListener('update-target-url', () => {
-                this.backDisabled = !webview.canGoBack()
-                this.forwadDisabled = !webview.canGoForward()
-            })
-
-            webview.setAttribute('preload', `file://${require('path').resolve(__dirname, `../../page-script/${this.currentSourceValue}.js`)}`)
-
-
-            webview.addEventListener('console-message', (e) => {
-                console.log(`webview: ${e.message}`)
-            })
-            webview.addEventListener('ipc-message', (event) => {
-                const { channel, args: [data] } = event
-                if (channel === 'download'){
-                    webview.downloadURL(data)
-                }
-                else if (channel === 'setWallpaper'){
-                    this.$ipcRenderer.send('dataWallpaper', { ...data, options: { scale: this.config.wallpaperScale, isAutoSet: true } })
-                }
-                else if (channel === 'event'){
-                    if (data === 'DOMContentLoaded'){
-                        this.isLoading = false
-                        console.log('我以为我执行完了', new Date())
+        renderEventInit(){
+            /**
+         * 数据相关事件
+         */
+            this.$ipcRenderer.on('datainfo', (event, { type = '', data }) => {
+            // 更新进度条
+                console.log('===========090909', data)
+                if (type === 'updaterProgress') {
+                    this.progressValue = data
+                    if (this.progressValue >= 100) {
+                        const time = setTimeout(() => {
+                            clearTimeout(time)
+                            this.progressValue = 0
+                        }, 1000)
                     }
                 }
             })
-        })
 
-        /**
-         * 数据相关事件
-         */
-        this.$ipcRenderer.on('datainfo', (event, { type = '', data }) => {
-            // 更新进度条
-            console.log('===========090909', data)
-            if (type === 'updaterProgress') {
-                this.progressValue = data
-                if (this.progressValue >= 100) {
-                    const time = setTimeout(() => {
-                        clearTimeout(time)
-                        this.progressValue = 0
-                    }, 1000)
-                }
-            }
-        })
-
-        /**
+            /**
          * 设置壁纸完成事件
          */
-        this.$ipcRenderer.on('dataWallpaper', (event, arg) => {
-            this.progressValue = 0
-        })
-    },
-    methods: {
+            this.$ipcRenderer.on('dataWallpaper', (event, arg) => {
+                this.progressValue = 0
+            })
+        },
+
+        registerKeyEvent(){
+            const webview = this.$refs.fullWindowView
+            document.addEventListener('keydown', (e) => {
+                console.log(e)
+                let ctrlPressed = 0
+                let altPressed = 0
+                let shiftPressed = 0
+
+                shiftPressed = e.shiftKey
+                altPressed = e.altKey
+                ctrlPressed = e.ctrlKey
+                const { shiftKey, ctrlKey, altKey, metaKey, key } = e
+      
+                // DevTools for each tab => command+Shift+I
+                if ((metaKey && shiftKey && key === 'i') || key === 'F12'){
+                    if (webview.isDevToolsOpened()){
+                        webview.closeDevTools()
+                    }
+                    else {
+                        webview.openDevTools()
+                    }             
+                    e.preventDefault()        
+                    return false
+                }
+                return true
+            })
+        },
+
         // 后退
         handleGoBack(){
             this.$refs.fullWindowView.goBack()
@@ -147,10 +195,12 @@ export default {
 
         // 打开指定连接
         handleNavClick(item){
+            const webview = this.$refs.fullWindowView
             const { home: path, value } = item
             this.currentPath = path
             this.currentSourceValue = value
             this.isLoading = true
+            // webview.setAttribute('preload', `file://${require('path').resolve(__dirname, `../../page-script/${this.currentSourceValue}.js`)}`)
         } 
     }
 

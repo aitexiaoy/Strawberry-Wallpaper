@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="sure-post">
-                    <el-button type="primary" @click.stop="sure_post" :loading="loading">提交</el-button>
+                    <el-button type="primary" @click.stop="handleSurePost" :loading="loading">提交</el-button>
                 </div>
             </el-form>
 
@@ -78,7 +78,7 @@ export default {
         next()
     },
     methods: {
-        sure_post() {
+        handleSurePost() {
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     const { uid = '', version = '', username = '' } = this.$localStorage.getStore('osInfo')

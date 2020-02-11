@@ -63,7 +63,7 @@ export const imageSourceType = [{
 {
     name: 'wallhaven',
     value: 'wallhaven',
-    home: 'https://wallhaven.cc/latest/',
+    home: 'https://wallhaven.cc/latest',
     search: true
 },
 {
