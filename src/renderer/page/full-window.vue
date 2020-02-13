@@ -22,9 +22,11 @@
         <sw-progress v-if="progressValue>0" width='100%' :value="progressValue" :color="currentImageBacColor"></sw-progress>
         <div class="webview">
             <webview
+                v-if="currentPath"
                 ref="fullWindowView"
                 :src="currentPath"
-                nodeintegration
+                :key="currentPath"
+                :preload="fileAbsolutePath"
                 class="position content"></webview>
             <div
                 v-show="isLoading"
@@ -32,7 +34,8 @@
                 v-loading="isLoading"
                 element-loading-text="拼命加载中..."
                 element-loading-background="#222222 !important"
-                element-loading-customClass="webview-loading"></div>
+                element-loading-customClass="webview-loading">
+            </div>
         </div>
     </div>
 </template>
@@ -51,8 +54,7 @@ const fileBasePath = file => resolve(__static, `./page-script/${file}`)
 const readFileSync = file => fs.readFileSync(fileBasePath(file)).toString()
 
 const renderFile = readFileSync('render.js')
-
-global.kjl = null
+global.kjj = null
 
 export default {
     name: 'fullWindowCtrl',
@@ -70,41 +72,36 @@ export default {
             config: {}
         }
     },
-    computed: mapState({
-        config: state => state.main.config,
-    }),
     mounted() {
-        kjl = this
-        console.log('=================11', new Date())
         const config = this.$localStorage.getStore('userConfig')
         this.handleNavClick(this.imageSourceType[0])
         this.webviewEventInit()
-        console.log('=================33', new Date())
         this.renderEventInit()
         this.registerKeyEvent()
-        console.log('=================66', new Date())
+    },
+    computed: {
+        fileAbsolutePath(){
+            return `file://${fileBasePath(`${this.currentSourceValue}.js`)}` 
+        } 
     },
     methods: {
-
         webviewEventInit(){
             this.$nextTick(() => {
                 const webview = this.$refs.fullWindowView
                 webview.addEventListener('did-start-loading', () => {
-                    console.log('did-start-loading')
-                    webview.openDevTools()
+                    // console.log('==========', webview.preload)
                 })
 
                 webview.addEventListener('dom-ready', () => {
                     this.isLoading = false
-                    console.log('==============dom-ready')
-                    const jsString = readFileSync(`${this.currentSourceValue}.js`)
-                        .replace('const { render } = require(\'./render\')\n', renderFile)
-                    webview.executeJavaScript(jsString)
-                    // webview.executeJavaScript('console.log(\'我执行脚本了\');')
+                    webview.send('dom-ready')
+                    // const jsString = readFileSync(`${this.currentSourceValue}.js`)
+                    //     .replace('const { render } = require(\'./render\')\n', renderFile)
+                    // webview.executeJavaScript(jsString)
                 })
 
                 webview.addEventListener('did-finish-load', () => {
-                    console.log('==============我加载完成了')
+                    // console.log('==============我加载完成了')
                 })
 
                 webview.addEventListener('update-target-url', () => {
@@ -198,7 +195,11 @@ export default {
         handleNavClick(item){
             const webview = this.$refs.fullWindowView
             const { home: path, value } = item
+            
             this.currentPath = path
+            this.$nextTick(() => {
+                this.webviewEventInit()
+            })
             this.currentSourceValue = value
             this.isLoading = true
             // webview.setAttribute('preload', `file://${require('path').resolve(__dirname, `../../page-script/${this.currentSourceValue}.js`)}`)

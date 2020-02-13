@@ -39,6 +39,17 @@ export const postRegister = data => new Promise((resolve, reject) => {
  */
 export const apiStatisticActive = data => instance.post('/active', data)
 
+export const apiGetNotices = () => new Promise((resolve) => {
+    instance.get('/notice').then((res) => {
+        if (res.code === 200){
+            resolve(res.data || [])
+        }
+        else {
+            resolve([])
+        }
+    }).catch(() => { resolve([]) })
+}) 
+
 /**
  * 百度翻译接口，将用户搜索的中文转成英文
  */

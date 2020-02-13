@@ -14,7 +14,6 @@ function createWindow() {
         width: 1200,
         height: 700,
     })
-    // fullWindow.openDevTools()
     fullWindow.loadURL(`${baseUrl}#/full`)
 
     fullWindow.on('close', () => {
@@ -25,7 +24,7 @@ function createWindow() {
 function openWindow(){
     if (!fullWindow){
         createWindow()
-        fullWindow.openDevTools()
+        // fullWindow.openDevTools()
     }
     else {
         fullWindow.show()

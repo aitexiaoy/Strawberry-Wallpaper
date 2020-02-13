@@ -1,0 +1,12 @@
+{
+    // 忽略的文件
+    "csscomb.ignoreFilesOnSave": [
+      ".git/**",
+      "node_modules/**",
+      "dist/**",
+      "dll/**",
+    ],
+    // 规则路径,也可以为一个对象自定义规则
+    "csscomb.preset": "csscomb.js",
+    "csscomb.formatOnSave": true,
+}

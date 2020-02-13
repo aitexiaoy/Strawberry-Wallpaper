@@ -69,7 +69,6 @@
                 <div class="setter-row">
                     <span class="checkbox-text setter-header">自定义过滤尺寸:</span>
                      <el-input
-                        :disabled="wallpaperAutoUp==false"
                         class="myselef-time"
                         @input="handleWallpaperSizeWidthChange"
                         placeholder="宽"
@@ -79,7 +78,6 @@
                     </el-input>
                     <span class="size-icon">x</span>
                     <el-input
-                        :disabled="wallpaperAutoUp==false"
                         class="myselef-time"
                         @input="handleWallpaperSizeHeightChange"
                         placeholder="高"

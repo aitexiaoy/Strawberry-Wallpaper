@@ -48,7 +48,7 @@ const render = (options) => {
     btnDownload.style.cssText = btnCssText
     btnWallpaper.style.cssText = btnCssText
 
-    dom.style.cssText = 'display:flex; position:absolute;z-index:99999; right:0;top:0; align-items:center; width:100px;height:40px;background-color:#222;'
+    dom.style.cssText = 'display:flex; position:absolute;z-index:1; right:0;top:0; align-items:center; width:100px;height:40px;background-color:#222;'
 
     btnDownload.onclick = downloadFile
     btnDownload.onmouseover = (e) => { btnMouseOver(e, iconDownloadHover) } 
@@ -79,4 +79,9 @@ const render = (options) => {
     }
 
     return dom
+}
+
+
+module.exports = {
+    render
 }

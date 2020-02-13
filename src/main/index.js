@@ -94,7 +94,7 @@ function appOpenInit(){
 function createWindow() {
     mainWindow = new BrowserWindow({
         height: 600,
-        width: 300,
+        width: 310,
         frame: false,
         transparent: true,
         show: false,

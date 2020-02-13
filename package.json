@@ -11,7 +11,7 @@
     "build-win": "electron-builder --win",
     "build-mac": "electron-builder --mac",
     "build": "npm run build-r && npm run build-win && npm run build-mac",
-    "build:dir": "cross-env node .electron-vue/build.js && electron-builder --dir",
+    "build:dir": "cross-env node .electron-vue/build.js && electron-builder --mac --dir",
     "clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "dev": "node .electron-vue/dev-runner.js",
     "pack": "npm run pack:main && npm run pack:renderer",
@@ -30,36 +30,17 @@
       "provider": "generic",
       "url": "http://sw.taoacat.com/version/"
     },
-    "files": [
-      "dist/electron/**/*"
-    ],
-    "dmg": {
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ]
-    },
+    "files": ["dist/electron/**/*"],
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "build-config/icons/icon.icns",
+      "target":["dmg"]
     },
     "win": {
-      "icon": "build/icons/icon.ico",
-      "target": [
-        "nsis",
-        "zip"
-      ]
+      "icon": "build-config/icons/icon.ico",
+      "target": ["nsis"]
     },
     "linux": {
-      "icon": "build/icons"
+      "icon": "build-config/icons"
     }
   },
   "devDependencies": {

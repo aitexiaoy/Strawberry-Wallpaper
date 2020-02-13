@@ -1,3 +1,4 @@
+const { ipcRenderer } = require('electron')
 const { render } = require('./render')
 
 const isImg = target => ['photo-item__img'].includes(target.className)
@@ -35,5 +36,11 @@ const mouseoutFn = function (e){
     }
 }
 
-document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
-document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
+
+console.log('================pexels')
+
+ipcRenderer.on('dom-ready', () => {
+    console.log('================pexels-load')
+    document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
+    document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
+})

@@ -1,3 +1,4 @@
+const { ipcRenderer } = require('electron')
 const { render } = require('./render')
 
 const isImg = target => target.tagName === 'IMG' && target.getAttribute('srcset')
@@ -39,6 +40,8 @@ const mouseoutFn = function (e){
     }
 }
 
-
-document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
-document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
+ipcRenderer.on('dom-ready', () => {
+    console.log('================un-load')
+    document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
+    document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
+})

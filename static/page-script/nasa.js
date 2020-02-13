@@ -1,3 +1,4 @@
+const { ipcRenderer } = require('electron')
 const { render } = require('./render')
 
 const PUBLICURL = '/sites/default/files/styles/image_card_4x3_ratio/public/'
@@ -40,5 +41,8 @@ const mouseoutFn = function (e){
     }
 }
 
-document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
-document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
+ipcRenderer.on('dom-ready', () => {
+    console.log('================nasa-load')
+    document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
+    document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
+})

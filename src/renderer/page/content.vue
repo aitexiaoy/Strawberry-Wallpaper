@@ -7,10 +7,11 @@
                         <h1 class="text">Strawberry</h1>
                     </div>
                     <div class="right">
-                        <i class="iconfont icon-quanping" @click.stop="handleOpenFullWindow"></i>
-                        <i class="iconfont icon-wenjianjia" @click.stop="openDownloadFile"></i>
+                        <icon :class="['iconfont icon-gonggao',{'no-watch':noticeNoWatch}]"  @click="handleGoToNotice"></icon>
+                        <icon class="iconfont icon-quanping" @click="handleOpenFullWindow"></icon>
+                        <icon class="iconfont icon-wenjianjia" @click="openDownloadFile"></icon>
                         <div class="header-set">
-                            <i class="iconfont icon-shezhi" @click.stop="setterShow=!setterShow"></i>
+                            <icon class="iconfont icon-shezhi" @click="setterShow=!setterShow"></icon>
                         </div>
                     </div>
                 </el-row>
@@ -39,7 +40,7 @@
                         size="small"
                         @focus="searchKeyFocus=true"
                         @blur="searchKeyFocus=false"></el-input>
-                    <i class="iconfont icon-sousuo" @click.stop="searchKeyFn"></i>
+                    <icon class="iconfont icon-sousuo" @click="searchKeyFn"></icon>
                 </div>
 
                 <div class="header-tag" v-if="currentImageSource.search&&searchKeyList.length>0">
@@ -91,7 +92,7 @@
             </div>
         </div>
         <div class="refresh-btn" :class="{'refresh-btn-ing':refreshBtnIng}">
-            <i class="iconfont icon-shuaxin" @click="refreshFn"></i>
+            <icon class="iconfont icon-shuaxin" @click="refreshFn"></icon>
         </div>
 
         <setter
@@ -112,13 +113,15 @@ import { version } from '../../../package'
 import setter from './setter'
 import swProgress from './progress'
 import { defaultConfig } from '../../utils/config'
+import icon from '../components/icon/index.vue'
+
 
 const { shell } = require('electron')
 const os = require('os')
 const osu = require('node-os-utils')
 const macaddress = require('macaddress')
 const md5 = require('../../utils/md5').md5_32
-const { postRegister, apiStatisticActive } = require('../../api/api')
+const { postRegister, apiStatisticActive, apiGetNotices } = require('../../api/api')
 const { mkdirSync } = require('../../file/file')
 
 const INFOSHOW = {
@@ -138,6 +141,7 @@ export default {
     components: {
         setter,
         swProgress,
+        icon
     },
     data() {
         return {
@@ -160,7 +164,8 @@ export default {
             currentImageBacColor: '#ddd', // 进度条的颜色
             infoShow: INFOSHOW.loading, // 相关提示信息
             paperClass: [], // paper的分类
-            config: { ...defaultConfig }
+            config: { ...defaultConfig },
+            noticeNoWatch: false, // 公告是否已阅
         }
     },
 
@@ -244,6 +249,19 @@ export default {
                         version
                     })
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
+
+                    // 获取公告
+                    apiGetNotices().then((res) => {
+                        if (res.length > 0){
+                            // 存公告
+                            this.$localStorage.setStore('noticeList', res)
+                            // 取出最后一次阅读时间
+                            const lastWatchNoticeTime = this.$localStorage.getStore('watchNoticeTime')
+                            if (lastWatchNoticeTime && res[0].time > Number(lastWatchNoticeTime)){
+                                this.noticeNoWatch = true
+                            }
+                        }
+                    })
                 }
                 // 7天 自动清除已下载
                 if (nowDate - lastCleararnDownloadFilesTime >= (this.config.autoClearnDownloadFilesTime || 7) * 24 * 60 * 60) {
@@ -611,7 +629,15 @@ export default {
                     }, 100)
                 }
             }
+        },
+
+        handleGoToNotice(){
+            this.$router.push('/notice')
+            this.noticeNoWatch = false
+            // 存最近一次看公告的时间,来判断公告是否已阅
+            this.$localStorage.setStore('watchNoticeTime', (new Date()).getTime())
         }
+
     },
     watch: {
         imageSource(val, oldVal) {
@@ -678,11 +704,12 @@ export default {
                     // z-index: 2;
                 }
             }
+
         }
 
         .iconfont {
-            margin-left: 10px;
-            color: #dddddd;
+            margin-left: 8px;
+            // color: #dddddd;
         }
 
         .left {
@@ -693,6 +720,11 @@ export default {
             display: flex;
             flex: none;
             align-items: center;
+            .icon-gonggao{
+                &.no-watch{
+                    color:#ff3f00;
+                }
+            }
         }
 
         .header-set {

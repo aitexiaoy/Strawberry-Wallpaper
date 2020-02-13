@@ -118,6 +118,13 @@
       "unicode_decimal": 59001
     },
     {
+      "icon_id": "50169425",
+      "name": "公告",
+      "font_class": "gonggao",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
       "icon_id": "31610935",
       "name": "版本号",
       "font_class": "banbenhao",

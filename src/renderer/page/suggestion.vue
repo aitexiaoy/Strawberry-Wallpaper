@@ -28,6 +28,13 @@
                 <div class="sure-post">
                     <el-button type="primary" @click.stop="handleSurePost" :loading="loading">提交</el-button>
                 </div>
+
+                <el-button
+                    class="issues"
+                    type="primary"
+                    @click.stop="goToGitHubIssues"
+                    :loading="loading">或直接提交issues</el-button>
+
             </el-form>
 
             <div class="result">{{suggestionResult}}</div>
@@ -36,6 +43,8 @@
 </template>
 
 <script>
+import { shell } from 'electron'
+
 let timer = 0
 
 export default {
@@ -100,6 +109,10 @@ export default {
                     console.log('error submit!!')
                 }
             })
+        },
+
+        goToGitHubIssues() {
+            shell.openExternal('https://github.com/aitexiaoy/Strawberry-Wallpaper/issues')
         }
     },
 }
@@ -132,6 +145,10 @@ export default {
         height: 50px;
         display: flex;
         align-items: center;
+    }
+
+    .issues {
+        margin-top: 40px;
     }
 
     .result {

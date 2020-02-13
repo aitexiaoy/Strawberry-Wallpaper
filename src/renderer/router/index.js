@@ -8,6 +8,7 @@ const content = () => import('../page/content')
 const about = () => import('../page/about')
 const suggestion = () => import('../page/suggestion')
 const fullWindow = () => import('../page/full-window')
+const notice = () => import('../page/notice')
 
 export default new Router({
     routes: [
@@ -28,6 +29,10 @@ export default new Router({
                     path: '/suggestion',
                     component: suggestion
                 },
+                {
+                    path: '/notice',
+                    component: notice
+                }
             ]
         },
         

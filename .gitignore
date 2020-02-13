@@ -1,12 +1,8 @@
 .DS_Store
 dist/*
-dist/*
 build/*
-!build/icons
 node_modules/
-npm-debug.log
 npm-debug.log.*
 thumbs.db
 .user-config.js
 !.gitkeep
-.vscode
