@@ -1,52 +1,56 @@
 <template>
-    <div class="main-content" 
-    @mouseleave="handleMouseLeave"
-    @keydown.enter="keydownEnterFn">
+    <div class="main-content" @mouseleave="handleMouseLeave" @keydown.enter="keydownEnterFn">
         <div class="header">
-            <el-row class="header-row-one">
-                <div class="left">
-                    <h1 class="text">Strawberry</h1>
-                </div>
-                <div class="right">
-                    <i class="iconfont icon-quanping" @click.stop="handleOpenFullWindow"></i>
-                    <i class="iconfont icon-wenjianjia" @click.stop="openDownloadFile"></i>
-                    <div class="header-set">
-                        <i class="iconfont icon-shezhi" @click.stop="setterShow=!setterShow"></i>
+            <div class="header-content">
+                <el-row class="header-row-one">
+                    <div class="left">
+                        <h1 class="text">Strawberry</h1>
                     </div>
+                    <div class="right">
+                        <i class="iconfont icon-quanping" @click.stop="handleOpenFullWindow"></i>
+                        <i class="iconfont icon-wenjianjia" @click.stop="openDownloadFile"></i>
+                        <div class="header-set">
+                            <i class="iconfont icon-shezhi" @click.stop="setterShow=!setterShow"></i>
+                        </div>
+                    </div>
+                </el-row>
+
+                <div class="header-search" v-if="imageSource==='paper'">
+                    <el-select
+                        class="header-search-input"
+                        v-model="searchKey"
+                        size="small"
+                        @change="searchKeyFn"
+                        @focus="searchKeyFocus=true"
+                        @blur="searchKeyFocus=false">
+                        <el-option
+                            v-for="item in paperClass"
+                            :key="item.value"
+                            :label="item.name"
+                            :value="item.value"></el-option>
+                    </el-select>
                 </div>
-            </el-row>
 
-            <div class="header-search" v-if="imageSource==='paper'">
-                <el-select
-                    class="header-search-input"
-                    v-model="searchKey"
-                    size="small"
-                    @change="searchKeyFn"
-                    @focus="searchKeyFocus=true"
-                    @blur="searchKeyFocus=false">
-                    <el-option v-for="item in paperClass" :key="item.value" :label="item.name" :value="item.value"></el-option>
-                </el-select>
-            </div>
+                <div class="header-search" v-else-if="currentImageSource.search">
+                    <el-input
+                        class="header-search-input"
+                        v-model="searchKey"
+                        placeholder="请输入关键词"
+                        size="small"
+                        @focus="searchKeyFocus=true"
+                        @blur="searchKeyFocus=false"></el-input>
+                    <i class="iconfont icon-sousuo" @click.stop="searchKeyFn"></i>
+                </div>
 
-            <div class="header-search" v-else-if="currentImageSource.search">
-                <el-input
-                    class="header-search-input"
-                    v-model="searchKey"
-                    placeholder="请输入关键词"
-                    size="small"
-                    @focus="searchKeyFocus=true"
-                    @blur="searchKeyFocus=false"></el-input>
-                <i class="iconfont icon-sousuo" @click.stop="searchKeyFn"></i>
-            </div>
-
-            <div class="header-tag" v-if="currentImageSource.search&&searchKeyList.length>0">
-                <div :class="['header-tag-item',tag === searchKey? 'active' : '']"   
-                    v-for="(tag) in searchKeyList" 
-                    :key="tag"
-                    @click="searchItemClick(tag)"
-                >
-                    <div class="header-tag-item-text">{{tag}}</div>
-                    <span class="header-tag-item-del" @click.stop="searchKeyListDelete(tag)">x</span>
+                <div class="header-tag" v-if="currentImageSource.search&&searchKeyList.length>0">
+                    <div
+                        :class="['header-tag-item',tag === searchKey? 'active' : '']"
+                        v-for="(tag) in searchKeyList"
+                        :key="tag"
+                        @click="searchItemClick(tag)">
+                        <div class="header-tag-item-text">{{tag}}</div>
+                        <span class="header-tag-item-del" @click.stop="searchKeyListDelete(tag)">x</span>
+                    </div>
                 </div>
             </div>
 
@@ -76,9 +80,9 @@
                         <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
                     </div>
                 </div>
-                 <div class="is-loading" v-if="infoShow!==''">
-                     <i v-if="getDataFlag" class="el-icon-loading"></i>
-                     <span v-html="infoShow"></span>
+                <div class="is-loading" v-if="infoShow!==''">
+                    <i v-if="getDataFlag" class="el-icon-loading"></i>
+                    <span v-html="infoShow"></span>
                 </div>
             </div>
 
@@ -108,7 +112,6 @@ import { version } from '../../../package'
 import setter from './setter'
 import swProgress from './progress'
 import { defaultConfig } from '../../utils/config'
-
 
 const { shell } = require('electron')
 const os = require('os')
@@ -144,7 +147,7 @@ export default {
             page: 0, // 请求数据的页数
             progressValue: 0, // 进度值
             searchKey: '', // 搜索关键字
-            searchKeyList: DEFAULTSEARCHLIST, // 储存最近搜索的10次关键字
+            searchKeyList: [...DEFAULTSEARCHLIST], // 储存最近搜索的10次关键字
             setterShow: false, // 是否显示设置
             isSetting: false, // 是否正在设置壁纸
             havaDataFlag: true, // 标记是否还有数据
@@ -162,7 +165,6 @@ export default {
     },
 
     computed: mapState({
-        config: state => state.main.config,
         currentImageSource() { return imageSourceType.find(item => item.value === this.imageSource) }
     }),
 
@@ -173,10 +175,12 @@ export default {
         const config = this.$localStorage.getStore('userConfig')
         if (config){
             this.config = { ...config }
+        } else {
+            this.$localStorage.setStore('userConfig', this.config) 
         }
         this.imageSource = this.config.imageSource
         this.searchKey = this.$localStorage.getStore('searchKey') || ''
-        this.searchKeyList = this.$localStorage.getStore('searchKeyList') || DEFAULTSEARCHLIST
+        this.searchKeyList = this.$localStorage.getStore('searchKeyList') || this.searchKeyList
         this.images = []
         this.cleartLocalStorage()
         if (this.imageSource === 'paper'){
@@ -455,7 +459,6 @@ export default {
 
         /** 壁纸自动更新 */
         wallpaperAuto() {
-            const userConfig = this.$localStorage.getStore('userConfig')
             // 如果正在设置,则弹出去
             if (this.isSetting === true || this.images.length === 0) {
                 return
@@ -465,14 +468,14 @@ export default {
                 this.page = this.page + 1
                 this.getData()
             }
-            if (userConfig.wallpaperAutoUp === true) {
+            if (this.config.wallpaperAutoUp === true) {
                 if (this.$localStorage.getStore('lastUpdataTime')) {
                     const currentTime = parseInt(new Date().getTime() / 1000, 10)
                     // eslint-disable-next-line no-restricted-globals
-                    if (!isNaN(parseInt(userConfig.updataTime, 10))) {
+                    if (!isNaN(parseInt(this.config.updataTime, 10))) {
                         let time = this.$localStorage.getStore('lastUpdataTime')
                         time = parseInt(time, 10)
-                        const updataTime = parseInt(userConfig.updataTime, 10)
+                        const updataTime = parseInt(this.config.updataTime, 10)
                         if (Math.abs(currentTime - time) > updataTime) {
                             const index = this.images[this.currentWallpaperIndex] ? this.currentWallpaperIndex : 0
                             this.setWallpaper(this.images[index], index, true)
@@ -487,7 +490,6 @@ export default {
          * @function searchKeyFn
          */
         searchKeyFn() {
-            this.$localStorage.setStore('searchKey', this.searchKey)
             if (!this.searchKeyList.includes(this.searchKey) && this.searchKey !== ''){
                 this.domContentMainMatch()
                 this.searchKeyList.unshift(this.searchKey)
@@ -589,6 +591,7 @@ export default {
 
         searchKeyListDelete(tag){
             this.searchKeyList = this.searchKeyList.filter(i => i !== tag)
+            this.$localStorage.setStore('searchKeyList', this.searchKeyList)
             this.domContentMainMatch()
         },
 
@@ -616,6 +619,9 @@ export default {
                 this.paperInit()
             }
         },
+        searchKey(val){
+            this.$localStorage.setStore('searchKey', val)
+        }
     }
 }
 </script>
@@ -646,8 +652,12 @@ export default {
         width: 100%;
         min-height: 50px;
         overflow: hidden;
-        padding-right: 20px;
-        padding-left: 20px;
+
+        .header-content {
+            width: 100%;
+            padding-right: 20px;
+            padding-left: 20px;
+        }
 
         .header-row-one {
             display: flex;
@@ -921,5 +931,4 @@ export default {
         transform: rotate(0);
     }
 }
-
 </style>

@@ -19,12 +19,13 @@
                 </template>
             </div>
         </div>
-        <sw-progress v-if="progressValue>0" :value="progressValue" :color="currentImageBacColor"></sw-progress>
+        <sw-progress v-if="progressValue>0" width='100%' :value="progressValue" :color="currentImageBacColor"></sw-progress>
         <div class="webview">
-            <webview ref="fullWindowView" 
-            :src="currentPath" 
-            nodeintegration
-            class="position content"></webview>
+            <webview
+                ref="fullWindowView"
+                :src="currentPath"
+                nodeintegration
+                class="position content"></webview>
             <div
                 v-show="isLoading"
                 class="position loading"
@@ -45,10 +46,13 @@ import swProgress from './progress'
 const { resolve } = require('path')
 const fs = require('fs')
 
-const fileBasePath = file => resolve(__dirname, `../../page-script/${file}`)
+// eslint-disable-next-line no-undef
+const fileBasePath = file => resolve(__static, `./page-script/${file}`)
 const readFileSync = file => fs.readFileSync(fileBasePath(file)).toString()
 
 const renderFile = readFileSync('render.js')
+
+global.kjl = null
 
 export default {
     name: 'fullWindowCtrl',
@@ -61,18 +65,24 @@ export default {
             imageSourceType,
             currentPath: '',
             progressValue: 0,
-            currentImageBacColor: '#ddd', // 进度条的颜色
+            currentImageBacColor: '#ff66ff', // 进度条的颜色
             currentSourceValue: '',
+            config: {}
         }
     },
     computed: mapState({
         config: state => state.main.config,
     }),
     mounted() {
+        kjl = this
+        console.log('=================11', new Date())
+        const config = this.$localStorage.getStore('userConfig')
         this.handleNavClick(this.imageSourceType[0])
         this.webviewEventInit()
+        console.log('=================33', new Date())
         this.renderEventInit()
         this.registerKeyEvent()
+        console.log('=================66', new Date())
     },
     methods: {
 
@@ -81,25 +91,26 @@ export default {
                 const webview = this.$refs.fullWindowView
                 webview.addEventListener('did-start-loading', () => {
                     console.log('did-start-loading')
-                    webview.setAttribute('preload', fileBasePath(`${this.currentSourceValue}.js`))
+                    webview.openDevTools()
                 })
 
                 webview.addEventListener('dom-ready', () => {
                     this.isLoading = false
                     console.log('==============dom-ready')
-                    // webview.setAttribute('preload', fileBasePath(`${this.currentSourceValue}.js`))
-                    // webview.openDevTools()
-                    const ll = readFileSync(`${this.currentSourceValue}.js`)
+                    const jsString = readFileSync(`${this.currentSourceValue}.js`)
                         .replace('const { render } = require(\'./render\')\n', renderFile)
-                    console.log(ll)
-                    webview.executeJavaScript(ll)
+                    webview.executeJavaScript(jsString)
+                    // webview.executeJavaScript('console.log(\'我执行脚本了\');')
+                })
+
+                webview.addEventListener('did-finish-load', () => {
+                    console.log('==============我加载完成了')
                 })
 
                 webview.addEventListener('update-target-url', () => {
                     this.backDisabled = !webview.canGoBack()
                     this.forwadDisabled = !webview.canGoForward()
                 })
-
                 webview.addEventListener('console-message', (e) => {
                     console.log(`webview: ${e.message}`)
                 })
@@ -111,23 +122,14 @@ export default {
                     else if (channel === 'setWallpaper'){
                         this.$ipcRenderer.send('dataWallpaper', { ...data, options: { scale: this.config.wallpaperScale, isAutoSet: true } })
                     }
-                    else if (channel === 'event'){
-                        if (data === 'DOMContentLoaded'){
-                            this.isLoading = false
-                            console.log('我以为我执行完了', new Date())
-                        }
-                    }
                 })
             })
         },
 
         renderEventInit(){
-            /**
-         * 数据相关事件
-         */
+            // 数据相关事件
             this.$ipcRenderer.on('datainfo', (event, { type = '', data }) => {
             // 更新进度条
-                console.log('===========090909', data)
                 if (type === 'updaterProgress') {
                     this.progressValue = data
                     if (this.progressValue >= 100) {
@@ -139,9 +141,7 @@ export default {
                 }
             })
 
-            /**
-         * 设置壁纸完成事件
-         */
+            // 设置壁纸完成事件
             this.$ipcRenderer.on('dataWallpaper', (event, arg) => {
                 this.progressValue = 0
             })
@@ -191,6 +191,7 @@ export default {
         // 终止
         handleAbort(){
             this.$refs.fullWindowView.reload()
+            this.isLoading = false
         },
 
         // 打开指定连接

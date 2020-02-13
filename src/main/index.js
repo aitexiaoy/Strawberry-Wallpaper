@@ -251,8 +251,10 @@ function appInit() {
  * 给所有的的渲染进程发消息
  */
 function sendData(...args){
-    [mainWindow, fullWindow].forEach((i) => {
-        if (i && i.webContents){
+    const fullWindowWindow = fullWindow.getWindow()
+    const windows = [mainWindow, fullWindowWindow]
+    windows.forEach((i) => {
+        if (i){
             i.webContents.send(...args) 
         }
     })
@@ -317,8 +319,7 @@ function ipcMainInit() {
 
 
     ipcMain.on('dataWallpaper', (event, arg) => {
-        console.log('=================', arg)
-        downloadPic(arg.downloadUrl, mainWindow).then((filePath) => {
+        downloadPic(arg.downloadUrl, sendData).then((filePath) => {
             const { options } = arg
             if (isMac() && options.isAutoSet === false){
                 setCurrentWallpaper(filePath, {

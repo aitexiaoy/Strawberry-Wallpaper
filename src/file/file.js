@@ -44,9 +44,9 @@ export function mkdirSync(dirname) {
 /**
  * 从指定连接下图片
  * @param {*} src 下载图片的绝对地址
- * @param {*} mainWindow  主进程窗口对象
+ * @param {*} sendData  发送消息
  */
-export const downloadPic = async function (src, mainWindow) {
+export const downloadPic = async function (src, sendData) {
     return new Promise((resolve, reject) => {
         // 创建文件夹
         const hostdir = store.default.state.main.config.downloadImagePath
@@ -88,8 +88,8 @@ export const downloadPic = async function (src, mainWindow) {
         myRequest.on('data', (chunk) => {
             // 更新下载的文件块字节大小
             receivedBytes += chunk.length
-            console.log(receivedBytes, totalBytes)
-            mainWindow.webContents.send('datainfo', {
+            // console.log(receivedBytes, totalBytes)
+            sendData('datainfo', {
                 type: 'updaterProgress',
                 data: parseFloat(((receivedBytes / totalBytes) * 100))
             })

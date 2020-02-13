@@ -32,7 +32,7 @@ export default new Router({
         },
         
         {
-            path: '/fullWindow',
+            path: '/full',
             component: fullWindow
         }
         

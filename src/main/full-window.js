@@ -15,7 +15,7 @@ function createWindow() {
         height: 700,
     })
     // fullWindow.openDevTools()
-    fullWindow.loadURL(`${baseUrl}#/fullWindow`)
+    fullWindow.loadURL(`${baseUrl}#/full`)
 
     fullWindow.on('close', () => {
         fullWindow = null
@@ -38,7 +38,12 @@ function closeWindow(){
     }
 }
 
+function getWindow(){
+    return fullWindow
+}
+
 export default {
     openWindow,
     closeWindow,
+    getWindow,
 }

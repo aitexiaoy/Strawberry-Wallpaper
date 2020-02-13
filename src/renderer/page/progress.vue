@@ -29,7 +29,7 @@ export default {
 
 <style scoped lang='less'>
 .progress-main {
-    position: absolute;
+    position: relative;
     bottom: 0;
     left: 0;
     background-color: transparent;
