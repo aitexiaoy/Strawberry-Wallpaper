@@ -2,8 +2,8 @@
     <transition name="page-transition">
         <div class="notice">
             <ml-page-header>公告</ml-page-header>
-            <contentMain class="content">
-                <template  v-if="noticeList.length>0">
+            <contentMain class="content" ref="content">
+                <template v-if="noticeList.length>0">
                     <div class="notice-item" v-for="item in noticeList" :key="`${item.content}-${item.time}`">
                         <span>{{`【${item.time}】`}}</span>
                         <span v-html="item.content"></span>
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { shell } from 'electron'
 import contentMain from '../components/content-main/index.vue'
 
 export default {
@@ -36,10 +37,12 @@ export default {
             time: this.dateFormat(item.time),
             content: item.content
         }))
+        this.$nextTick(() => {
+            this.$refs.content.$el.addEventListener('click', this.contentEvent, false)
+        })
     },
     methods: {
-        dateFormat(time)
-        { 
+        dateFormat(time){ 
             let fmt = 'MM-dd hh:mm'
             const date = new Date(time)
             const o = { 
@@ -54,7 +57,19 @@ export default {
             if (/(y+)/.test(fmt)) { fmt = fmt.replace(RegExp.$1, (`${date.getFullYear()}`).substr(4 - RegExp.$1.length)) } 
             for (const k in o) { if (new RegExp(`(${k})`).test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : ((`00${o[k]}`).substr((`${o[k]}`).length))) } 
             return fmt 
+        },
+
+        contentEvent(e){
+            e.preventDefault()
+            const { target } = e
+            if (target.tagName === 'A'){
+                const { href } = target
+                shell.openExternal(href)
+            }
         }
+    },
+    beforeDestroy(){
+        this.$refs.content.$el.removeEventListener('click', this.contentEvent, false)
     }
 }
 </script>
@@ -69,17 +84,41 @@ export default {
     .content {
         font-size: 13px;
         line-height: 24px;
-        color: #a5a5a5;
+
         height: calc(100% - 60px);
 
         .notice-item {
             border-bottom: 1px dashed #a5a5a5;
             padding: 10px 0px;
+            color: #a5a5a5;
+
+            a {
+                color: #a5a5a5;
+            }
         }
-        .no-data{
+
+        .no-data {
             text-align: center;
-            line-height:100px;
+            line-height: 100px;
             padding-left: 20px;
+        }
+    }
+}
+</style>
+
+<style lang="less">
+.notice {
+    .content {
+        .notice-item {
+            * {
+                color: #a5a5a5;
+            }
+            a{
+                text-decoration: none;
+                &:hover{
+                    text-decoration: underline;
+                }
+            }
         }
     }
 }
