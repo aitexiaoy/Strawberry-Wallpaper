@@ -23,7 +23,7 @@ import { shell } from 'electron'
 import contentMain from '../components/content-main/index.vue'
 
 export default {
-    name: 'about',
+    name: 'notice',
     components: {
         contentMain
     },
@@ -69,6 +69,8 @@ export default {
         }
     },
     beforeDestroy(){
+        // 存最近一次看公告的时间,来判断公告是否已阅
+        this.$localStorage.setStore('watchNoticeTime', (new Date()).getTime())
         this.$refs.content.$el.removeEventListener('click', this.contentEvent, false)
     }
 }
@@ -84,17 +86,13 @@ export default {
     .content {
         font-size: 13px;
         line-height: 24px;
-
+        color: #a5a5a5;
         height: calc(100% - 60px);
 
         .notice-item {
             border-bottom: 1px dashed #a5a5a5;
             padding: 10px 0px;
             color: #a5a5a5;
-
-            a {
-                color: #a5a5a5;
-            }
         }
 
         .no-data {

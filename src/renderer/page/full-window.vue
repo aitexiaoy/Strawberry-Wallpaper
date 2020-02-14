@@ -57,7 +57,7 @@ const renderFile = readFileSync('render.js')
 global.kjj = null
 
 export default {
-    name: 'fullWindowCtrl',
+    name: 'fullWindow',
     components: { chromeIcon, swProgress },
     data() {
         return {

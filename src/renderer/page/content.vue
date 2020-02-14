@@ -7,7 +7,7 @@
                         <h1 class="text">Strawberry</h1>
                     </div>
                     <div class="right">
-                        <icon :class="['iconfont icon-gonggao',{'no-watch':noticeNoWatch}]"  @click="handleGoToNotice"></icon>
+                        <icon :class="['iconfont icon-gonggao',{'no-watch':noticeNoWatch}]" @click="handleGoToNotice"></icon>
                         <icon class="iconfont icon-quanping" @click="handleOpenFullWindow"></icon>
                         <icon class="iconfont icon-wenjianjia" @click="openDownloadFile"></icon>
                         <div class="header-set">
@@ -115,7 +115,6 @@ import swProgress from './progress'
 import { defaultConfig } from '../../utils/config'
 import icon from '../components/icon/index.vue'
 
-
 const { shell } = require('electron')
 const os = require('os')
 const osu = require('node-os-utils')
@@ -135,7 +134,6 @@ const INFOSHOW = {
 // 定义存储最近搜索的最大长度
 const SEARCHKEYSMAX = 8
 const DEFAULTSEARCHLIST = ['cat', 'dog', '沙漠', '自然', '食物']
-
 export default {
     name: 'mainContent',
     components: {
@@ -252,12 +250,12 @@ export default {
 
                     // 获取公告
                     apiGetNotices().then((res) => {
+                        // 存公告
+                        this.$localStorage.setStore('noticeList', res)
                         if (res.length > 0){
-                            // 存公告
-                            this.$localStorage.setStore('noticeList', res)
                             // 取出最后一次阅读时间
                             const lastWatchNoticeTime = this.$localStorage.getStore('watchNoticeTime')
-                            if (lastWatchNoticeTime && res[0].time > Number(lastWatchNoticeTime)){
+                            if (!lastWatchNoticeTime || res[0].time > Number(lastWatchNoticeTime)){
                                 this.noticeNoWatch = true
                             }
                         }
@@ -322,7 +320,7 @@ export default {
 
         domContentMainMatch(){
             this.$nextTick(() => {
-                if (this.$refs.content_main){
+                if (this.$refs.content_main && document.querySelector('.header')){
                     this.$refs.content_main.style.paddingTop = `${document.querySelector('.header').offsetHeight}px`
                 }
             })
@@ -634,8 +632,6 @@ export default {
         handleGoToNotice(){
             this.$router.push('/notice')
             this.noticeNoWatch = false
-            // 存最近一次看公告的时间,来判断公告是否已阅
-            this.$localStorage.setStore('watchNoticeTime', (new Date()).getTime())
         }
 
     },
@@ -720,9 +716,10 @@ export default {
             display: flex;
             flex: none;
             align-items: center;
-            .icon-gonggao{
-                &.no-watch{
-                    color:#ff3f00;
+
+            .icon-gonggao {
+                &.no-watch {
+                    color: #ff3f00;
                 }
             }
         }

@@ -19,18 +19,22 @@ export default new Router({
             children: [
                 {
                     path: '/main',
+                    name: 'mainContent',
                     component: content
                 },
                 {
                     path: '/about',
+                    name: 'about',
                     component: about
                 },
                 {
                     path: '/suggestion',
+                    name: 'suggestion',
                     component: suggestion
                 },
                 {
                     path: '/notice',
+                    name: 'notice',
                     component: notice
                 }
             ]
@@ -38,6 +42,7 @@ export default new Router({
         
         {
             path: '/full',
+            name: 'full',
             component: fullWindow
         }
         

@@ -3,7 +3,7 @@
         <!-- mac下显示三角 -->
         <div class="sanjiao" v-if="osType === 'mac'"></div>
         <div :class="['sw-main-content', osType === 'mac' ? 'sw-main-content-mac': '']">
-            <keep-alive>
+            <keep-alive :include="['mainContent','about']">
                 <router-view></router-view>
             </keep-alive>
         </div>
