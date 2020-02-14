@@ -90,14 +90,12 @@ export default {
                 const webview = this.$refs.fullWindowView
                 webview.addEventListener('did-start-loading', () => {
                     // console.log('==========', webview.preload)
+                    // webview.openDevTools()
                 })
 
                 webview.addEventListener('dom-ready', () => {
                     this.isLoading = false
                     webview.send('dom-ready')
-                    // const jsString = readFileSync(`${this.currentSourceValue}.js`)
-                    //     .replace('const { render } = require(\'./render\')\n', renderFile)
-                    // webview.executeJavaScript(jsString)
                 })
 
                 webview.addEventListener('did-finish-load', () => {
@@ -114,10 +112,13 @@ export default {
                 webview.addEventListener('ipc-message', (event) => {
                     const { channel, args: [data] } = event
                     if (channel === 'download'){
-                        webview.downloadURL(data)
+                        webview.downloadURL(data.downloadUrl)
                     }
                     else if (channel === 'setWallpaper'){
-                        this.$ipcRenderer.send('dataWallpaper', { ...data, options: { scale: this.config.wallpaperScale, isAutoSet: true } })
+                        this.$ipcRenderer.send('dataWallpaper', { 
+                            ...data, 
+                            options: { scale: this.config.wallpaperScale, isAutoSet: true } 
+                        })
                     }
                 })
             })
@@ -202,7 +203,6 @@ export default {
             })
             this.currentSourceValue = value
             this.isLoading = true
-            // webview.setAttribute('preload', `file://${require('path').resolve(__dirname, `../../page-script/${this.currentSourceValue}.js`)}`)
         } 
     }
 

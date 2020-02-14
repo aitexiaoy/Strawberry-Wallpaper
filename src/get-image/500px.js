@@ -56,7 +56,7 @@ export const getImage = async function (data) {
         }
         let baseUrl = 'https://api.500px.com/v1/photos'
         const params = {
-            image_size: [100, 200, 400, 600, 2048, 4096, 5120, 6144, 7168],
+            image_size: [100, 200, 400, 600, 1600, 2048, 2500, 3000, 4096, 4500, 5120, 5500, 6144, 7168],
             page: data.page,
             rpp: 50, // 单页条数
             formats: 'jpeg,lytro'

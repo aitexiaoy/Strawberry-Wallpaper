@@ -12,11 +12,10 @@ const iconWallpaperHover = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAA
 
 
 const render = (options) => {
-    const { downloadUrl } = options
     const downloadFile = function (e){
         e.stopPropagation()
         e.preventDefault()
-        ipcRenderer.sendToHost('download', downloadUrl)
+        ipcRenderer.sendToHost('download', { ...options })
     }
 
     const setWallpaper = function (e){
@@ -50,10 +49,10 @@ const render = (options) => {
 
     dom.style.cssText = 'display:flex; position:absolute;z-index:1; right:0;top:0; align-items:center; width:100px;height:40px;background-color:#222;'
 
-    btnDownload.onclick = downloadFile
+    btnDownload.onclick = options.downloadFile || downloadFile
     btnDownload.onmouseover = (e) => { btnMouseOver(e, iconDownloadHover) } 
     btnDownload.onmouseleave = (e) => { btnMouseLeave(e, iconDownload) }
-    btnWallpaper.onclick = setWallpaper
+    btnWallpaper.onclick = options.setWallpaper || setWallpaper
     btnWallpaper.onmouseover = (e) => { btnMouseOver(e, iconWallpaperHover) }
     btnWallpaper.onmouseleave = (e) => { btnMouseLeave(e, iconWallpaper) }
 

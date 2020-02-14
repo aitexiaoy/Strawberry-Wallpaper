@@ -37,6 +37,7 @@
     },
     "win": {
       "icon": "build-config/icons/icon.ico",
+      "requestedExecutionLevel":"highestAvailable",
       "target": ["nsis"]
     },
     "linux": {
