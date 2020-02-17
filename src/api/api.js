@@ -40,9 +40,14 @@ export const postRegister = data => new Promise((resolve, reject) => {
 export const apiStatisticActive = data => instance.post('/active', data)
 
 export const apiGetNotices = () => new Promise((resolve) => {
-    instance.get('/notice').then((res) => {
-        if (res.code === 200){
-            resolve(res.data || [])
+    instance.get('/notice', {
+        params: {
+            is_test: 1
+        }
+    }).then((res) => {
+        const { data: result } = res
+        if (result.code === 0){
+            resolve(result.data || [])
         }
         else {
             resolve([])

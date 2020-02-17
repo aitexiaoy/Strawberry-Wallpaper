@@ -126,8 +126,8 @@ const { mkdirSync } = require('../../file/file')
 const INFOSHOW = {
     loading: '美好的事情即将发生...',
     noData: '暂时没有得到想要的内容...',
-    netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，请求不到数据了。可能是网络没有正常连接，请确保网络已连接。'
-    + '也可能是所选择图库相关接口以修改，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。非常感谢你的支持。',
+    netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，请求不到数据了。可能原因是网络没有正常连接，请确保网络已连接。'
+    + '也可能是所选择图库相关接口已修改，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。非常感谢你的支持。',
     null: '',
     noMatchFilter: '请求到了内容但不满足筛选条件，请更换筛选条件...'
 }
@@ -247,19 +247,8 @@ export default {
                         version
                     })
                     this.$localStorage.setStore('statisticTimeFlag', nowDate)
-
-                    // 获取公告
-                    apiGetNotices().then((res) => {
-                        // 存公告
-                        this.$localStorage.setStore('noticeList', res)
-                        if (res.length > 0){
-                            // 取出最后一次阅读时间
-                            const lastWatchNoticeTime = this.$localStorage.getStore('watchNoticeTime')
-                            if (!lastWatchNoticeTime || res[0].time > Number(lastWatchNoticeTime)){
-                                this.noticeNoWatch = true
-                            }
-                        }
-                    })
+                    
+                    this.getNotices()
                 }
                 // 7天 自动清除已下载
                 if (nowDate - lastCleararnDownloadFilesTime >= (this.config.autoClearnDownloadFilesTime || 7) * 24 * 60 * 60) {
@@ -334,6 +323,22 @@ export default {
             if (this.searchKeyFocus) {
                 this.searchKeyFn()
             }
+        },
+
+        // 获取公告
+        getNotices(){
+            // 获取公告
+            apiGetNotices().then((res) => {
+                // 存公告
+                this.$localStorage.setStore('noticeList', res)
+                if (res.length > 0){
+                    // 取出最后一次阅读时间
+                    const lastWatchNoticeTime = this.$localStorage.getStore('watchNoticeTime')
+                    if (!lastWatchNoticeTime || new Date(res[0].time).getTime() > lastWatchNoticeTime) {
+                        this.noticeNoWatch = true
+                    }
+                }
+            })
         },
 
         /**
@@ -520,8 +525,6 @@ export default {
         },
 
         searchItemClick(tag){
-            console.log(tag)
-            
             this.searchKey = tag
             this.searchKeyFn()
         },
