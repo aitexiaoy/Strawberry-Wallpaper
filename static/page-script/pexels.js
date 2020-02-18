@@ -1,46 +1,40 @@
 const { ipcRenderer } = require('electron')
 const { render } = require('./render')
 
-const isImg = target => ['photo-item__img'].includes(target.className)
+const isImg = target => target.tagName === 'IMG' && ['photo-item__img'].includes(target.className)
 const mouseoverFn = function (e){
     const { target } = e
     if (isImg(target)){
-        const imgParent = target.parentNode.parentNode
-        window.setTimeout(() => {
-            if (!imgParent.addChild){
-                const options = {
-                    width: target.getAttribute('data-image-width'),
-                    height: target.getAttribute('data-image-height'),
-                    url: target.getAttribute('data-large-src'),
-                    downloadUrl: target.getAttribute('data-big-src').split('?')[0]
-                }
-                imgParent.addChild = render(options)
-                imgParent.appendChild(imgParent.addChild)
+        const imgParent = target.parentNode
+        if (!imgParent.addChild){
+            const options = {
+                width: target.getAttribute('data-image-width'),
+                height: target.getAttribute('data-image-height'),
+                url: target.getAttribute('data-large-src'),
+                downloadUrl: target.getAttribute('data-big-src').split('?')[0]
             }
-        }, 80)
+            imgParent.addChild = render(options)
+            imgParent.appendChild(imgParent.addChild)
+        }
     }
 }
 
 const mouseoutFn = function (e){
     const { target } = e
     if (isImg(target)){
-        const imgParent = target.parentNode.parentNode
+        const imgParent = target.parentNode
         if (imgParent.addChild){
             window.setTimeout(() => {
                 if (!imgParent.addChild.mouseoverFlag){
                     imgParent.removeChild(imgParent.addChild)
                     imgParent.addChild = null
                 }
-            }, 80)
+            }, 40)
         }
     }
 }
 
-
-console.log('================pexels')
-
 ipcRenderer.on('dom-ready', () => {
-    console.log('================pexels-load')
     document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
     document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
 })

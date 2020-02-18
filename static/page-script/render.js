@@ -15,12 +15,22 @@ const render = (options) => {
     const downloadFile = function (e){
         e.stopPropagation()
         e.preventDefault()
+        ipcRenderer.sendToHost('notify', {
+            type: 'info',
+            title: '提示',
+            message: '正在准备，请等待...'
+        })
         ipcRenderer.sendToHost('download', { ...options })
     }
 
     const setWallpaper = function (e){
         e.stopPropagation()
         e.preventDefault()
+        ipcRenderer.sendToHost('notify', {
+            type: 'info',
+            title: '提示',
+            message: '正在准备，请等待...'
+        })
         ipcRenderer.sendToHost('setWallpaper', { ...options })
     }
 
@@ -49,9 +59,11 @@ const render = (options) => {
 
     dom.style.cssText = 'display:flex; position:absolute;z-index:1; right:0;top:0; align-items:center; width:100px;height:40px;background-color:#222;'
 
+    btnDownload.onclick = null
     btnDownload.onclick = options.downloadFile || downloadFile
     btnDownload.onmouseover = (e) => { btnMouseOver(e, iconDownloadHover) } 
     btnDownload.onmouseleave = (e) => { btnMouseLeave(e, iconDownload) }
+    btnWallpaper.onclick = null
     btnWallpaper.onclick = options.setWallpaper || setWallpaper
     btnWallpaper.onmouseover = (e) => { btnMouseOver(e, iconWallpaperHover) }
     btnWallpaper.onmouseleave = (e) => { btnMouseLeave(e, iconWallpaper) }

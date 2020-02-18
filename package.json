@@ -1,6 +1,6 @@
 {
   "name": "strawberrywallpaper",
-  "version": "v1.4",
+  "version": "v1.4.0",
   "author": "taoacat，流浪记",
   "description": "a wallpaper app by electron",
   "license": "",
@@ -30,15 +30,21 @@
       "provider": "generic",
       "url": "http://sw.taoacat.com/version/"
     },
-    "files": ["dist/electron/**/*"],
+    "files": [
+      "dist/electron/**/*"
+    ],
     "mac": {
       "icon": "build-config/icons/icon.icns",
-      "target":["dmg"]
+      "target": [
+        "dmg"
+      ]
     },
     "win": {
       "icon": "build-config/icons/icon.ico",
-      "requestedExecutionLevel":"highestAvailable",
-      "target": ["nsis"]
+      "requestedExecutionLevel": "highestAvailable",
+      "target": [
+        "nsis"
+      ]
     },
     "linux": {
       "icon": "build-config/icons"
@@ -93,6 +99,7 @@
     "auto-launch": "^5.0.5",
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
+    "custom-electron-titlebar": "^3.2.2-hotfix62",
     "electron-log": "^3.0.1",
     "electron-updater": "^4.0.6",
     "element-ui": "^2.5.4",

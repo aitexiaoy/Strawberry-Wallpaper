@@ -1,25 +1,34 @@
 <template>
     <div class="full-window">
-        <div class="full-window-ctrl">
-            <div class="button">
-                <chromeIcon icon="icon-back1" :disabled="backDisabled" @click="handleGoBack"></chromeIcon>
-                <chromeIcon icon="icon-forwad" :disabled="forwadDisabled" @click="handleGoForward"></chromeIcon>
-                <chromeIcon icon="icon-research" v-show="!isLoading" @click="handleReload()"></chromeIcon>
-                <chromeIcon icon="icon-close" v-show="isLoading" @click="handleAbort"></chromeIcon>
-            </div>
-            <div class="nav">
-                <template v-for="item in imageSourceType">
-                    <div
-                        v-if="item.home"
-                        :key="item.value"
-                        :class="['nav-item',{active:currentPath===item.home}]"
-                        @click="handleNavClick(item)">{{item.name}}
-                    </div>
+        <div class="full-window-ctrl" style="-webkit-app-region: drag">
+            <vueTitlebar></vueTitlebar>
+            <div class="ctrl-content">
+                <div class="button">
+                    <chromeIcon icon="icon-back1" :disabled="backDisabled" @click="handleGoBack"></chromeIcon>
+                    <chromeIcon icon="icon-forwad" :disabled="forwadDisabled" @click="handleGoForward"></chromeIcon>
+                    <chromeIcon icon="icon-research" v-show="!isLoading" @click="handleReload()"></chromeIcon>
+                    <chromeIcon icon="icon-close" v-show="isLoading" @click="handleAbort"></chromeIcon>
+                </div>
+                <div class="nav">
+                    <template v-for="item in imageSourceType">
+                        <div
+                            style="-webkit-app-region: no-drag"
+                            v-if="item.home"
+                            :key="item.value"
+                            :class="['nav-item',{active:currentPath===item.home}]"
+                            @click="handleNavClick(item)">{{item.name}}
+                        </div>
 
-                </template>
+                    </template>
+                </div>
             </div>
+
         </div>
-        <sw-progress v-if="progressValue>0" width='100%' :value="progressValue" :color="currentImageBacColor"></sw-progress>
+        <sw-progress
+            v-if="progressValue>0"
+            width='100%'
+            :value="progressValue"
+            :color="currentImageBacColor"></sw-progress>
         <div class="webview">
             <webview
                 v-if="currentPath"
@@ -42,9 +51,13 @@
 
 <script>
 import { mapState } from 'vuex'
+import customTitlebar from 'custom-electron-titlebar'
 import chromeIcon from '../components/chrome-icon/index.vue'
 import { imageSourceType } from '../../utils/utils'
 import swProgress from './progress'
+
+import vueTitlebar from '../components/titlebar/index.vue'
+
 
 const { resolve } = require('path')
 const fs = require('fs')
@@ -58,7 +71,7 @@ global.kjj = null
 
 export default {
     name: 'fullWindow',
-    components: { chromeIcon, swProgress },
+    components: { chromeIcon, swProgress, vueTitlebar },
     data() {
         return {
             backDisabled: true,
@@ -75,7 +88,7 @@ export default {
     mounted() {
         const config = this.$localStorage.getStore('userConfig')
         this.handleNavClick(this.imageSourceType[0])
-        this.webviewEventInit()
+        // this.webviewEventInit()
         this.renderEventInit()
         this.registerKeyEvent()
     },
@@ -120,6 +133,9 @@ export default {
                             options: { scale: this.config.wallpaperScale, isAutoSet: true } 
                         })
                     }
+                    else if (channel === 'notify'){
+                        this.$notify({ ...data, customClass: 'full-screen-notify', offset: 100, duration: 2000 })
+                    }
                 })
             })
         },
@@ -146,30 +162,36 @@ export default {
         },
 
         registerKeyEvent(){
-            const webview = this.$refs.fullWindowView
             document.addEventListener('keydown', (e) => {
                 console.log(e)
                 let ctrlPressed = 0
                 let altPressed = 0
                 let shiftPressed = 0
+                const webview = this.$refs.fullWindowView
 
                 shiftPressed = e.shiftKey
                 altPressed = e.altKey
                 ctrlPressed = e.ctrlKey
                 const { shiftKey, ctrlKey, altKey, metaKey, key } = e
-      
-                // DevTools for each tab => command+Shift+I
-                if ((metaKey && shiftKey && key === 'i') || key === 'F12'){
-                    if (webview.isDevToolsOpened()){
-                        webview.closeDevTools()
+
+                console.log(e)
+
+                if (webview){
+                    // DevTools for each tab => command+Shift+I
+                    if ((metaKey && shiftKey && key === 'i') || key === 'F12'){
+                        e.preventDefault()
+                        e.stopPropagation()
+                        if (webview.isDevToolsOpened()){
+                            webview.closeDevTools()
+                        }
+                        else {
+                            webview.openDevTools()
+                        }             
+         
+                        return false
                     }
-                    else {
-                        webview.openDevTools()
-                    }             
-                    e.preventDefault()        
-                    return false
                 }
-                return true
+                return false
             })
         },
 
@@ -216,13 +238,17 @@ export default {
 
     .full-window-ctrl {
         width: 100%;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: #222222;
-        padding: 0 10px;
-        border-bottom: 1px solid #333;
+        .ctrl-content{
+            width: 100%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #222222;
+            padding-left: 3px;
+            padding-right: 10px;
+            border-bottom: 1px solid #333;
+        }
 
         .button {
             display: flex;
@@ -251,7 +277,7 @@ export default {
     .webview {
         display: inline-flex;
         width: 100%;
-        height: calc(100% - 40px);
+        height: calc(100% - 68px);
         position: relative;
 
         .position {
@@ -273,6 +299,15 @@ export default {
 
     .el-loading-spinner .el-loading-text {
         color: #ffffff;
+    }
+}
+
+.full-screen-notify {
+    background-color: #222222;
+    border: none;
+
+    .el-notification__title {
+        color: #cccccc;
     }
 }
 </style>

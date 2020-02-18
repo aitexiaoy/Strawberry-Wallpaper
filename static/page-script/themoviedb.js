@@ -7,19 +7,17 @@ const mouseoverFn = function (e){
     const { target } = e
     if (isImg(target)){
         const { parentNode } = target.parentNode
-        window.setTimeout(() => {
-            if (!parentNode.addChild){
-                const src = target.parentNode.getAttribute('href')
-                const options = {
-                    width: 0,
-                    height: 0,
-                    url: src,
-                    downloadUrl: src,
-                }
-                parentNode.addChild = render(options)
-                parentNode.appendChild(parentNode.addChild)
+        if (!parentNode.addChild){
+            const src = target.parentNode.getAttribute('href')
+            const options = {
+                width: 0,
+                height: 0,
+                url: src,
+                downloadUrl: src,
             }
-        }, 80)
+            parentNode.addChild = render(options)
+            parentNode.appendChild(parentNode.addChild)
+        }
     }
 }
 
@@ -33,7 +31,7 @@ const mouseoutFn = function (e){
                     parentNode.removeChild(parentNode.addChild)
                     parentNode.addChild = null
                 }
-            }, 80)
+            }, 50)
         }
     }
 }

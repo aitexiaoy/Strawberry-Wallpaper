@@ -1,5 +1,5 @@
 <template>
-    <div :class="['chrome-icon',{nodisabled:!disabled}]" @click="handleClick">
+    <div :class="['chrome-icon',{nodisabled:!disabled}]" @click="handleClick" style="-webkit-app-region: no-drag">
         <i :class="['iconfont',icon]" ></i>
     </div>
 </template>

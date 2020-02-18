@@ -48,53 +48,61 @@ const mouseoverFn = function (e){
     const { target } = e
     if (isImg(target)){
         const { parentNode } = target
-        window.setTimeout(() => {
-            if (!parentNode.addChild){
-                let href = ''
-                if (target.tagName === 'A'){
-                    href = target.getAttribute('href')
-                }
-                else if (target.tagName === 'IMG'){
-                    href = target.getAttribute('src')
-                }
-                
-                const idMatches = href.match(/photo\/(\d*)\//)
-                let id = ''
-                if (idMatches && idMatches[1]){
-                    [, id] = idMatches
-                }
-                const downloadFile = function (event){
-                    event.stopPropagation()
-                    event.preventDefault()
-                    getDownloadUrl(id).then((res) => {
-                        ipcRenderer.sendToHost('download', { downloadUrl: res })
-                    })
-                }
-            
-                const setWallpaper = function (event){
-                    event.stopPropagation()
-                    event.preventDefault()
-                    getDownloadUrl(id).then((res) => {
-                        ipcRenderer.sendToHost('setWallpaper', { downloadUrl: res })
-                    })
-                }
-
-                const options = {
-                    downloadFile,
-                    setWallpaper,
-                }
-                parentNode.addChild = render(options)
-                if (target.tagName === 'IMG'){
-                    parentNode.addChild.style.left = '50%'
-                    parentNode.addChild.style.top = '50%'
-                }
-                else {
-                    parentNode.addChild.style.left = 0
-                }
-               
-                parentNode.appendChild(parentNode.addChild)
+        if (!parentNode.addChild){
+            let href = ''
+            if (target.tagName === 'A'){
+                href = target.getAttribute('href')
             }
-        }, 200)
+            else if (target.tagName === 'IMG'){
+                href = target.getAttribute('src')
+            }
+                
+            const idMatches = href.match(/photo\/(\d*)\//)
+            let id = ''
+            if (idMatches && idMatches[1]){
+                [, id] = idMatches
+            }
+            const downloadFile = function (event){
+                event.stopPropagation()
+                event.preventDefault()
+                ipcRenderer.sendToHost('notify', {
+                    type: 'info',
+                    title: '提示',
+                    message: '正在解析下载地址，请等待...'
+                })
+                getDownloadUrl(id).then((res) => {
+                    ipcRenderer.sendToHost('download', { downloadUrl: res })
+                })
+            }
+            
+            const setWallpaper = function (event){
+                event.stopPropagation()
+                event.preventDefault()
+                ipcRenderer.sendToHost('notify', {
+                    type: 'info',
+                    title: '提示',
+                    message: '正在解析下载地址，请等待...'
+                })
+                getDownloadUrl(id).then((res) => {
+                    ipcRenderer.sendToHost('setWallpaper', { downloadUrl: res })
+                })
+            }
+
+            const options = {
+                downloadFile,
+                setWallpaper,
+            }
+            parentNode.addChild = render(options)
+            if (target.tagName === 'IMG'){
+                parentNode.addChild.style.left = '50%'
+                parentNode.addChild.style.top = '50%'
+            }
+            else {
+                parentNode.addChild.style.left = 0
+            }
+               
+            parentNode.appendChild(parentNode.addChild)
+        }
     }
 }
 
@@ -108,7 +116,7 @@ const mouseoutFn = function (e){
                     parentNode.removeChild(parentNode.addChild)
                     parentNode.addChild = null
                 }
-            }, 200)
+            }, 50)
         }
     }
 }

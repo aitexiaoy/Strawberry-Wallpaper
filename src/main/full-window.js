@@ -13,11 +13,21 @@ function createWindow() {
     fullWindow = new BrowserWindow({
         width: 1200,
         height: 700,
+        frame: false,
+        maximizable: true,
+        minimizable: true,
+        // fullscreenable: true,
+        // fullscreen: true,
     })
     fullWindow.loadURL(`${baseUrl}#/full`)
 
     fullWindow.on('close', () => {
         fullWindow = null
+    })
+
+    fullWindow.on('enter-full-screen', () => {
+        // console.log('Jin人员')
+        // fullWindow.setWindowButtonVisibility(true)
     })
 }
 
