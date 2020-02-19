@@ -33,7 +33,7 @@
                     class="issues"
                     type="primary"
                     @click.stop="goToGitHubIssues"
-                    :loading="loading">或直接提交issues</el-button>
+                    >或直接提交issues</el-button>
 
             </el-form>
 
