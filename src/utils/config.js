@@ -22,6 +22,8 @@ export const defaultConfig = {
     wallpaperScale: 'auto', // 壁纸填充方式
     autoClearnDownloadFilesTime: 7, // 自动清空下载文件夹
 
+    autoSetAllScreens: true, // 自动设置壁纸到所有桌面
+
     wallpaperSizeWidth: 1600, // 筛选的宽
     wallpaperSizeHeight: 1080, // 筛选的高
     wallpaperSizeDirection: [], // 筛选方向 'heng', 'su'

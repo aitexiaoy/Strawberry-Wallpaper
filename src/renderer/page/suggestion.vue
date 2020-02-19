@@ -44,6 +44,7 @@
 
 <script>
 import { shell } from 'electron'
+import { osType } from '../../utils/utils'
 
 let timer = 0
 
@@ -90,7 +91,7 @@ export default {
         handleSurePost() {
             this.$refs.form.validate((valid) => {
                 if (valid) {
-                    const { uid = '', version = '', username = '' } = this.$localStorage.getStore('osInfo')
+                    const { uid = '', version = '', username = '', } = this.$localStorage.getStore('osInfo')
                     this.loading = true
                     this.$ipcRenderer.send('btn', {
                         type: 'newEmail',
@@ -101,6 +102,7 @@ export default {
                                 uid,
                                 version,
                                 username,
+                                osType,
                                 content: this.formData.content
                             }
                         }

@@ -128,9 +128,11 @@ export default {
                         webview.downloadURL(data.downloadUrl)
                     }
                     else if (channel === 'setWallpaper'){
+                        const { autoSetAllScreens } = this.config
+                        const { wallpaperScale } = this.config
                         this.$ipcRenderer.send('dataWallpaper', { 
                             ...data, 
-                            options: { scale: this.config.wallpaperScale, isAutoSet: true } 
+                            options: { scale: wallpaperScale, autoSetAllScreens } 
                         })
                     }
                     else if (channel === 'notify'){

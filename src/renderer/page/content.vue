@@ -1,5 +1,5 @@
 <template>
-    <div class="main-content" @mouseleave="handleMouseLeave" @keydown.enter="keydownEnterFn">
+    <div class="main-content" @keydown.enter="keydownEnterFn">
         <div class="header">
             <div class="header-content">
                 <el-row class="header-row-one">
@@ -175,12 +175,11 @@ export default {
         // 安装量的统计
         this.firstInstall()
         // 获得配置
-        const config = this.$localStorage.getStore('userConfig')
-        if (config){
-            this.config = { ...config }
-        } else {
-            this.$localStorage.setStore('userConfig', this.config) 
-        }
+        const config = this.$localStorage.getStore('userConfig') || {}
+        this.config = { ...this.config, ...config }
+        // 更新一下配置
+        this.$localStorage.setStore('userConfig', this.config) 
+
         this.imageSource = this.config.imageSource
         this.searchKey = this.$localStorage.getStore('searchKey') || ''
         this.searchKeyList = this.$localStorage.getStore('searchKeyList') || this.searchKeyList
@@ -191,6 +190,7 @@ export default {
         }
         this.getData()
         this.eventInit()
+        this.domEventInit()
         this.domContentMainMatch()
     },
 
@@ -288,11 +288,7 @@ export default {
                 }
                 // 主窗口显示|隐藏
                 else if (type === 'windowShow') {
-                    if (data) {
-                        this.setterShow = false
-                    } else {
-                        this.setterShow = false
-                    }
+                    this.setterShow = false
                 }
                 // 更新进度条
                 else if (type === 'updaterProgress') {
@@ -304,6 +300,16 @@ export default {
                         }, 1000)
                     }
                 }
+            })
+        },
+
+        domEventInit(){
+            this.$nextTick(() => {
+                document.querySelector('body').addEventListener('mouseleave', (e) => {
+                    if (this.setterShow){
+                        this.setterShow = false
+                    }
+                })
             })
         },
 
@@ -389,9 +395,8 @@ export default {
          * @function setWallpaper
          * @param {Object} img 当前图片数据
          * @param {Number} index 数组索引
-         * @param {Boolearn} isAutoSet 是否是自动设置触发的
          */
-        setWallpaper(img, index, isAutoSet = false) {
+        setWallpaper(img, index) {
             this.isSetting = true
             this.setterShow = false
             if (!this.$refs[`image_item_${index}`][0]) {
@@ -399,7 +404,8 @@ export default {
             }
             const { wallpaperScale } = this.config
             this.$swLoading.open(this.$refs[`image_item_${index}`][0])
-            this.$ipcRenderer.send('dataWallpaper', { ...img, options: { scale: wallpaperScale, isAutoSet } })
+            const { autoSetAllScreens } = this.config
+            this.$ipcRenderer.send('dataWallpaper', { ...img, options: { scale: wallpaperScale, autoSetAllScreens } })
             this.currentImageBacColor = this.images[index].backgroundColor
             this.currentWallpaperIndex = index
         },
@@ -499,7 +505,7 @@ export default {
                         const updataTime = parseInt(this.config.updataTime, 10)
                         if (Math.abs(currentTime - time) > updataTime) {
                             const index = this.images[this.currentWallpaperIndex] ? this.currentWallpaperIndex : 0
-                            this.setWallpaper(this.images[index], index, true)
+                            this.setWallpaper(this.images[index], index)
                         }
                     }
                 }
@@ -600,12 +606,6 @@ export default {
                 imageSource: this.imageSource
             }
             this.$ipcRenderer.send('getImageUrls', obj)
-        },
-
-        handleMouseLeave(){
-            if (this.setterShow){
-                this.setterShow = false
-            }
         },
 
         searchKeyListDelete(tag){

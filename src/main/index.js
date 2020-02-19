@@ -321,7 +321,7 @@ function ipcMainInit() {
     ipcMain.on('dataWallpaper', (event, arg) => {
         downloadPic(arg.downloadUrl, sendData).then((filePath) => {
             const { options } = arg
-            if (isMac() && options.isAutoSet === false){
+            if (isMac() && options.autoSetAllScreens === false){
                 setCurrentWallpaper(filePath, {
                     ...options,
                     screen: currentScreenIndex,
