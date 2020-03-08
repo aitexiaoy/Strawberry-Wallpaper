@@ -9,7 +9,6 @@ const fs = require('fs')
 const path = require('path')
 const request = require('request')
 const webp = require('webp-converter')
-const store = require('../renderer/store')
 const { md5_32: md5 } = require('../utils/md5')
 
 /**
@@ -45,11 +44,12 @@ export function mkdirSync(dirname) {
  * 从指定连接下图片
  * @param {*} src 下载图片的绝对地址
  * @param {*} sendData  发送消息
+ * @param {Object} userConfig 用户配置
  */
-export const downloadPic = async function (src, sendData) {
+export const downloadPic = async function (src, sendData, userConfig) {
     return new Promise((resolve, reject) => {
         // 创建文件夹
-        const hostdir = store.default.state.main.config.downloadImagePath
+        const hostdir = userConfig.downloadImagePath
         // 文件名
         const fileName = md5(src)
         mkdirSync(hostdir)

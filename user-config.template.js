@@ -7,5 +7,6 @@ export default {
     emailUserName: '', // 电子邮箱账号
     emailPassword: '', // 电子邮箱的授权码
     baiDuTranslationAppId: '', // 百度翻译的appID
-    baiDuTranslationAppKey: '' // 百度翻译的appKey
+    baiDuTranslationAppKey: '', // 百度翻译的appKey
+    themoviedbAppKey: '', // themoviedb电影壁纸站的id 
 }

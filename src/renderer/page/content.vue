@@ -405,7 +405,7 @@ export default {
             const { wallpaperScale } = this.config
             this.$swLoading.open(this.$refs[`image_item_${index}`][0])
             const { autoSetAllScreens } = this.config
-            this.$ipcRenderer.send('dataWallpaper', { ...img, options: { scale: wallpaperScale, autoSetAllScreens } })
+            this.$ipcRenderer.send('dataWallpaper', { ...img, options: { scale: wallpaperScale, autoSetAllScreens }, userConfig: this.config })
             this.currentImageBacColor = this.images[index].backgroundColor
             this.currentWallpaperIndex = index
         },

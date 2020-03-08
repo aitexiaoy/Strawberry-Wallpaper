@@ -82,11 +82,10 @@ export default {
             progressValue: 0,
             currentImageBacColor: '#ff66ff', // 进度条的颜色
             currentSourceValue: '',
-            config: {}
+            config: this.$localStorage.getStore('userConfig'),
         }
     },
     mounted() {
-        const config = this.$localStorage.getStore('userConfig')
         this.handleNavClick(this.imageSourceType[0])
         // this.webviewEventInit()
         this.renderEventInit()
@@ -132,7 +131,8 @@ export default {
                         const { wallpaperScale } = this.config
                         this.$ipcRenderer.send('dataWallpaper', { 
                             ...data, 
-                            options: { scale: wallpaperScale, autoSetAllScreens } 
+                            options: { scale: wallpaperScale, autoSetAllScreens }, 
+                            userConfig: this.config
                         })
                     }
                     else if (channel === 'notify'){
@@ -165,7 +165,6 @@ export default {
 
         registerKeyEvent(){
             document.addEventListener('keydown', (e) => {
-                console.log(e)
                 let ctrlPressed = 0
                 let altPressed = 0
                 let shiftPressed = 0
@@ -175,8 +174,6 @@ export default {
                 altPressed = e.altKey
                 ctrlPressed = e.ctrlKey
                 const { shiftKey, ctrlKey, altKey, metaKey, key } = e
-
-                console.log(e)
 
                 if (webview){
                     // DevTools for each tab => command+Shift+I

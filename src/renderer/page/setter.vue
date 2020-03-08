@@ -163,14 +163,10 @@ export default {
             version1: version, // 版本
             ...defaultConfig,
             isMac: isMac(),
-            config: {},
+            config: this.$localStorage.getStore('userConfig'),
             imageSourceType,
             wallpaperScaleOptions,
         }
-    },
-
-    beforeMount(){
-        this.config = this.$localStorage.getStore('userConfig')
     },
 
     mounted() {
