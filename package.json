@@ -1,5 +1,5 @@
 {
-  "name": "strawberrywallpaper",
+  "name": "Strawberry Wallpaper",
   "version": "v1.4.1",
   "author": "taoacat，流浪记",
   "description": "a wallpaper app by electron",
@@ -53,6 +53,7 @@
     }
   },
   "devDependencies": {
+    "@babel/node": "^7.10.1",
     "ajv": "^6.5.0",
     "babel-eslint": "^10.0.1",
     "cfonts": "^2.1.2",
@@ -63,11 +64,10 @@
     "del": "^3.0.0",
     "devtron": "^1.4.0",
     "drop-console-webpack-plugin": "^3.0.2",
-    "electron": "^4.0.1",
-    "electron-builder": "^21.2.0",
+    "electron": "^9.0.4",
+    "electron-builder": "^22.7.0",
     "electron-debug": "^2.1.0",
     "electron-devtools-installer": "^2.2.4",
-    "electron-rebuild": "^1.8.6",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-friendly-formatter": "^4.0.1",
@@ -94,7 +94,7 @@
     "vue-template-compiler": "^2.6.7",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8",
-    "webpack-dev-server": "^3.1.4",
+    "webpack-dev-server": "^3.11.0",
     "webpack-hot-middleware": "^2.22.2"
   },
   "dependencies": {
@@ -115,7 +115,6 @@
     "progress": "^2.0.3",
     "qs": "^6.7.0",
     "request": "^2.88.0",
-    "style-loader": "^0.21.0",
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
