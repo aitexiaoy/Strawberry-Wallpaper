@@ -68,8 +68,10 @@
 
                 <div class="setter-row">
                     <span class="checkbox-text setter-header">自定义过滤方向:</span>
-                    <i :class="['iconfont icon-heng-ping icon-direction',{'active':config.wallpaperSizeDirection.includes('heng')}]" @click="handleWallpaperSizeDirectionChange('heng')"></i>
-                    <i :class="['iconfont icon-su-ping icon-direction',{'active':config.wallpaperSizeDirection.includes('su')}]" @click="handleWallpaperSizeDirectionChange('su')"></i>
+                    <i :class="['iconfont icon-heng-ping icon-direction',
+                    {'active': config.wallpaperSizeDirection && config.wallpaperSizeDirection.includes('heng')}]" @click="handleWallpaperSizeDirectionChange('heng')"></i>
+                    <i :class="['iconfont icon-su-ping icon-direction',
+                    {'active': config.wallpaperSizeDirection && config.wallpaperSizeDirection.includes('su')}]" @click="handleWallpaperSizeDirectionChange('su')"></i>
                 </div>
 
                 <div class="setter-row">
@@ -161,7 +163,7 @@ export default {
     data() {
         return {
             version1: version, // 版本
-            ...defaultConfig,
+            // ...defaultConfig,        
             isMac: isMac(),
             config: this.$localStorage.getStore('userConfig'),
             imageSourceType,
@@ -211,11 +213,12 @@ export default {
         /** *将配置信息存到localstorage中 */
         setLocation() {
             this.$localStorage.setStore('userConfig', this.config)
+            this.$emit('change')
         },
 
         // 壁纸自动更新
         wallpaperAutoChange() {
-            this.handleUpdataTimeInputChange(!this.config.wallpaperAutoUp ? -1 : 3600)
+            this.handleUpdataTimeInputChange(!this.config.wallpaperAutoUp ? -1 : this.config.updataTime)
         },
 
         // 设置更新周期
@@ -270,7 +273,7 @@ export default {
          */
         handleNewVersionClick() {
             this.$ipcRenderer.send('btn', {
-                type: 'handleNewVersionClick',
+                type: 'checkNewVersion',
                 data: true
             })
         },
