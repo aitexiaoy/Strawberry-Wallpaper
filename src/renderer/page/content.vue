@@ -99,6 +99,7 @@
             :class="['setter-content',osType=='mac'?'setter-content-mac':'']"
             :show.sync="setterShow"
             @imageSourceChange="imageSourceChange"
+            @change="handleSetterChange"
             :getDataFlag="getDataFlag">
         </setter>
 
@@ -162,7 +163,7 @@ export default {
             currentImageBacColor: '#ddd', // 进度条的颜色
             infoShow: INFOSHOW.loading, // 相关提示信息
             paperClass: [], // paper的分类
-            config: { ...defaultConfig },
+            config: { ...defaultConfig, ...(this.$localStorage.getStore('userConfig') || {}) },
             noticeNoWatch: false, // 公告是否已阅
         }
     },
@@ -174,16 +175,14 @@ export default {
     mounted() {
         // 安装量的统计
         this.firstInstall()
-        // 获得配置
-        const config = this.$localStorage.getStore('userConfig') || {}
-        this.config = { ...this.config, ...config }
         // 更新一下配置
         this.$localStorage.setStore('userConfig', this.config) 
 
         this.imageSource = this.config.imageSource
         this.searchKey = this.$localStorage.getStore('searchKey') || ''
         this.searchKeyList = this.$localStorage.getStore('searchKeyList') || this.searchKeyList
-        this.images = []
+        this.images = 0
+
         this.cleartLocalStorage()
         if (this.imageSource === 'paper'){
             this.paperInit()
@@ -549,6 +548,11 @@ export default {
             }, 100)
         },
 
+        // 设置变更
+        handleSetterChange(){
+            this.config = this.$localStorage.getStore('userConfig') || {}
+        },
+
         /**
          * 对获取到的地址进行处理
          * @function urlsDeal
@@ -655,9 +659,9 @@ export default {
 .setter-content {
     top: 45px;
 
-    &.setter-content-mac {
-        top: 55px;
-    }
+    // &.setter-content-mac {
+    //     top: 55px;
+    // }
 }
 
 .main-content {

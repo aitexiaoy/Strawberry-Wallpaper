@@ -37,48 +37,49 @@ export function isDev() {
     return process.env.NODE_ENV === 'development'
 }
 
-export const imageSourceType = [{
-    name: 'pexels',
-    value: 'pexels',
-    home: 'https://www.pexels.com/',
-    search: true,
-},
-{
-    name: '500px',
-    value: '500px',
-    home: 'https://500px.com/popular',
-    search: true
-},
-{
-    name: 'paper',
-    value: 'paper',
-    search: false
-},
-{
-    name: 'unsplash',
-    value: 'unsplash',
-    home: 'https://unsplash.com/',
-    search: true
-},
-{
-    name: 'wallhaven',
-    value: 'wallhaven',
-    home: 'https://wallhaven.cc/latest',
-    search: true
-},
-{
-    name: 'NASA',
-    value: 'nasa',
-    home: 'https://www.nasa.gov/multimedia/imagegallery/iotd.html',
-    search: false,
-},
-{
-    name: '电影',
-    value: 'themoviedb',
-    home: 'https://www.themoviedb.org/',
-    search: true,
-    isSupportChinaSearch: true // 是否支持中文搜索
-}
+export const imageSourceType = [
+    {
+        name: '500px',
+        value: '500px',
+        home: 'https://500px.com/popular',
+        search: true
+    },
+    {
+        name: 'pexels',
+        value: 'pexels',
+        home: 'https://www.pexels.com/',
+        search: true,
+    },
+    {
+        name: 'paper',
+        value: 'paper',
+        search: false
+    },
+    {
+        name: 'unsplash',
+        value: 'unsplash',
+        home: 'https://unsplash.com/',
+        search: true
+    },
+    {
+        name: 'wallhaven',
+        value: 'wallhaven',
+        home: 'https://wallhaven.cc/latest',
+        search: true
+    },
+    {
+        name: 'NASA',
+        value: 'nasa',
+        home: 'https://www.nasa.gov/multimedia/imagegallery/iotd.html',
+        search: false,
+    },
+    {
+        name: '电影',
+        value: 'themoviedb',
+        home: 'https://www.themoviedb.org/',
+        search: true,
+        isSupportChinaSearch: true // 是否支持中文搜索
+    }
 ]
 
 export const wallpaperScaleOptions = [
