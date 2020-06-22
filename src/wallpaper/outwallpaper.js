@@ -1,7 +1,7 @@
 
 
-const wallpaper = require('wallpaper')
-const { isMac } = require('../utils/utils')
+import wallpaper from 'wallpaper'
+import { isMac } from '../utils/utils.js'
 
 
 const setCurrentWallpaper = function (file, options = { screen: 'all', scale: 'auto' }) {
@@ -23,8 +23,7 @@ const changeWallpaperScale = async function (options = { screen: 'all', scale: '
     }
 }
 
-
-module.exports = {
+export default {
     setCurrentWallpaper,
     changeWallpaperScale
 }

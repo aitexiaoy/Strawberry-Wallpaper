@@ -40,7 +40,6 @@ function logStats (proc, data) {
 
 function startRenderer () {
   return new Promise((resolve, reject) => {
-    rendererConfig.entry.renderer = [path.join(__dirname, 'dev-client')].concat(rendererConfig.entry.renderer)
     rendererConfig.mode = 'development'
     const compiler = webpack(rendererConfig)
     hotMiddleware = webpackHotMiddleware(compiler, {
@@ -79,7 +78,6 @@ function startRenderer () {
 
 function startMain () {
   return new Promise((resolve, reject) => {
-    mainConfig.entry.main = [path.join(__dirname, '../src/main/index.dev.js')].concat(mainConfig.entry.main)
     mainConfig.mode = 'development'
     const compiler = webpack(mainConfig)
 
@@ -97,9 +95,10 @@ function startMain () {
 
       logStats('Main', stats)
 
-      if (electronProcess && electronProcess.kill) {
+      if (electronProcess) {
         manualRestart = true
         process.kill(electronProcess.pid)
+        electronProcess.kill()
         electronProcess = null
         startElectron()
 
@@ -180,6 +179,7 @@ function init () {
 
   Promise.all([startRenderer(), startMain()])
     .then(() => {
+      console.log('==========22222')
       startElectron()
     })
     .catch(err => {

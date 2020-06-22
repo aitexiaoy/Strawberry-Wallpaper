@@ -49,6 +49,14 @@ let rendererConfig = {
         use: 'vue-html-loader'
       },
       {
+        test: /\.js$/,
+        loader:'babel-loader',
+        exclude: /node_modules/,
+        options: {
+          cacheDirectory: true
+        }
+      },
+      {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',
         enforce: 'pre',
@@ -117,9 +125,12 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
-      nodeModules: process.env.NODE_ENV !== 'production' ?
-        path.resolve(__dirname, '../node_modules') :
-        false
+      // nodeModules: process.env.NODE_ENV !== 'production' ?
+      //   path.resolve(__dirname, '../node_modules') :
+      //   false,
+      nodeModules: false,
+      isBrowser: false,
+      isDevelopment: process.env.NODE_ENV !== 'production',
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin()

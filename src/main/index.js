@@ -18,7 +18,6 @@ const { getPaperSetting } = require('../get-image/paper')
 
 log.transports.file.level = 'info'
 
-
 let mainWindow = null
 // 托盘对象
 let appTray = null
@@ -94,24 +93,24 @@ function appOpenInit(){
 function createWindow() {
     mainWindow = new BrowserWindow({
         height: 600,
-        width: 310,
-        frame: false,
-        transparent: true,
-        show: false,
-        alwaysOnTop: true,
-        resizable: false, // 禁止变化尺寸
-        hasShadow: true, // 是否阴影
-        focusable: true,
-        fullscreenable: false,
-        skipTaskbar: true,
-        minimizable: false,
-        maximizable: false,
-        closable: false,
-        fullscreen: false,
-        titleBarStyle: 'customButtonsOnHover'
+        width: 610,
+        // frame: false,
+        // transparent: true,
+        // show: false,
+        // alwaysOnTop: true,
+        // resizable: false, // 禁止变化尺寸
+        // hasShadow: true, // 是否阴影
+        // focusable: true,
+        // fullscreenable: false,
+        // skipTaskbar: true,
+        // minimizable: false,
+        // maximizable: false,
+        // closable: false,
+        // fullscreen: false,
+        // titleBarStyle: 'customButtonsOnHover'
     })
 
-    // mainWindow.openDevTools()
+    mainWindow.openDevTools()
 
     mainWindow.loadURL(baseUrl)
 
@@ -137,7 +136,7 @@ function setTimeIntervalInit(){
 
 /**
  * 创建 Tray
- * @function createAppTray
+ * @function createAppTra
  */
 function createAppTray() {
     if (isMac()) {
@@ -175,7 +174,8 @@ function createAppTray() {
     
                 if (currentScreen.workAreaSize.height < currentScreen.size.height) {
                     trayPositionType = verticaType === 'top' ? 'top' : 'bottom'
-                    trayPositionSize = currentScreen.size.height - currentScreen.workAreaSize.height
+                    // trayPositionSize = currentScreen.size.height - currentScreen.workAreaSize.height
+                    trayPositionSize = currentScreen.workArea.y
                 } else if (currentScreen.workAreaSize.width < currentScreen.size.width) {
                     trayPositionType = parallelType === 'left' ? 'left' : 'right'
                     trayPositionSize = currentScreen.size.width - currentScreen.workAreaSize.width
@@ -228,10 +228,10 @@ function createAppTray() {
     })
 
     mainWindow.on('show', () => {
-        appTray.setHighlightMode('never')
+        // appTray.setHighlightMode('never')
     })
     mainWindow.on('hide', () => {
-        appTray.setHighlightMode('selection')
+        // appTray.setHighlightMode('selection')
     })
 }
 

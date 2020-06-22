@@ -23,11 +23,16 @@ let mainConfig = {
   module: {
     rules: [
       {
-        test: /\.node$/,
-        use: 'node-loader'
+        test: /\.js$/,
+        loader:'babel-loader',
+        exclude: /node_modules/,
+        options: {
+          cacheDirectory: true
+        }
       },
     ]
   },
+  devtool:'eval-source-map',
   node: {
     __dirname: process.env.NODE_ENV !== 'production',
     __filename: process.env.NODE_ENV !== 'production'
@@ -41,7 +46,7 @@ let mainConfig = {
     new webpack.NoEmitOnErrorsPlugin()
   ],
   resolve: {
-    extensions: ['.js', '.json', '.node']
+    extensions: ['.js', '.json']
   },
   target: 'electron-main'
 }
