@@ -13,14 +13,12 @@
  * 
  */
 
-
-const axios = require('axios')
-const cheerio = require('cheerio')
+import axios from 'axios'
+import cheerio from 'cheerio'
+import { axiosGet } from '../utils/axios'
 
 const { CancelToken } = axios
 let source = null
-
-const { axiosGet } = require('../utils/axios')
 
 export const getImage = function (data) {
     return new Promise((resolve, reject) => {

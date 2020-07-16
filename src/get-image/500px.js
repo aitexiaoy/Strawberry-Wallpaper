@@ -11,10 +11,10 @@
 // https: //api.500px.com/v1/photos?rpp=50&feature=popular&image_size%5B%5D=1&image_size%5B%5D=2&image_size%5B%5D=32&image_size%5B%5D=31&image_size%5B%5D=33&image_size%5B%5D=34&image_size%5B%5D=35&image_size%5B%5D=36&image_size%5B%5D=2048&image_size%5B%5D=4&image_size%5B%5D=14&sort=&include_states=true&include_licensing=true&formats=jpeg%2Clytro&only=&exclude=&personalized_categories=&page=1&rpp=50
 
 
-const axios = require('axios')
-const cheerio = require('cheerio')
+import axios from 'axios'
+import cheerio from 'cheerio'
+import { axiosGet } from '../utils/axios'
 
-const { axiosGet } = require('../utils/axios')
 
 const { CancelToken } = axios
 let source = null

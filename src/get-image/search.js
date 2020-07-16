@@ -1,15 +1,15 @@
 import { apiTranslation } from '../api/api'
 import { imageSourceType } from '../utils/utils'
 
-let type = ''
+import * as pexels from './pexels'
+import * as fiveHundred from './500px'
+import * as paper from './paper'
+import * as unsplash from './unsplash'
+import * as wallhaven from './wallhaven'
+import * as nasa from './nasa'
+import * as themoviedb from './themoviedb'
 
-const pexels = require('./pexels')
-const fiveHundred = require('./500px')
-const paper = require('./paper')
-const unsplash = require('./unsplash')
-const wallhaven = require('./wallhaven')
-const nasa = require('./nasa')
-const themoviedb = require('./themoviedb')
+let type = ''
 
 const cancelFn = {
     pexels: pexels.cancelImage,

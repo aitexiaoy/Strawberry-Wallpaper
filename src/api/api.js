@@ -1,8 +1,7 @@
 
 
+import axios from 'axios'
 import userConfig from '../../.user-config.js'
-
-const axios = require('axios')
 
 const { baiDuTranslationAppId, baiDuTranslationAppKey } = userConfig
 const { MD5: swMd5 } = require('./baidu-md5')

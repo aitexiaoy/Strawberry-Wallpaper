@@ -7,11 +7,11 @@
                         <h1 class="text">Strawberry</h1>
                     </div>
                     <div class="right">
-                        <icon :class="['iconfont icon-gonggao',{'no-watch':noticeNoWatch}]" @click="handleGoToNotice"></icon>
-                        <icon class="iconfont icon-quanping" @click="handleOpenFullWindow"></icon>
-                        <icon class="iconfont icon-wenjianjia" @click="openDownloadFile"></icon>
+                        <Icon :class="['iconfont icon-gonggao',{'no-watch':noticeNoWatch}]" @click="handleGoToNotice"></Icon>
+                        <Icon class="iconfont icon-quanping" @click="handleOpenFullWindow"></Icon>
+                        <Icon class="iconfont icon-wenjianjia" @click="openDownloadFile"></Icon>
                         <div class="header-set">
-                            <icon class="iconfont icon-shezhi" @click="setterShow=!setterShow"></icon>
+                            <Icon class="iconfont icon-shezhi" @click="setterShow=!setterShow"></Icon>
                         </div>
                     </div>
                 </el-row>
@@ -40,7 +40,7 @@
                         size="small"
                         @focus="searchKeyFocus=true"
                         @blur="searchKeyFocus=false"></el-input>
-                    <icon class="iconfont icon-sousuo" @click="searchKeyFn"></icon>
+                    <Icon class="iconfont icon-sousuo" @click="searchKeyFn"></Icon>
                 </div>
 
                 <div class="header-tag" v-if="currentImageSource.search&&searchKeyList.length>0">
@@ -55,7 +55,7 @@
                 </div>
             </div>
 
-            <sw-progress v-if="progressValue>0" :value="progressValue" :color="currentImageBacColor"></sw-progress>
+            <SwProgress v-if="progressValue>0" :value="progressValue" :color="currentImageBacColor"></SwProgress>
         </div>
 
         <div class="content" :class="{'content-win':osType=='win'}" @scroll="contentScroll">
@@ -92,16 +92,16 @@
             </div>
         </div>
         <div class="refresh-btn" :class="{'refresh-btn-ing':refreshBtnIng}">
-            <icon class="iconfont icon-shuaxin" @click="refreshFn"></icon>
+            <Icon class="iconfont icon-shuaxin" @click="refreshFn"></Icon>
         </div>
 
-        <setter
+        <Setter
             :class="['setter-content',osType=='mac'?'setter-content-mac':'']"
             :show.sync="setterShow"
             @imageSourceChange="imageSourceChange"
             @change="handleSetterChange"
             :getDataFlag="getDataFlag">
-        </setter>
+        </Setter>
 
     </div>
 </template>
@@ -109,38 +109,30 @@
 <script>
 // 在渲染器进程 (网页) 中。
 import { mapState, mapActions } from 'vuex'
-import { osType, imageSourceType } from '../../utils/utils'
-import { version } from '../../../package'
-import setter from './setter'
-import swProgress from './progress'
-import { defaultConfig } from '../../utils/config'
-import icon from '../components/icon/index.vue'
+import { shell } from 'electron'
+import os from 'os'
+import osu from 'node-os-utils'
+import macaddress from 'macaddress'
 
-const { shell } = require('electron')
-const os = require('os')
-const osu = require('node-os-utils')
-const macaddress = require('macaddress')
-const md5 = require('../../utils/md5').md5_32
-const { postRegister, apiStatisticActive, apiGetNotices } = require('../../api/api')
-const { mkdirSync } = require('../../file/file')
 
-const INFOSHOW = {
-    loading: '美好的事情即将发生...',
-    noData: '暂时没有得到想要的内容...',
-    netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，请求不到数据了。可能原因是网络没有正常连接，请确保网络已连接。'
-    + '也可能是所选择图库相关接口已修改，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。非常感谢你的支持。',
-    null: '',
-    noMatchFilter: '请求到了内容但不满足筛选条件，请更换筛选条件...'
-}
-// 定义存储最近搜索的最大长度
-const SEARCHKEYSMAX = 8
-const DEFAULTSEARCHLIST = ['cat', 'dog', '沙漠', '自然', '食物']
+import Setter from './setter'
+import SwProgress from './progress'
+import Icon from '../components/icon/index.vue'
+
+
+import getSystemInfo from '../../utils/system-info'
+import { defaultConfig, infoShowText, searchKeyMax, defaultSearchList } from '../../utils/config'
+import { osType, imageSourceType, version, } from '../../utils/utils'
+
+import { postRegister, apiStatisticActive, apiGetNotices } from '../../api/api'
+import { mkdirSync } from '../../file/file'
+
 export default {
     name: 'mainContent',
     components: {
-        setter,
-        swProgress,
-        icon
+        Setter,
+        SwProgress,
+        Icon
     },
     data() {
         return {
@@ -150,7 +142,7 @@ export default {
             page: 0, // 请求数据的页数
             progressValue: 0, // 进度值
             searchKey: '', // 搜索关键字
-            searchKeyList: [...DEFAULTSEARCHLIST], // 储存最近搜索的10次关键字
+            searchKeyList: [...defaultSearchList], // 储存最近搜索的10次关键字
             setterShow: false, // 是否显示设置
             isSetting: false, // 是否正在设置壁纸
             havaDataFlag: true, // 标记是否还有数据
@@ -161,7 +153,7 @@ export default {
             osType, // 系统类型
             imageSource: 'pexels', // 图片来源
             currentImageBacColor: '#ddd', // 进度条的颜色
-            infoShow: INFOSHOW.loading, // 相关提示信息
+            infoShow: infoShowText.loading, // 相关提示信息
             paperClass: [], // paper的分类
             config: { ...defaultConfig, ...(this.$localStorage.getStore('userConfig') || {}) },
             noticeNoWatch: false, // 公告是否已阅
@@ -267,11 +259,11 @@ export default {
                 // 获得了接口列表
                 if (type === 'urls') {
                     this.getDataFlag = false
-                    this.infoShow = INFOSHOW.null
+                    this.infoShow = infoShowText.null
                     this.refreshBtnIng = false
                     if (data.length === 0) {
                         // this.havaDataFlag = false
-                        this.infoShow = INFOSHOW.noData
+                        this.infoShow = infoShowText.noData
                         return
                     }
                     if (this.page === 0) {
@@ -283,7 +275,7 @@ export default {
                 else if (type === 'urlsError'){
                     this.refreshBtnIng = false
                     this.getDataFlag = false
-                    this.infoShow = INFOSHOW.netError
+                    this.infoShow = infoShowText.netError
                 }
                 // 主窗口显示|隐藏
                 else if (type === 'windowShow') {
@@ -351,33 +343,14 @@ export default {
          * @function firstInstall
          */
         firstInstall() {
-            // 第一次注册
-            function getMacAddress() {
-                return new Promise((resolve, reject) => {
-                    macaddress.one((err, mac) => {
-                        if (err) {
-                            reject()
-                        } else {
-                            resolve(mac)
-                        }
-                    })
-                })
-            }
             if (this.$localStorage.getStore('first_install_flag_v1.1.1') !== 'strawberrywallpaper') {
-                Promise.all([osu.osCmd.whoami(), osu.os.oos(), osu.os.arch(), getMacAddress()]).then((result) => {
-                    const [userName, oss, arch, mac] = result
-                    const time = (new Date()).getTime()
-                    const data = {
-                        username: userName.replace('\n', '').replace('\r', ''), // 用户名
-                        version, // 软件版本
-                        uid: md5(`${userName}${oss}${arch}${mac}`), // 软件唯一ID,
-                    }
+                getSystemInfo().then(({ data }) => {
                     postRegister(data).then((res) => {
                         this.$localStorage.setStore('osInfo', data)
                         this.$localStorage.setStore('osInfoUid', data.uid)
                         this.$localStorage.setStore('first_install_flag_v1.1.1', 'strawberrywallpaper')
                     })
-                })
+                }) 
             }
         },
 
@@ -519,7 +492,7 @@ export default {
             if (!this.searchKeyList.includes(this.searchKey) && this.searchKey !== ''){
                 this.domContentMainMatch()
                 this.searchKeyList.unshift(this.searchKey)
-                if (this.searchKeyList.length > SEARCHKEYSMAX){
+                if (this.searchKeyList.length > searchKeyMax){
                     this.searchKeyList.pop()
                 }
                 this.$localStorage.setStore('searchKeyList', this.searchKeyList)
@@ -576,7 +549,7 @@ export default {
                 { this.images.push(obj) }
             })
             if (this.images.length === 0){
-                this.infoShow = INFOSHOW.noMatchFilter
+                this.infoShow = infoShowText.noMatchFilter
             }
         },
 
@@ -603,7 +576,7 @@ export default {
          */
         async getData() {
             this.getDataFlag = true
-            this.infoShow = INFOSHOW.loading
+            this.infoShow = infoShowText.loading
             const obj = {
                 searchKey: this.searchKey,
                 page: this.page,
@@ -630,7 +603,7 @@ export default {
                         this.searchKey = ''
                         this.refreshBtnIng = false
                         this.getDataFlag = false
-                        this.infoShow = INFOSHOW.netError
+                        this.infoShow = infoShowText.netError
                     }, 100)
                 }
             }

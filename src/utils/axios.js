@@ -1,4 +1,5 @@
-const axios = require('axios')
+
+import axios from 'axios'
 
 /** * axios get请求 */
 // eslint-disable-next-line import/prefer-default-export

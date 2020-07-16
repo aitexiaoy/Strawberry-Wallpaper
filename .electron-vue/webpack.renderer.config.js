@@ -125,10 +125,7 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
-      // nodeModules: process.env.NODE_ENV !== 'production' ?
-      //   path.resolve(__dirname, '../node_modules') :
-      //   false,
-      nodeModules: false,
+      nodeModules: process.env.NODE_ENV !== 'production' ? path.resolve(__dirname, '../node_modules') : false,
       isBrowser: false,
       isDevelopment: process.env.NODE_ENV !== 'production',
     }),
@@ -142,11 +139,12 @@ let rendererConfig = {
   },
   resolve: {
     alias: {
-      '@': path.join(__dirname, '../src/renderer'),
+      '@': path.join(__dirname, '../src'),
+      '$render': path.join(__dirname, '../src/renderer'),
       'vue$': 'vue/dist/vue.esm.js',
       'static': path.join(__dirname, '../static')
     },
-    extensions: ['.js', '.vue', '.json', '.css', '.node']
+    extensions: ['.js', '.vue', '.json', '.css']
   },
   target: 'electron-renderer'
 }

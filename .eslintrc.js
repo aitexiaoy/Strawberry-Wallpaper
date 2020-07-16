@@ -108,5 +108,6 @@ module.exports = {
         "brace-style":0,
         // 扩展名处理
         'import/extensions': 'off',
+        'import/prefer-default-export':'off',
     }
 };

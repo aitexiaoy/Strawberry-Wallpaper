@@ -52,6 +52,8 @@
 <script>
 import { mapState } from 'vuex'
 import customTitlebar from 'custom-electron-titlebar'
+import { resolve } from 'path'
+import fs from 'fs'
 import chromeIcon from '../components/chrome-icon/index.vue'
 import { imageSourceType } from '../../utils/utils'
 import swProgress from './progress'
@@ -59,15 +61,11 @@ import swProgress from './progress'
 import vueTitlebar from '../components/titlebar/index.vue'
 
 
-const { resolve } = require('path')
-const fs = require('fs')
-
 // eslint-disable-next-line no-undef
 const fileBasePath = file => resolve(__static, `./page-script/${file}`)
 const readFileSync = file => fs.readFileSync(fileBasePath(file)).toString()
 
 const renderFile = readFileSync('render.js')
-global.kjj = null
 
 export default {
     name: 'fullWindow',

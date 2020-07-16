@@ -19,8 +19,7 @@
  * 
  */
 
-
-const axios = require('axios')
+import axios from 'axios'
 
 const { CancelToken } = axios
 let source = null

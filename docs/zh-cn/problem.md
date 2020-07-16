@@ -4,7 +4,7 @@
 #### 解决方法
 ```js
 // 创建程序锁，保证只能打开单个实例 
-if (isWin()) {
+if (isWin) {
         const gotTheLock = app.requestSingleInstanceLock()
         if (!gotTheLock) {
             app.quit()

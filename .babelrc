@@ -11,10 +11,11 @@
     "renderer": {
       "presets": [
         ["@babel/preset-env", {
+          "targets": { "browsers": ["chrome >= 65"] }
           // "modules": false
         }]
       ]
     }
   },
-  "plugins": ["@babel/transform-runtime","@babel/plugin-transform-modules-commonjs"]
+  "plugins": ["@babel/transform-runtime"]
 }

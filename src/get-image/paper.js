@@ -1,10 +1,9 @@
 
-const axios = require('axios')
+import axios from 'axios'
+import { axiosGet } from '../utils/axios'
 
 const { CancelToken } = axios
 let source = null
-
-const { axiosGet } = require('../utils/axios')
 
 export const getPaperSetting = function (data){
     const returnResult = []

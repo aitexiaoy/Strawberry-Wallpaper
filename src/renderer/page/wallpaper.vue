@@ -11,7 +11,8 @@
 </template>
 
 <script>
-const { osType } = require('../../utils/utils')
+
+import { osType } from '../../utils/utils'
 
 export default {
     name: 'appMain',

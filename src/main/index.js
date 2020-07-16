@@ -1,29 +1,25 @@
+import electron from 'electron'
+
+import fs from 'fs'
+import path from 'path'
+import { autoUpdater } from 'electron-updater'
+import { setCurrentWallpaper, changeWallpaperScale } from '../wallpaper/outwallpaper'
+import { openAutoStart, openDisStart } from '../file/auto-open'
+import { downloadPic, cancelDownloadPic } from '../file/file'
+import { getUrls, cancelUrls } from '../get-image/search'
+import { newEmail } from './mail'
+import { isDev, isMac, isWin, baseUrl, log } from '../utils/utils'
+import { getPaperSetting } from '../get-image/paper'
+
 import fullWindow from './full-window'
 
-const electron = require('electron')
-
 const { app, BrowserWindow, Tray, ipcMain, dialog } = electron
-const fs = require('fs')
-const path = require('path')
-const { autoUpdater } = require('electron-updater')
-const log = require('electron-log')
-const { setCurrentWallpaper, changeWallpaperScale } = require('../wallpaper/outwallpaper')
-const { openAutoStart, openDisStart } = require('../file/auto-open')
-const { downloadPic, cancelDownloadPic } = require('../file/file')
-const { getUrls, cancelUrls } = require('../get-image/search')
-const { newEmail } = require('./mail')
-
-const { isDev, isMac, isWin, baseUrl } = require('../utils/utils')
-const { getPaperSetting } = require('../get-image/paper')
-
-log.transports.file.level = 'info'
 
 let mainWindow = null
 // 托盘对象
 let appTray = null
 let openAppFlag = true
 let currentScreenIndex = 0 // 当前屏幕的索引
-
 const mainCallBack = {
     'autoUpdater.downloadUpdate': () => {
         autoUpdater.downloadUpdate()
@@ -41,7 +37,7 @@ setTimeIntervalInit()
  * @function appOpenInit
  */
 function appOpenInit(){
-    if (isWin()) {
+    if (isWin) {
         const gotTheLock = app.requestSingleInstanceLock()
         if (!gotTheLock) {
             app.quit()
@@ -55,13 +51,13 @@ function appOpenInit(){
                 }
             })
         }
-    } else if (isMac()) {
+    } else if (isMac) {
         app.dock.hide()  
     }
     app.on('ready', () => {
         // fullWindow.openWindow()
         setTimeout(() => {
-            if (!isDev()) {
+            if (!isDev) {
                 autoUpdater.logger = log
                 autoUpdater.autoDownload = false
                 checkUpdater()
@@ -93,24 +89,27 @@ function appOpenInit(){
 function createWindow() {
     mainWindow = new BrowserWindow({
         height: 600,
-        width: 610,
-        // frame: false,
-        // transparent: true,
-        // show: false,
-        // alwaysOnTop: true,
-        // resizable: false, // 禁止变化尺寸
-        // hasShadow: true, // 是否阴影
-        // focusable: true,
-        // fullscreenable: false,
-        // skipTaskbar: true,
-        // minimizable: false,
-        // maximizable: false,
-        // closable: false,
-        // fullscreen: false,
-        // titleBarStyle: 'customButtonsOnHover'
+        width: 310,
+        webPreferences: {
+            nodeIntegration: true
+        },
+        frame: false,
+        transparent: true,
+        show: false,
+        alwaysOnTop: true,
+        resizable: false, // 禁止变化尺寸
+        hasShadow: true, // 是否阴影
+        focusable: true,
+        fullscreenable: false,
+        skipTaskbar: true,
+        minimizable: false,
+        maximizable: false,
+        closable: false,
+        fullscreen: false,
+        titleBarStyle: 'customButtonsOnHover'
     })
 
-    mainWindow.openDevTools()
+    // mainWindow.openDevTools()
 
     mainWindow.loadURL(baseUrl)
 
@@ -139,16 +138,17 @@ function setTimeIntervalInit(){
  * @function createAppTra
  */
 function createAppTray() {
-    if (isMac()) {
+    if (isMac) {
         // eslint-disable-next-line no-undef
         appTray = new Tray(path.resolve(__static, './img/trayTemplate.png'))
-    } else if (isWin()) {
+    } else if (isWin) {
         // eslint-disable-next-line no-undef
         appTray = new Tray(path.resolve(__static, './img/tray.png'))
     }
 
     // 系统托盘图标目录
     appTray.on('click', (event, bounds, position) => {
+        console.log('=============')
         // mainWindow === null ? createWindow() : mainWindow.close()
         // return
         // 点击时显示窗口，并修改窗口的显示位置
@@ -160,6 +160,7 @@ function createAppTray() {
                 const cursorPosition = screen.getCursorScreenPoint()
                 const currentScreen = screen.getDisplayNearestPoint(cursorPosition)
                 const screenLists = screen.getAllDisplays()
+                
 
                 currentScreenIndex = screenLists.findIndex(i => i.id === currentScreen.id)
 
@@ -321,7 +322,7 @@ function ipcMainInit() {
     ipcMain.on('dataWallpaper', (event, arg) => {
         downloadPic(arg.downloadUrl, sendData, arg.userConfig).then((filePath) => {
             const { options } = arg
-            if (isMac() && options.autoSetAllScreens === false){
+            if (isMac && options.autoSetAllScreens === false){
                 setCurrentWallpaper(filePath, {
                     ...options,
                     screen: currentScreenIndex,

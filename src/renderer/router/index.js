@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-Vue.use(Router)
+import wallpaper from '../page/wallpaper'
+import content from '../page/content'
+import about from '../page/about'
+import suggestion from '../page/suggestion'
+import fullWindow from '../page/full-window'
+import notice from '../page/notice'
 
-const wallpaper = () => import('../page/wallpaper')
-const content = () => import('../page/content')
-const about = () => import('../page/about')
-const suggestion = () => import('../page/suggestion')
-const fullWindow = () => import('../page/full-window')
-const notice = () => import('../page/notice')
+Vue.use(Router)
 
 export default new Router({
     routes: [

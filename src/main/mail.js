@@ -1,10 +1,8 @@
 
+import nodemailer from 'nodemailer'
 import userConfig from '../../.user-config.js'
 
-const nodemailer = require('nodemailer')
-
 const { emailUserName, emailPassword } = userConfig
-
 
 /**
  * 发送一封邮件
@@ -12,7 +10,7 @@ const { emailUserName, emailPassword } = userConfig
  * @param {*} telUser 主题中第三个框中的内容
  * @param {Object} appInfo 邮件的相关信息
  */
-// eslint-disable-next-line import/prefer-default-export
+
 export function newEmail(data, telUser, appInfo){
     return new Promise((resolve, reject) => {
         nodemailer.createTestAccount((err) => {
@@ -53,4 +51,6 @@ export function newEmail(data, telUser, appInfo){
             })
         })
     })
-} 
+}
+
+export default newEmail

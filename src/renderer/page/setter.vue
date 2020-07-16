@@ -5,7 +5,7 @@
             <div class="setter-content">
                 <div class="setter-row flex-space-between">
                     <div>
-                        {{version1}}
+                        {{version}}
                         <span class="setter-link font-size-12" @click.stop="handleNewVersionClick">
                             检查更新
                         </span>
@@ -140,8 +140,7 @@
 
 <script>
 import { ipcRenderer, remote, shell } from 'electron'
-import { version } from '../../../package'
-import { imageSourceType, wallpaperScaleOptions, isMac, } from '../../utils/utils'
+import { imageSourceType, wallpaperScaleOptions, isMac, version } from '../../utils/utils'
 import { defaultConfig } from '../../utils/config'
 
 const os = require('os')
@@ -162,9 +161,8 @@ export default {
     },
     data() {
         return {
-            version1: version, // 版本
-            // ...defaultConfig,        
-            isMac: isMac(),
+            version, // 版本    
+            isMac,
             config: this.$localStorage.getStore('userConfig'),
             imageSourceType,
             wallpaperScaleOptions,

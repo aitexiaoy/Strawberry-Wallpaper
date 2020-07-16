@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 
+import axios from 'axios'
 import userConfig from '../../.user-config'
 
 const { themoviedbAppKey } = userConfig
@@ -20,8 +21,6 @@ const BASEIMAGEURL = 'https://image.tmdb.org/t/p/w500'
 
 // const GETMOVEIMAGEURL='https://api.themoviedb.org/3/movie/${moveid}/images?api_key='
 
-
-const axios = require('axios')
 
 const { CancelToken } = axios
 let source = null
