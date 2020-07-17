@@ -13,7 +13,7 @@ import { getPaperSetting } from '../get-image/paper'
 
 import fullWindow from './full-window'
 
-const { app, BrowserWindow, Tray, ipcMain, dialog } = electron
+const { app, BrowserWindow, Tray, ipcMain, dialog, Menu, nativeImage } = electron
 
 let mainWindow = null
 // 托盘对象
@@ -52,10 +52,17 @@ function appOpenInit(){
             })
         }
     } else if (isMac) {
-        app.dock.hide()  
+        // app.dock.hide() 
+        app.on('will-continue-activity', (e) => {
+            e.preventDefault()
+            console.log(e)
+        }) 
     }
     app.on('ready', () => {
         // fullWindow.openWindow()
+        if (isMac) {
+            app.dock.hide() 
+        }
         setTimeout(() => {
             if (!isDev) {
                 autoUpdater.logger = log
@@ -104,7 +111,7 @@ function createWindow() {
         skipTaskbar: true,
         minimizable: false,
         maximizable: false,
-        closable: false,
+        // closable: false,
         fullscreen: false,
         titleBarStyle: 'customButtonsOnHover'
     })
@@ -145,6 +152,22 @@ function createAppTray() {
         // eslint-disable-next-line no-undef
         appTray = new Tray(path.resolve(__static, './img/tray.png'))
     }
+
+    const icon = nativeImage.createFromPath(path.resolve(__static, './img/tray.png'))
+
+    const contextMenu = Menu.buildFromTemplate([
+        { label: '全屏模式  ', type: 'normal', icon: icon.resize({ width: 20, height: 20 }) },
+        { label: '    意见反馈  ', type: 'normal', role: 'window' },
+        { label: '    赞助  ', type: 'normal', },
+        { 
+            label: '    退出',
+            type: 'normal', 
+            click(){
+                app.quit()
+            } }
+    ])
+
+    // appTray.setContextMenu(contextMenu)
 
     // 系统托盘图标目录
     appTray.on('click', (event, bounds, position) => {
@@ -228,6 +251,11 @@ function createAppTray() {
         }
     })
 
+    appTray.on('right-click', (event, bounds) => {
+        if (!mainWindow.isVisible()){
+            appTray.popUpContextMenu(contextMenu)
+        }
+    })
     mainWindow.on('show', () => {
         // appTray.setHighlightMode('never')
     })

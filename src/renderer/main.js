@@ -21,6 +21,8 @@ Vue.use(ElementUI)
 Vue.use(vueModules)
 Vue.use(vueFn)
 
+Vue.prototype.$log = log
+
 const mainVue = new Vue({
     components: { App },
     router,

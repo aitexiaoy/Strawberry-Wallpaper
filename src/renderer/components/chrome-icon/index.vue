@@ -1,8 +1,9 @@
 <template>
     <div :class="['chrome-icon',{nodisabled:!disabled}]" @click="handleClick" style="-webkit-app-region: no-drag">
-        <i :class="['iconfont',icon]" ></i>
+        <i :class="['iconfont',icon]"></i>
     </div>
 </template>
+
 <script>
 export default {
     name: 'chromeIcon',
@@ -31,26 +32,26 @@ export default {
     height: 30px;
     line-height: 30px;
     text-align: center;
-    margin-right:5px;
+    margin-right: 5px;
     border-radius: 100%;
-    cursor:not-allowed;
+    cursor: not-allowed;
 
-    .iconfont{
+    .iconfont {
         font-size: 24px;
         color: #aaaaaa;
-      
+
     }
 
     &.nodisabled {
         cursor: default;
-        .iconfont{
+
+        .iconfont {
             color: #ffffff;
-        } 
+        }
     }
 
     &.nodisabled:hover {
         background-color: #aaaaaa;
     }
 }
-
 </style>
