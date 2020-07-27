@@ -33,10 +33,15 @@ Works on macOS 10.12+, and Windows 10+.
 
 提供两个打包好的下载地址:
 
-[Strawberry Wallpaper-mac](http://sw.taoacat.com/Strawberry%20Wallpaper-mac.dmg) 
+[Strawberry Wallpaper-mac](http://sw.taoacat.com/Strawberry%20Wallpaper-mac.dmg)
 
 [Strawberry Wallpaper-win](http://sw.taoacat.com/Strawberry%20Wallpaper-win.exe)
 
+macOS可以使用[homebrew](https://brew.sh/index_zh-cn)进行安装：
+
+```bash
+brew cask install strawberry-wallpaper
+```
 
 #### 2.软件介绍
 
