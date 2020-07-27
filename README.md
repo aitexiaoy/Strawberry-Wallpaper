@@ -40,7 +40,7 @@ Works on macOS 10.12+, and Windows 10+.
 macOS可以使用[homebrew](https://brew.sh/index_zh-cn)进行安装：
 
 ```bash
-brew install strawberry-wallpaper
+brew cask install strawberry-wallpaper
 ```
 
 #### 2.软件介绍
