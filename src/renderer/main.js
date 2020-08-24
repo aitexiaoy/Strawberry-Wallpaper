@@ -7,9 +7,10 @@ import store from './store'
 
 import 'element-ui/lib/theme-chalk/index.css'
 import '../../static/iconfont/iconfont.css'
-import './assets/css/base.css'
+import './assets/css/base.less'
+import './assets/css/theme.less'
 
-import vueModules from './components'
+import './components'
 import vueFn from './assets/js/vue-fn'
 
 const log = require('electron-log')
@@ -18,8 +19,8 @@ const log = require('electron-log')
 Vue.use(require('vue-electron'))
 
 Vue.use(ElementUI)
-Vue.use(vueModules)
 Vue.use(vueFn)
+
 
 Vue.prototype.$log = log
 

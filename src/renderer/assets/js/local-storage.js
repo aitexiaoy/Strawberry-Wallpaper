@@ -46,7 +46,7 @@ const removeStore = (name) => {
     return true
 }
 
-export {
+export default {
     setStore,
     getStore,
     removeStore

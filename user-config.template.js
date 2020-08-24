@@ -3,7 +3,7 @@
 * 执行npm命令后会自动生成.user-config.js文件。
 * 目前相关信息只会影响到电子邮箱与关键词的翻译
 */
-export default {
+module.exports = {
     emailUserName: '', // 电子邮箱账号
     emailPassword: '', // 电子邮箱的授权码
     baiDuTranslationAppId: '', // 百度翻译的appID

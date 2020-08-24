@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import wallpaper from '../page/wallpaper'
-import content from '../page/content'
-import about from '../page/about'
-import suggestion from '../page/suggestion'
-import fullWindow from '../page/full-window'
-import notice from '../page/notice'
+import wallpaper from '$render/page/wallpaper/index'
+import content from '$render/page/main/index'
+import about from '$render/page/about/index'
+import suggestion from '$render/page/suggestion/index'
+import fullWindow from '$render/page/full-window/index'
+import setting from '$render/page/setting/index'
+import notice from '$render/page/notice/index'
 
 Vue.use(Router)
 
@@ -36,6 +37,11 @@ export default new Router({
                     path: '/notice',
                     name: 'notice',
                     component: notice
+                },
+                {
+                    path: '/setting',
+                    name: 'setting',
+                    component: setting
                 }
             ]
         },

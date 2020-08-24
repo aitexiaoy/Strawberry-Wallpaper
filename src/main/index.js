@@ -3,13 +3,14 @@ import electron from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
-import { setCurrentWallpaper, changeWallpaperScale } from '../wallpaper/outwallpaper'
-import { openAutoStart, openDisStart } from '../file/auto-open'
-import { downloadPic, cancelDownloadPic } from '../file/file'
-import { getUrls, cancelUrls } from '../get-image/search'
-import { newEmail } from './mail'
-import { isDev, isMac, isWin, baseUrl, log } from '../utils/utils'
-import { getPaperSetting } from '../get-image/paper'
+// import { setCurrentWallpaper, changeWallpaperScale } from '../wallpaper/outwallpaper'
+// import { downloadPic, cancelDownloadPic } from '../file/download'
+// import { getUrls, cancelUrls } from '../get-image/search'
+// import { newEmail } from './mail'
+import { isDev, isMac, isWin, baseUrl, log } from '../power/utils'
+// import { getPaperSetting } from '../get-image/paper'
+
+import { Icon } from './utils'
 
 import fullWindow from './full-window'
 
@@ -61,7 +62,8 @@ function appOpenInit(){
     app.on('ready', () => {
         // fullWindow.openWindow()
         if (isMac) {
-            app.dock.hide() 
+            app.dock.setIcon(Icon('./img/iconTemplate.png', 128))
+            // app.dock.hide() 
         }
         setTimeout(() => {
             if (!isDev) {
@@ -96,7 +98,8 @@ function appOpenInit(){
 function createWindow() {
     mainWindow = new BrowserWindow({
         height: 600,
-        width: 310,
+        // width: 310,
+        width: 810,
         webPreferences: {
             nodeIntegration: true
         },
@@ -116,8 +119,9 @@ function createWindow() {
         titleBarStyle: 'customButtonsOnHover'
     })
 
-    // mainWindow.openDevTools()
+    mainWindow.openDevTools()
 
+    console.log('=================baseUrl:', baseUrl)
     mainWindow.loadURL(baseUrl)
 
     mainWindow.on('blur', () => {
@@ -146,21 +150,20 @@ function setTimeIntervalInit(){
  */
 function createAppTray() {
     if (isMac) {
-        // eslint-disable-next-line no-undef
-        appTray = new Tray(path.resolve(__static, './img/trayTemplate.png'))
+        appTray = new Tray(Icon('./img/icon-tray.png', 16))
     } else if (isWin) {
         // eslint-disable-next-line no-undef
         appTray = new Tray(path.resolve(__static, './img/tray.png'))
     }
-
+    // eslint-disable-next-line no-undef
     const icon = nativeImage.createFromPath(path.resolve(__static, './img/tray.png'))
 
     const contextMenu = Menu.buildFromTemplate([
-        { label: '全屏模式  ', type: 'normal', icon: icon.resize({ width: 20, height: 20 }) },
-        { label: '    意见反馈  ', type: 'normal', role: 'window' },
-        { label: '    赞助  ', type: 'normal', },
+        { label: '全屏模式', type: 'normal', icon: icon.resize({ width: 20, height: 20 }) },
+        { label: '意见反馈', type: 'normal', role: 'window' },
+        { label: '赞助', type: 'normal', },
         { 
-            label: '    退出',
+            label: '退出',
             type: 'normal', 
             click(){
                 app.quit()
@@ -333,8 +336,8 @@ function ipcMainInit() {
     // 取消所有请求
     // eslint-disable-next-line no-unused-vars
     ipcMain.on('cancelAllRequest', (event, data) => {
-        cancelDownloadPic()
-        cancelUrls()
+        // cancelDownloadPic()
+        // cancelUrls()
     })
 
     ipcMain.on('fullWindow', (event, data) => {
@@ -348,39 +351,39 @@ function ipcMainInit() {
 
 
     ipcMain.on('dataWallpaper', (event, arg) => {
-        downloadPic(arg.downloadUrl, sendData, arg.userConfig).then((filePath) => {
-            const { options } = arg
-            if (isMac && options.autoSetAllScreens === false){
-                setCurrentWallpaper(filePath, {
-                    ...options,
-                    screen: currentScreenIndex,
-                })
-            }
-            else {
-                setCurrentWallpaper(filePath)
-            }
+        // downloadPic(arg.downloadUrl, sendData, arg.userConfig).then((filePath) => {
+        //     const { options } = arg
+        //     if (isMac && options.autoSetAllScreens === false){
+        //         setCurrentWallpaper(filePath, {
+        //             ...options,
+        //             screen: currentScreenIndex,
+        //         })
+        //     }
+        //     else {
+        //         setCurrentWallpaper(filePath)
+        //     }
             
-            log.info(`设置壁纸成功:${filePath}`)
-            event.sender.send('dataWallpaper', 'success')
-        }).catch((error) => {
-            log.error(`设置壁纸失败:${arg.downloadUrl}`)
-            log.error(error)
-            event.sender.send('dataWallpaper', 'error')
-        })
+        //     log.info(`设置壁纸成功:${filePath}`)
+        //     event.sender.send('dataWallpaper', 'success')
+        // }).catch((error) => {
+        //     log.error(`设置壁纸失败:${arg.downloadUrl}`)
+        //     log.error(error)
+        //     event.sender.send('dataWallpaper', 'error')
+        // })
     })
 
     ipcMain.on('getImageUrls', (event, data) => {
-        getUrls(data).then((result) => {
-            sendData('datainfo', {
-                type: 'urls',
-                data: result
-            })
-        }).catch(() => {
-            sendData('datainfo', {
-                type: 'urlsError',
-                data: ''
-            })
-        })
+        // getUrls(data).then((result) => {
+        //     sendData('datainfo', {
+        //         type: 'urls',
+        //         data: result
+        //     })
+        // }).catch(() => {
+        //     sendData('datainfo', {
+        //         type: 'urlsError',
+        //         data: ''
+        //     })
+        // })
     })
 
     ipcMain.on('btn', (event, data) => {
@@ -393,19 +396,19 @@ function ipcMainInit() {
 
         } else if (data.type === 'openStart') {
             if (data.data) {
-                openAutoStart()
+                // openAutoStart()
             } else {
-                openDisStart()
+                // openDisStart()
             }
         } else if (data.type === 'newEmail') {
-            newEmail(data.data.data, data.data.telUser, {
-                version: autoUpdater.currentVersion,
-                emailType: data.data.emailType
-            }).then(() => {
-                event.sender.send('sendnewEmail', 'success', data.data.emailType)
-            }).catch((error) => {
-                event.sender.send('sendnewEmail', 'error', data.data.emailType, error)
-            })
+            // newEmail(data.data.data, data.data.telUser, {
+            //     version: autoUpdater.currentVersion,
+            //     emailType: data.data.emailType
+            // }).then(() => {
+            //     event.sender.send('sendnewEmail', 'success', data.data.emailType)
+            // }).catch((error) => {
+            //     event.sender.send('sendnewEmail', 'error', data.data.emailType, error)
+            // })
         } else if (data.type === 'checkNewVersion') {
             checkUpdater()
         }
@@ -429,7 +432,7 @@ function ipcMainInit() {
         }
 
         else if (data.type === 'changeWallpaperScale'){
-            changeWallpaperScale({ scale: data.data })
+            // changeWallpaperScale({ scale: data.data })
         }
     })
 
@@ -437,15 +440,15 @@ function ipcMainInit() {
     ipcMain.on('runFunc', async (event, data) => {
         // 存放一些函数
         const FUNCLIST = {
-            getPaperSetting, // 获取paper的设置
+            // getPaperSetting, // 获取paper的设置
         }
-        if (FUNCLIST[data]){
-            FUNCLIST[data]().then((result) => {
-                event.returnValue = result
-            }).catch(() => {
-                event.returnValue = false
-            })
-        }
+        // if (FUNCLIST[data]){
+        //     FUNCLIST[data]().then((result) => {
+        //         event.returnValue = result
+        //     }).catch(() => {
+        //         event.returnValue = false
+        //     })
+        // }
     })
 }
 

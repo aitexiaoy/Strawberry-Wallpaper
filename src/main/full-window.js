@@ -13,11 +13,12 @@ function createWindow() {
     fullWindow = new BrowserWindow({
         width: 1200,
         height: 700,
+        webPreferences: {
+            nodeIntegration: true
+        },
         frame: false,
         maximizable: true,
         minimizable: true,
-        // fullscreenable: true,
-        // fullscreen: true,
     })
     fullWindow.loadURL(`${baseUrl}#/full`)
 

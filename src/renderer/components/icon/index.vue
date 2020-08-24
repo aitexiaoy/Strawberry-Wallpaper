@@ -5,7 +5,7 @@
 <script>
 
 export default {
-    name: 'icon',
+    name: 'Icon',
     methods: {
         handleClick(){
             this.$emit('click')
@@ -18,8 +18,10 @@ export default {
 <style lang="less" scoped>
 .icon {
     color: #dddddd;
-    &:hover{
+
+    &:hover {
         color: #ffffff;
     }
 }
+
 </style>

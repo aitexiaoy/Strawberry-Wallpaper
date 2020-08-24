@@ -122,7 +122,6 @@ const mouseoutFn = function (e){
 }
 
 ipcRenderer.on('dom-ready', () => {
-    console.log('================500px-load')
     document.querySelector('body').addEventListener('mouseover', mouseoverFn, false)
     document.querySelector('body').addEventListener('mouseout', mouseoutFn, false)
 })

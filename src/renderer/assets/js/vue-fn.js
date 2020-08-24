@@ -5,11 +5,9 @@
  * @LastEditTime: 2019-04-09 20:57:19
  */
 
-import axios from 'axios'
-
-const { ipcRenderer } = require('electron')
-const localStorage = require('./local-storage')
-const { deepClone, typeOf } = require('./common-fn')
+import { ipcRenderer } from 'electron'
+import { deepClone, typeOf } from './common-fn'
+import localStorage from './local-storage'
 
 export default {
     version: '0.0.1',
@@ -18,6 +16,5 @@ export default {
         Vue.prototype.$localStorage = localStorage
         Vue.prototype.$typeOf = typeOf
         Vue.prototype.$ipcRenderer = ipcRenderer
-        Vue.prototype.$http = axios
     },
 }
