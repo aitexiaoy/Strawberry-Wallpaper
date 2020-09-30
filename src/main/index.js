@@ -125,7 +125,7 @@ function createWindow() {
     mainWindow.loadURL(baseUrl)
 
     mainWindow.on('blur', () => {
-        mainWindow.hide()
+        // mainWindow.hide()
     })
 
     mainWindow.on('closed', () => {
@@ -422,13 +422,13 @@ function ipcMainInit() {
                 mainWindow.setAlwaysOnTop(true)
                 if (paths){
                     // 清空原目录中的文件
-                    delPath(data.data)
+                    // delPath(data.data)
                     event.sender.send('defaultPath', paths[0])
                 }
             }, mainWindow)
         }
         else if (data.type === 'deleteFile'){
-            delPath(data.data)
+            // delPath(data.data)
         }
 
         else if (data.type === 'changeWallpaperScale'){
@@ -531,33 +531,4 @@ function autoUpdaterInit() {
             data: progressObj.percent
         })
     })
-}
-
-/**
- * 删除指定目录
- * @param {String} filePath 
- */
-function delPath(filePath){
-    if (!fs.existsSync(filePath)){
-        return '路径不存在'
-    }
-    const info = fs.statSync(filePath)
-    if (info.isDirectory()){ // 目录
-        const data = fs.readdirSync(filePath)
-        if (data.length > 0){
-            for (let i = 0; i < data.length; i++) {
-                if (data[i].match('SW-')){
-                    delPath(`${filePath}/${data[i]}`) // 使用递归
-                    if (i === data.length - 1){ // 删了目录里的内容就删掉这个目录
-                        delPath(`${filePath}`)
-                    }
-                }
-            }
-        } else {
-            fs.rmdirSync(filePath)// 删除空目录
-        }
-    } else if (info.isFile()){
-        fs.unlinkSync(filePath)// 删除文件
-    }
-    return true
 }

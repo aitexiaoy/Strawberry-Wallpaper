@@ -3,7 +3,6 @@ const axios = require('axios')
 
 const onFulfilled = (response) => {
     const { data, status } = response
-    console.log('================data:', data, status)
     if (status === 200) {
         return response
     }

@@ -1,7 +1,6 @@
 <template>
-    <transition name="page-transition">
+    <Secondary title="意见反馈">
         <div class="suggestion">
-            <ml-page-header>意见反馈</ml-page-header>
             <el-form :model="formData" ref="form">
                 <div class="content">
                     <el-form-item prop="content" :rules="[
@@ -29,23 +28,17 @@
                     <el-button type="primary" @click.stop="handleSurePost" :loading="loading">提交</el-button>
                 </div>
 
-                <el-button
-                    class="issues"
-                    type="primary"
-                    @click.stop="goToGitHubIssues"
-                    >或直接提交issues</el-button>
-
+                <el-button class="issues" type="primary" @click.stop="goToGitHubIssues">或直接提交issues</el-button>
             </el-form>
 
             <div class="result">{{suggestionResult}}</div>
         </div>
-    </transition>
+    </Secondary>
 </template>
 
 <script>
 import { shell } from 'electron'
 import { utils, mail } from '$render/utils'
-
 
 let timer = 0
 
@@ -117,10 +110,7 @@ export default {
 
 <style lang="less" scoped>
 .suggestion {
-    cursor: default;
-    width: 100%;
-    height: 100%;
-    padding: 14px;
+    padding: 0 24px;
 
     .edit {
         width: 100%;

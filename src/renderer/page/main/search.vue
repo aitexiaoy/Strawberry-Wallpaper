@@ -106,6 +106,78 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less" scoped>
+.header-search {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    padding-bottom: 6px;
+
+    .header-search-input {
+        flex: none;
+        width: 100%;
+    }
+
+    .iconfont {
+        position: absolute;
+        right: 5px;
+    }
+
+    .header-tag {
+        display: flex;
+        flex-wrap: wrap;
+        cursor: default;
+        padding: 5px 0;
+
+        user-select: none;
+
+        .header-tag-item {
+            position: relative;
+            height: 20px;
+            padding: 0 6px;
+            line-height: 20px;
+            color: #a5a5a5;
+            font-size: 12px;
+
+            .header-tag-item-text {
+                width: auto;
+                max-width: 100px;
+                height: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .header-tag-item-del {
+                display: none;
+                position: absolute;
+                top: -2px;
+                right: -3px;
+                border-radius: 100%;
+                background-color: rgba(#aaaaaa, 0.6);
+                width: 12px;
+                height: 12px;
+                text-align: center;
+                line-height: 12px;
+                font-size: 12px;
+            }
+
+            &:hover {
+                color: #dddddd;
+                font-weight: bold;
+
+                .header-tag-item-del {
+                    display: inline-block;
+                }
+            }
+        }
+
+        .active {
+            color: #dddddd;
+            font-weight: bold;
+        }
+    }
+}
 
 </style>

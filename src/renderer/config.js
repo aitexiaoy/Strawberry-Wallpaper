@@ -19,7 +19,7 @@ export const defaultConfig = {
 
     wallpaperSizeWidth: 1600, // 筛选的宽
     wallpaperSizeHeight: 1080, // 筛选的高
-    wallpaperSizeDirection: [], // 筛选方向 'heng', 'su'
+    wallpaperSizeDirection: ['heng', 'su'], // 筛选方向 'heng', 'su'
 }
 
 // 定义提示信息

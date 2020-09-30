@@ -1,32 +1,25 @@
 <template>
-    <transition name="page-transition">
-        <div class="notice">
-            <ml-page-header>公告</ml-page-header>
-            <contentMain class="content" ref="content">
-                <template v-if="noticeList.length>0">
-                    <div class="notice-item" v-for="item in noticeList" :key="`${item.content}-${item.time}`">
-                        <span>{{`【${item.time}】`}}</span>
-                        <span v-html="item.content"></span>
-                    </div>
-                </template>
-
-                <div v-else class="no-data">
-                    暂无公告信息
+    <Secondary title="公告">
+        <div class="notice" ref="content">
+            <template v-if="noticeList.length>0">
+                <div class="notice-item" v-for="item in noticeList" :key="`${item.content}-${item.time}`">
+                    <span>{{`【${item.time}】`}}</span>
+                    <span v-html="item.content"></span>
                 </div>
-            </contentMain>
+            </template>
+
+            <div v-else class="no-data">
+                暂无公告信息
+            </div>
         </div>
-    </transition>
+    </Secondary>
 </template>
 
 <script>
 import { shell } from 'electron'
-import contentMain from '$render/components/content-main/index.vue'
 
 export default {
     name: 'notice',
-    components: {
-        contentMain
-    },
     data() {
         return {
             noticeList: []
@@ -38,7 +31,7 @@ export default {
             content: item.content
         }))
         this.$nextTick(() => {
-            this.$refs.content.$el.addEventListener('click', this.contentEvent, false)
+            this.$refs.content.addEventListener('click', this.contentEvent, false)
         })
     },
     methods: {
@@ -78,49 +71,29 @@ export default {
 
 <style lang="less" scoped>
 .notice {
-    cursor: default;
-    width: 100%;
-    height: 100%;
-    padding: 14px;
+    padding: 0 24px;
+    line-height: 24px;
+    font-size: 12px;
 
-    .content {
-        height: calc(100% - 60px);
-        line-height: 24px;
-        color: #a5a5a5;
-        font-size: 13px;
+    .notice-item {
+        border-bottom: 1px dashed #a5a5a5;
+        padding: 10px 0;
+        color: var(--tina-text-color);
 
-        .notice-item {
-            border-bottom: 1px dashed #a5a5a5;
-            padding: 10px 0;
-            color: #a5a5a5;
-        }
+        /deep/ a {
+            text-decoration: none;
 
-        .no-data {
-            padding-left: 20px;
-            text-align: center;
-            line-height: 100px;
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
-}
 
-</style>
-
-<style lang="less">
-.notice {
-    .content {
-        .notice-item {
-            * {
-                color: #a5a5a5;
-            }
-
-            a {
-                text-decoration: none;
-
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
-        }
+    .no-data {
+        padding-left: 20px;
+        text-align: center;
+        line-height: 100px;
+        color: var(--tina-text-color);
     }
 }
 

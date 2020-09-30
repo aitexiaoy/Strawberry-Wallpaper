@@ -1,6 +1,6 @@
 <template>
     <div class="page-header">
-        <i class="iconfont icon-back" @click="handleClick"></i>
+        <Icon class="icon-back" @click="handleClick"></Icon>
         <div class="title-text"><slot></slot></div>
     </div>
 </template>
@@ -16,18 +16,23 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.page-header{
+.page-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    padding: 0 24px;
+    color: #ffffff;
+    font-size: 14px;
+
+    .icon-back {
+        cursor: pointer;
+    }
+
+    .title-text {
         width: 100%;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        margin-top: -10px;
-        line-height: 60px;
-        color: #ffffff;
-        font-size: 16px;
-        .title-text{
-            width: 100%;
-            text-align: center;
-        }
+        text-align: center;
+    }
 }
+
 </style>

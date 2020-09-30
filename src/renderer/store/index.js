@@ -11,10 +11,25 @@ const userConfigStoreText = 'userConfig'
 
 const storeSearchKeyList = localStorage.getStore('searchKeyList') 
 const storeSearchKey = localStorage.getStore('searchKey')
+let userConfig = localStorage.getStore(userConfigStoreText)
+
+// 防止之前有设置bug，导致数据类型不对
+if (userConfig){
+    Object.keys(userConfig).forEach((key) => {
+        if (Object.prototype.toString.call(userConfig[key]) !== Object.prototype.toString.call(defaultConfig[key])){
+            userConfig[key] = defaultConfig[key]
+        }
+    })
+} else {
+    userConfig = { ...defaultConfig }
+}
+
+console.log('========userConfig', userConfig)
+
 
 const state = {
     // 用户设置
-    config: { ...defaultConfig, ...(localStorage.getStore(userConfigStoreText) || {}) },
+    config: { ...userConfig },
     // 当前活跃的壁纸源
     activeImageSource: null,
 
@@ -42,7 +57,8 @@ const state = {
 const mutations = {
     storeActionConfig(store, payload = {}) {
         store.config = { ...store.config, ...payload }
-        localStorage.setStore(store.config)
+        console.log('=========', store.config)
+        localStorage.setStore(userConfigStoreText, store.config)
     },
 
     storeActionActiveImageSource(store, payload) {
@@ -51,12 +67,12 @@ const mutations = {
 
     storeSetSearchKeyList(store, payload = []) {
         store.searchKeyList = [...payload]
-        localStorage.setStore(store.searchKeyList)
+        localStorage.setStore('searchKeyList', store.searchKeyList)
     },
 
     storeSetSearchKey(store, payload = ''){
         store.searchKey = payload
-        localStorage.setStore(store.searchKey)
+        localStorage.setStore('searchKey', store.searchKey)
     },
 
     storeSetIsSetting(store, payload = false){

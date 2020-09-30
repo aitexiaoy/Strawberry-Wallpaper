@@ -11,10 +11,10 @@
         </div>
 
         <div class="image-item-flag" v-show="setterShow && isSetting==false">
-            <div class="image-item-flag-direction" v-show="img.direction==='su'">
+            <div class="flag-item direction" v-show="img.direction==='su'">
                 <i class="iconfont icon-su-ping"></i>
             </div>
-            <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
+            <div class="flag-item tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
         </div>
     </div>
 </template>
@@ -45,7 +45,7 @@ export default {
             this.currentImageBacColor = img.backgroundColor
             wallpaper.setWallpaper(img, this.config, (progress) => {
                 this.storeSetDownloadProgress(progress)
-            }).finish(() => {
+            }).finally(() => {
                 this.storeSetIsSetting(false)
                 this.$swLoading.close(this.$el)
             }).then(() => {
@@ -57,6 +57,70 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less" scoped>
+.image-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1px solid #bbbbbb;
+    width: 100%;
+    height: 180px;
+
+    .image-item-img {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .image-set-wallpaper {
+        position: absolute;
+        border-radius: 15px;
+        background-color: rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+        width: auto;
+        width: 120px;
+        height: 33px;
+        text-align: center;
+        line-height: 33px;
+        color: var(--main-text-color);
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .iconfont {
+            margin-right: 8px;
+        }
+    }
+
+    .image-item-flag {
+        display: flex;
+        justify-content: flex-end;
+        position: absolute;
+        top: 10px;
+        right: 14px;
+
+        .flag-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.6);
+            width: 26px;
+            height: 26px;
+            color: var(--main-text-color);
+
+            /deep/ & + .flag-item {
+                margin-left: 8px;
+            }
+        }
+
+        .tip {
+            color: #52b7fc;
+            font-size: 12px;
+        }
+    }
+}
 
 </style>

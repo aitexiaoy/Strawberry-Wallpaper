@@ -4,12 +4,10 @@
             <h1 class="text">Strawberry</h1>
         </div>
         <div class="right">
-            <Icon :class="['iconfont icon-gonggao',{'no-watch':noticeNoWatch}]" @click="handleGoToNotice"></Icon>
-            <Icon class="iconfont icon-quanping" @click="handleOpenFullWindow"></Icon>
-            <Icon class="iconfont icon-wenjianjia" @click="openDownloadFile"></Icon>
-            <div class="header-set">
-                <Icon class="iconfont icon-shezhi" @click="$router.push('/settings')"></Icon>
-            </div>
+            <Icon :class="['icon-gonggao',{'no-watch':noticeNoWatch}]" @click="handleGoToNotice"></Icon>
+            <Icon class="icon-quanping" @click="handleOpenFullWindow"></Icon>
+            <Icon class="icon-wenjianjia" @click="openDownloadFile"></Icon>
+            <Icon class="icon-shezhi" @click="$router.push('/setting')"></Icon>
         </div>
     </el-row>
 </template>
@@ -20,7 +18,6 @@ import { shell } from 'electron'
 import { apiGetNotices } from '$render/api'
 
 let time = 0
-
 
 export default {
     name: 'MainNav',
@@ -57,7 +54,6 @@ export default {
             // this.$ipcRenderer.send('fullWindow', true) // 打开全屏 ， false 关闭全屏
         },
 
-
         handleGoToNotice(){
             this.$router.push('/notice')
             this.noticeNoWatch = false
@@ -89,25 +85,43 @@ export default {
 </script>
 
 <style lang="less" scoped>
- .header-nav {
-     display: flex;
-     justify-content: space-between;
-     width: 100%;
-     height: 56px;
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 56px;
 
-     .left {
-         position: relative;
-         width: 100%;
-         height: 100%;
+    .left {
+        flex: auto;
+        position: relative;
+        width: 100%;
+        height: 100%;
 
-         .text {
-             cursor: default;
-             color: #dddddd;
+        .text {
+            cursor: default;
+            color: var(--header-text-color);
 
-             user-select: none;
-             // z-index: 2;
-         }
-     }
- }
+            user-select: none;
+            // z-index: 2;
+        }
+    }
+
+    .right {
+        display: flex;
+        flex: none;
+        align-items: center;
+
+        /deep/ .icon {
+            cursor: pointer;
+        }
+
+        .icon-gonggao {
+            &.no-watch {
+                color: #ff3f00;
+            }
+        }
+    }
+}
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <i class="icon" @click.stop="handleClick"></i>
+    <i class="icon icon-btn iconfont" @click.stop="handleClick"></i>
 </template>
 
 <script>
@@ -17,10 +17,19 @@ export default {
 
 <style lang="less" scoped>
 .icon {
-    color: #dddddd;
+    color: var(--main-text-color);
 
     &:hover {
         color: #ffffff;
+    }
+}
+
+</style>
+
+<style lang="less">
+.icon-btn {
+    & + .icon-btn {
+        margin-left: 8px;
     }
 }
 

@@ -1,176 +1,160 @@
 <template>
-    <el-collapse-transition>
-        <div class="setter" v-show="show">
-            <div class="setter-sanjiao"></div>
-            <div class="setter-content">
-                <div class="setter-row flex-space-between">
-                    <div>
-                        {{version}}
-                        <span class="setter-link font-size-12" @click.stop="handleNewVersionClick">
-                            检查更新
-                        </span>
-                    </div>
-                    <div @click.stop="quit" class="setter-link">
-                        退出
-                    </div>
-                </div>
-
-                <div class="setter-row">
-                    <el-checkbox :value="config.isOpenStatr" @change="setOpenStart">
-                        <span class="setter-header">开机自动启动</span>
-                    </el-checkbox>
-                </div>
-
-                <div class="setter-row">
-                    <el-checkbox :value="config.wallpaperAutoUp" @change="wallpaperAutoChange">
-                        <span class="setter-header">壁纸自动更新</span>
-                    </el-checkbox>
-                </div>
-
-                <div class="setter-row flex-space-between">
-                    <el-radio-group :value="config.updataTime" @change="handleUpdataTimeInputChange">
-                        <el-radio :label="3600" :disabled="config.wallpaperAutoUp==false">
-                            <span class="checkbox-text">每小时</span>
-                        </el-radio>
-                        <el-radio :label="86400" :disabled="config.wallpaperAutoUp==false">
-                            <span class="checkbox-text">每天</span>
-                        </el-radio>
-                    </el-radio-group>
-                    <el-input
-                        :disabled="config.wallpaperAutoUp==false"
-                        class="input-width-100"
-                        @input="handleUpdataTimeInputChange"
-                        placeholder="自定义"
-                        size="small"
-                        :value="config.updataTime">
-                        <span slot="suffix">秒</span>
-                    </el-input>
-                </div>
-
-
-                <div class="setter-row" v-if="isMac">
-                    <el-checkbox :value="config.autoSetAllScreens" @change="setLocation">
-                        <span class="setter-header">自动应用到所有屏幕</span>
-                    </el-checkbox>
-                </div>
-
-                <div class="setter-row flex-space-between" v-if="isMac">
-                    <span class="checkbox-text setter-header">壁纸填充方式:</span>
-                     <el-select :value="config.wallpaperScale" class="input-width-140" @change="handleWallpaperScale">
-                          <el-option
-                            v-for="item in wallpaperScaleOptions"
-                            :key="item.value"
-                            :label="item.name"
-                            :value="item.value">
-                            </el-option>
-                    </el-select>
-                </div>
-
-                <div class="setter-row">
-                    <span class="checkbox-text setter-header">自定义过滤方向:</span>
-                    <i :class="['iconfont icon-heng-ping icon-direction',
-                    {'active': config.wallpaperSizeDirection && config.wallpaperSizeDirection.includes('heng')}]" @click="handleWallpaperSizeDirectionChange('heng')"></i>
-                    <i :class="['iconfont icon-su-ping icon-direction',
-                    {'active': config.wallpaperSizeDirection && config.wallpaperSizeDirection.includes('su')}]" @click="handleWallpaperSizeDirectionChange('su')"></i>
-                </div>
-
-                <div class="setter-row">
-                    <span class="checkbox-text setter-header">自定义过滤尺寸:</span>
-                     <el-input
-                        class="myselef-time"
-                        @input="handleWallpaperSizeWidthChange"
-                        placeholder="宽"
-                        size="small"
-                        :value="config.wallpaperSizeWidth">
-                        <span slot="suffix">px</span>
-                    </el-input>
-                    <span class="size-icon">x</span>
-                    <el-input
-                        class="myselef-time"
-                        @input="handleWallpaperSizeHeightChange"
-                        placeholder="高"
-                        size="small"
-                        :value="config.wallpaperSizeHeight">
-                        <span slot="suffix">px</span>
-                    </el-input>
-                </div>
-
-                <div class="setter-row">
-                    <span class="setter-header">设置保存地址:</span>
-                    <span class="setter-link" @click="setDefalutDownloadPath">{{config.downloadImagePath}}</span>
-                </div>
-                
-                <div class="setter-row flex-space-between">
-                     <span class="setter-header">定时清空已下载图库:</span>
-                     <el-input
-                        class="input-width-100"
-                        @input="handleClearnDownloadFilesTimeInput"
-                
-                        placeholder="自定义"
-                        size="small"
-                        :value="config.autoClearnDownloadFilesTime">
-                        <span slot="suffix">天</span>
-                    </el-input>
-                </div>
-             
-
-                <div class="setter-row">
-                    <span class="setter-header">图片来源:</span>
-                    <span class="setter-link" @click="gotToWallPaperHome(config.imageSource)">{{config.imageSource}}</span>
-                </div>
-
-                <div class="setter-row">
-                    <el-radio-group :value="config.imageSource" @change="imageSourceChange">
-                        <template v-for="item in imageSourceType">
-                            <el-radio :label="item.value" :key="item.value">
-                                <span class="checkbox-text">{{item.name}}</span>
-                            </el-radio>
-                        </template>
-                    </el-radio-group>
-                </div>           
-
-                <div class="setter-content-footer">
-                    <div class="setter-link" @click="suggestion">意见反馈</div>
-                    <div class="setter-link" @click="aboutPro">关于项目</div>
-                </div>
+<Secondary class="setter" title="设置">
+     <div class="setter-content">
+        <div class="setter-row flex-space-between">
+            <div>
+                {{version}}
+                <span class="setter-link font-size-12" @click.stop="handleNewVersionClick">
+                    检查更新
+                </span>
+            </div>
+            <div @click.stop="quit" class="setter-link">
+                退出
             </div>
         </div>
-    </el-collapse-transition>
+
+        <div class="setter-row">
+            <el-checkbox :value="config.isOpenStatr" @change="setOpenStart">
+                <span class="setter-header">开机自动启动</span>
+            </el-checkbox>
+        </div>
+
+        <div class="setter-row">
+            <el-checkbox :value="config.wallpaperAutoUp" @change="wallpaperAutoChange">
+                <span class="setter-header">壁纸自动更新</span>
+            </el-checkbox>
+        </div>
+
+        <div class="setter-row flex-space-between">
+            <el-radio-group :value="config.updataTime"  @input="handleUpdataTimeInputChange" :disabled="config.wallpaperAutoUp===false">
+                <el-radio :label="3600">
+                    <span class="checkbox-text">每小时</span>
+                </el-radio>
+                <el-radio :label="86400">
+                    <span class="checkbox-text">每天</span>
+                </el-radio>
+            </el-radio-group>
+            <el-input
+                :disabled="config.wallpaperAutoUp==false"
+                class="input-width-100"
+                @input="handleUpdataTimeInputChange"
+                placeholder="自定义"
+                size="small"
+                :value="config.updataTime">
+                <span slot="suffix">秒</span>
+            </el-input>
+        </div>
+
+        <div class="setter-row" v-if="isMac">
+            <el-checkbox :value="config.autoSetAllScreens" @change="setLocation">
+                <span class="setter-header">自动应用到所有屏幕</span>
+            </el-checkbox>
+        </div>
+
+        <div class="setter-row flex-space-between" v-if="isMac">
+            <span class="checkbox-text setter-header">壁纸填充方式:</span>
+            <el-select :value="config.wallpaperScale" class="input-width-140" @change="handleWallpaperScale">
+                <el-option
+                    v-for="item in wallpaperScaleOptions"
+                    :key="item.value"
+                    :label="item.name"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+        </div>
+
+        <div class="setter-row">
+            <span class="checkbox-text setter-header">自定义过滤方向:</span>
+            <i :class="['iconfont icon-heng-ping icon-direction',
+                    {'active': config.wallpaperSizeDirection.includes('heng')}]" @click="handleDirectionChange('heng')"></i>
+            <i :class="['iconfont icon-su-ping icon-direction',
+                    {'active': config.wallpaperSizeDirection.includes('su')}]" @click="handleDirectionChange('su')"></i>
+        </div>
+
+        <div class="setter-row">
+            <span class="checkbox-text setter-header">自定义过滤尺寸:</span>
+            <el-input
+                class="myselef-time"
+                @input="handleWallpaperSizeWidthChange"
+                placeholder="宽"
+                size="small"
+                :value="config.wallpaperSizeWidth">
+                <span slot="suffix">px</span>
+            </el-input>
+            <span class="size-icon">x</span>
+            <el-input
+                class="myselef-time"
+                @input="handleWallpaperSizeHeightChange"
+                placeholder="高"
+                size="small"
+                :value="config.wallpaperSizeHeight">
+                <span slot="suffix">px</span>
+            </el-input>
+        </div>
+
+        <div class="setter-row">
+            <span class="setter-header">设置保存地址:</span>
+            <span class="setter-link" @click="setDefalutDownloadPath">{{config.downloadImagePath}}</span>
+        </div>
+
+        <div class="setter-row flex-space-between">
+            <span class="setter-header">定时清空已下载图库:</span>
+            <el-input
+                class="input-width-100"
+                @input="handleClearnDownloadFilesTimeInput"
+                placeholder="自定义"
+                size="small"
+                :value="config.autoClearnDownloadFilesTime">
+                <span slot="suffix">天</span>
+            </el-input>
+        </div>
+
+        <div class="setter-row">
+            <span class="setter-header">图片来源:</span>
+            <span class="setter-link" @click="gotToWallPaperHome(config.imageSource)">{{config.imageSource}}</span>
+        </div>
+
+        <div class="setter-row">
+            <el-radio-group :value="config.imageSource" @change="imageSourceChange">
+                <template v-for="item in imageSourceType">
+                    <el-radio :label="item.value" :key="item.value">
+                        <span class="checkbox-text">{{item.name}}</span>
+                    </el-radio>
+                </template>
+            </el-radio-group>
+        </div>
+
+        <div class="setter-content-footer">
+            <div class="setter-link" @click="suggestion">意见反馈</div>
+            <div class="setter-link" @click="aboutPro">关于项目</div>
+        </div>
+    </div>
+</Secondary>
+   
 </template>
 
 <script>
 import { ipcRenderer, remote, shell } from 'electron'
-import { utils, autoOpen } from '$render/utils'
+import { utils, autoOpen, wallpaper } from '$render/utils'
 import { wallpaperScaleOptions } from '$render/config'
 import ImageSource from '$render/get-image'
 
 const { isMac, version } = utils
 
 export default {
-    name: 'setter',
-    props: {
-        get_data_flag: {
-            type: Boolean,
-            default: false
-        },
-        show: {
-            type: Boolean,
-            default: false
-        }
-    },
+    name: 'Setter',
+    props: {},
     data() {
         return {
             version, // 版本    
             isMac,
             wallpaperScaleOptions,
+            imageSourceType: []
         }
     },
 
-    computed: {
-        imageSourceType(){
-            console.log('imageSourceType:::', ImageSource)
-            return Object.value(ImageSource).map(item => item.options)
-        }
+    created(){
+        this.imageSourceType = Object.value(ImageSource).map(item => item.options)
     },
 
     mounted() {
@@ -207,12 +191,15 @@ export default {
         },
 
         // 壁纸自动更新
-        wallpaperAutoChange() {
-            this.handleUpdataTimeInputChange(!this.config.wallpaperAutoUp ? -1 : this.config.updataTime)
+        wallpaperAutoChange(val) {
+            this.storeActionConfig({ wallpaperAutoUp: val })
+         
+            this.handleUpdataTimeInputChange(!val ? -1 : val)
         },
 
         // 设置更新周期
         handleUpdataTimeInputChange(val){
+            console.log('============', val)
             this.beforeInputNumberValueChange(val, 'updataTime', { min: 120, max: 864000, defaultValue: 3600 }, () => {
                 this.$localStorage.setStore('lastUpdataTime', +new Date())
             })
@@ -220,11 +207,10 @@ export default {
         
         // 设置自动清空周期
         handleClearnDownloadFilesTimeInput(val){
-            this.beforeInputNumberValueChange(val, 'autoClearnDownloadFilesTime', { min: 1, max: 9999, defaultValue: 7 }, () => {
+            this.beforeInputNumberValueChange(val, 'autoClearnDownloadFilesTime', { min: 1, max: 999999, defaultValue: 9999 }, () => {
                 this.$localStorage.setStore('lastCleararnDownloadFilesTime', +new Date())
             })
         },
-
 
         // input输入框的数字处理
         beforeInputNumberValueChange(val, key, { min = 1, max = 999999, defaultValue = 1 }, callback = () => {}){
@@ -233,17 +219,17 @@ export default {
                 this.config[key] = ''
                 window.setTimeout(() => {
                     if (this.config[key] === ''){
-                        this.storeActionConfig({ key: defaultValue })
+                        this.storeActionConfig({ [key]: defaultValue })
                         callback()
                     }
                 }, 500)
                 return
             }
             if (Number.isNaN(value)){
-                this.storeActionConfig({ key: defaultValue })
+                this.storeActionConfig({ [key]: defaultValue })
             }
             else {
-                this.storeActionConfig({ key: Math.min(Math.max(value, min), max) })
+                this.storeActionConfig({ [key]: Math.min(Math.max(value, min), max) })
             }
             callback()
         },
@@ -284,7 +270,6 @@ export default {
             })
         },
 
-
         /** 
          * 浏览器打开指定链接 
         */
@@ -297,11 +282,8 @@ export default {
 
         // 更改填充方式
         handleWallpaperScale(val){
-            // this.$ipcRenderer.send('btn', {
-            //     type: 'changeWallpaperScale',
-            //     data: val
-            // })
             this.storeActionConfig({ wallpaperScale: val })
+            wallpaper.changeWallpaperScale({ scale: val })
         },
 
         // 尺寸宽
@@ -315,13 +297,14 @@ export default {
         },
 
         // 更改方向
-        handleWallpaperSizeDirectionChange(direction){
-            if (this.config.wallpaperSizeDirection.includes(direction)){
-                this.storeActionConfig({ wallpaperSizeDirection: this.config.wallpaperSizeDirection.filter(i => i !== direction) })
+        handleDirectionChange(direction){
+            const wallpaperSizeDirection = [...this.config.wallpaperSizeDirection]
+            if (wallpaperSizeDirection.includes(direction)){
+                this.storeActionConfig({ wallpaperSizeDirection: wallpaperSizeDirection.filter(i => i !== direction) })
             }
             else {
-                const size = this.config.wallpaperSizeDirection.push(direction)
-                this.storeActionConfig({ wallpaperSizeDirection: size })
+                wallpaperSizeDirection.push(direction)
+                this.storeActionConfig({ wallpaperSizeDirection })
             }
         }
     },
@@ -331,36 +314,13 @@ export default {
 
 <style lang="less" scoped>
 .setter {
-    position: absolute;
-    z-index: 4000;
-    width: 100%;
-    height: auto;
-    min-height: 270px;
-
-    .setter-sanjiao {
-        display: block;
-        position: absolute;
-        top: -8px;
-        right: 20px;
-        border-right: 8px solid transparent;
-        border-bottom: 8px solid rgba(43, 42, 42, 0.8);
-        border-left: 8px solid transparent;
-        width: 0;
-        height: 0;
-        content: "";
-    }
+    cursor: default;
 
     .setter-content {
-        position: absolute;
-        top: 0;
-        right: 0;
         background-color: rgba(43, 42, 42, 0.9);
-        cursor: default;
         width: 100%;
         height: auto;
-        padding: 20px;
-        padding-top: 10px;
-        padding-bottom: 0;
+        padding: 12px 24px;
         color: #ffffff;
         font-size: 12px;
 
@@ -404,6 +364,7 @@ export default {
         }
 
         .setter-link {
+            cursor: pointer;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -425,6 +386,10 @@ export default {
 
         .size-icon {
             margin: 0 10px;
+        }
+
+        .iconfont {
+            cursor: pointer;
         }
     }
 

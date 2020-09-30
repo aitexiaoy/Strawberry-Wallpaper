@@ -1,14 +1,6 @@
 <template>
     <div class="main-content" @keydown.enter="keydownEnterFn">
-        <div class="header">
-            <div class="header-content">
-                <Nav></Nav>
-                <Search @search="handleSearch"></Search>
-            </div>
-
-            <Progress v-if="downloadProgress>0" :value="downloadProgress" :color="currentImageBacColor"></Progress>
-        </div>
-
+        <Header @search="handleSearch"></Header>
         <ImageContent 
         :images="images"
         @setWallpaperFinally="handleSetWallpaperFinally"></ImageContent>
@@ -28,18 +20,16 @@ import { infoShowText } from '$render/config'
 import { apiStatisticActive } from '$render/api'
 import ImageSource from '$render/get-image'
 
-import Nav from './nav.vue'
 import ImageContent from './image-content.vue'
-import Search from './search.vue'
 import ImageDealMixin from './image-deal.mixin'
 import SystemMixin from './system.mixin'
+import Header from './header.vue'
 
 
 export default {
     name: 'mainContent',
     components: {
-        Nav,
-        Search,
+        Header,
         ImageContent,
     },
     mixins: [ImageDealMixin, SystemMixin],
@@ -216,10 +206,6 @@ export default {
 <style lang="less" scoped>
 .setter-content {
     top: 45px;
-
-    // &.setter-content-mac {
-    //     top: 55px;
-    // }
 }
 
 .main-content {
@@ -230,249 +216,6 @@ export default {
     width: 100%;
     height: 100%;
     overflow: hidden;
-
-    // background-color: red;
-    .header {
-        position: fixed;
-        z-index: 3000;
-        background-color: rgba(34, 34, 34, 0.9);
-        width: 100%;
-        min-height: 50px;
-        overflow: hidden;
-
-        .header-content {
-            width: 100%;
-            padding-right: 20px;
-            padding-left: 20px;
-        }
-
-        .iconfont {
-            margin-left: 8px;
-            // color: #dddddd;
-        }
-
-        .left {
-            flex: auto;
-        }
-
-        .right {
-            display: flex;
-            flex: none;
-            align-items: center;
-
-            .icon-gonggao {
-                &.no-watch {
-                    color: #ff3f00;
-                }
-            }
-        }
-
-        .header-set {
-            position: relative;
-        }
-
-        .header-search {
-            display: flex;
-            align-items: center;
-            position: relative;
-            width: 100%;
-            padding-bottom: 6px;
-
-            .header-search-input {
-                flex: none;
-                width: 100%;
-            }
-
-            .iconfont {
-                position: absolute;
-                right: 5px;
-            }
-        }
-
-        .header-tag {
-            display: flex;
-            flex-wrap: wrap;
-            cursor: default;
-            padding: 5px 0;
-
-            user-select: none;
-
-            .header-tag-item {
-                position: relative;
-                height: 20px;
-                padding: 0 6px;
-                line-height: 20px;
-                color: #a5a5a5;
-                font-size: 12px;
-
-                .header-tag-item-text {
-                    width: auto;
-                    max-width: 100px;
-                    height: 100%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-
-                .header-tag-item-del {
-                    display: none;
-                    position: absolute;
-                    top: -2px;
-                    right: -3px;
-                    border-radius: 100%;
-                    background-color: rgba(#aaaaaa, 0.6);
-                    width: 12px;
-                    height: 12px;
-                    text-align: center;
-                    line-height: 12px;
-                    font-size: 12px;
-                }
-
-                &:hover {
-                    color: #dddddd;
-                    font-weight: bold;
-
-                    .header-tag-item-del {
-                        display: inline-block;
-                    }
-                }
-            }
-
-            .active {
-                color: #dddddd;
-                font-weight: bold;
-            }
-        }
-    }
-
-    .content {
-        border-radius: 5px;
-        background-color: #222222;
-        width: calc(~"100% + 15px");
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: scroll;
-        padding: 1px;
-
-        .image-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            border-bottom: 1px solid #bbbbbb;
-            width: 100%;
-            height: 180px;
-
-            .image-item-img {
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
-            }
-
-            .image-set-wallpaper {
-                position: absolute;
-                border-radius: 15px;
-                background-color: rgba(0, 0, 0, 0.4);
-                cursor: default;
-                width: auto;
-                width: 120px;
-                height: 33px;
-                text-align: center;
-                line-height: 33px;
-                color: #dddddd;
-
-                .iconfont {
-                    margin-right: 8px;
-                }
-            }
-
-            .image-set-wallpaper:hover {
-                background-color: rgba(0, 0, 0, 0.7);
-            }
-
-            .image-item-flag {
-                display: flex;
-                justify-content: flex-end;
-                position: absolute;
-                top: 10px;
-                right: 14px;
-                width: auto;
-                height: 26px;
-
-                .image-item-flag-direction {
-                    margin-right: 10px;
-                    border-radius: 4px;
-                    background-color: rgba(0, 0, 0, 0.6);
-                    cursor: default;
-                    width: 26px;
-                    height: 26px;
-                    text-align: center;
-                    line-height: 26px;
-                    color: #dddddd;
-                    font-size: 12px;
-                }
-
-                .image-item-tip {
-                    border-radius: 4px;
-                    background-color: rgba(0, 0, 0, 0.6);
-                    cursor: default;
-                    width: 26px;
-                    height: 26px;
-                    text-align: center;
-                    line-height: 26px;
-                    color: #52b7fc;
-                    font-size: 12px;
-                }
-            }
-
-            .image-item-tip {
-                border-radius: 4px;
-                background-color: rgba(0, 0, 0, 0.6);
-                cursor: default;
-                width: 26px;
-                height: 26px;
-                text-align: center;
-                line-height: 26px;
-                color: #52b7fc;
-                font-size: 12px;
-            }
-        }
-
-        .is-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 40px;
-            color: #dddddd;
-            font-size: 12px;
-
-            i {
-                margin-right: 5px;
-                font-size: 16px;
-            }
-        }
-    }
-
-    .content-win {
-        width: calc(~"100% + 17px");
-    }
-
-    .content-main {
-        padding-top: 96px;
-    }
-
-    .content-main-no {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        padding: 20px;
-        line-height: 20px;
-        color: #cccccc;
-        font-size: 12px;
-    }
 }
 
 .refresh-btn {

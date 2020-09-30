@@ -1,11 +1,8 @@
 <template>
-    <transition name="page-transition">
-        <div class="about">
-            <ml-page-header>关于项目</ml-page-header>
-            <div class="content" v-html="content"></div>
-            <el-button type="primary" @click.stop="goToPro">gitHub</el-button>
-        </div>
-    </transition>
+    <Secondary class="about" title="关于项目">
+        <div class="content" v-html="content"></div>
+        <el-button type="primary" @click.stop="goToPro">gitHub</el-button>
+    </Secondary>
 </template>
 
 <script>
@@ -38,16 +35,12 @@ export default {
 
 <style lang="less" scoped>
 .about {
-    width: 100%;
-    height: 100%;
-    padding: 14px;
-    cursor: default;
-
-    .content{
+    .content {
         margin-bottom: 20px;
-        font-size: 13px;
         line-height: 24px;
         color: #a5a5a5;
+        font-size: 13px;
     }
 }
+
 </style>

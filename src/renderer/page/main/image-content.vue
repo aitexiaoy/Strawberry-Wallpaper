@@ -56,6 +56,46 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less" scoped>
+  .content {
+      border-radius: 5px;
+      background-color: #222222;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      padding: 1px;
+
+      .content-main {
+          padding-top: 96px;
+      }
+
+      .content-main-no {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          padding: 20px;
+          line-height: 20px;
+          color: #cccccc;
+          font-size: 12px;
+      }
+
+      .is-loading {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 40px;
+          color: #dddddd;
+          font-size: 12px;
+
+          i {
+              margin-right: 5px;
+              font-size: 16px;
+          }
+      }
+  }
 
 </style>

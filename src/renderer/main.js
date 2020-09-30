@@ -7,8 +7,8 @@ import store from './store'
 
 import 'element-ui/lib/theme-chalk/index.css'
 import '../../static/iconfont/iconfont.css'
-import './assets/css/base.less'
 import './assets/css/theme.less'
+import './assets/css/base.less'
 
 import './components'
 import vueFn from './assets/js/vue-fn'
