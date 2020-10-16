@@ -27,6 +27,9 @@
     "directories": {
       "output": "build"
     },
+    "releaseInfo": {
+      "releaseNotes": ""
+    },
     "publish": {
       "provider": "generic",
       "url": "http://sw.taoacat.com/version/"
@@ -37,16 +40,14 @@
     "mac": {
       "icon": "build-config/icons/icon.icns",
       "target": [
-        "dmg",
-        "zip"
+        "dmg"
       ]
     },
     "win": {
       "icon": "build-config/icons/icon.ico",
       "requestedExecutionLevel": "highestAvailable",
       "target": [
-        "nsis",
-        "zip"
+        "nsis"
       ]
     },
     "linux": {
@@ -74,7 +75,6 @@
     "electron": "^9.0.4",
     "electron-builder": "^22.7.0",
     "electron-debug": "^2.1.0",
-    "electron-devtools-installer": "^2.2.4",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-friendly-formatter": "^4.0.1",
@@ -87,12 +87,12 @@
     "eslint-plugin-vue": "^5.2.2",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
+    "less": "^3.12.2",
+    "less-loader": "^7.0.2",
     "mini-css-extract-plugin": "0.4.0",
     "multispinner": "^0.2.1",
     "node-loader": "^0.6.0",
     "progress": "^2.0.3",
-    "sass-loader": "^7.0.3",
-    "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.4",
     "vue-loader": "^15.2.4",
@@ -115,14 +115,13 @@
     "fs": "^0.0.1-security",
     "fs-extra": "^9.0.1",
     "got": "^11.5.1",
-    "less": "^3.12.2",
-    "less-loader": "^6.2.0",
     "macaddress": "^0.2.9",
     "make-dir": "^3.1.0",
     "node-os-utils": "^1.0.7",
     "nodemailer": "^5.1.1",
     "path": "^0.12.7",
     "qs": "^6.7.0",
+    "tar": "^6.0.5",
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",

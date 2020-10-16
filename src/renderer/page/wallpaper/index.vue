@@ -1,7 +1,7 @@
 <template>
-    <div class="sw-main" id='app'>
+    <div id='app' class="sw-main">
         <!-- mac下显示三角 -->
-        <div class="sanjiao" v-if="isMac"></div>
+        <div v-if="isMac" class="sanjiao"></div>
         <div :class="['sw-main-content', isMac ? 'sw-main-content-mac': '']">
             <keep-alive :include="['mainContent','about']">
                 <router-view></router-view>

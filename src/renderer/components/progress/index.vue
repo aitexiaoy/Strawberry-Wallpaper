@@ -1,7 +1,9 @@
 <template>
     <div class="progress-main">
         <div class="progress-content-val" :style="{'width':value+'%'}">
-            <div class="progress-content-bac" :style="{'width':width,'background': `linear-gradient(to right, rgba(125, 125, 125, 1), ${color})`}"></div>
+            <div class="progress-content-bac" :style="{'background': `linear-gradient(to right, rgba(125, 125, 125, 1), ${color})`}">
+                
+            </div>
         </div>
     </div>
 </template>
@@ -18,10 +20,6 @@ export default {
             type: String,
             default: '#fff'
         },
-        width: {
-            type: String,
-            default: '300px'
-        }
     }
 }
 
@@ -49,6 +47,7 @@ export default {
         position: absolute;
         top: 0;
         left: 0;
+        width: 100%;
         height: 100%;
     }
 }

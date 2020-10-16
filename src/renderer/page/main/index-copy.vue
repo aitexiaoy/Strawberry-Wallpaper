@@ -16,10 +16,10 @@
                     </div>
                 </el-row>
 
-                <div class="header-search" v-if="imageSource==='paper'">
+                <div v-if="imageSource==='paper'" class="header-search">
                     <el-select
-                        class="header-search-input"
                         v-model="searchKey"
+                        class="header-search-input"
                         size="small"
                         @change="searchKeyFn"
                         @focus="searchKeyFocus=true"
@@ -32,10 +32,10 @@
                     </el-select>
                 </div>
 
-                <div class="header-search" v-else-if="imageSourceOptions.search">
+                <div v-else-if="imageSourceOptions.search" class="header-search">
                     <el-input
-                        class="header-search-input"
                         v-model="searchKey"
+                        class="header-search-input"
                         placeholder="请输入关键词"
                         size="small"
                         @focus="searchKeyFocus=true"
@@ -43,11 +43,11 @@
                     <Icon class="iconfont icon-sousuo" @click="searchKeyFn"></Icon>
                 </div>
 
-                <div class="header-tag" v-if="imageSourceOptions.search&&searchKeyList.length>0">
+                <div v-if="imageSourceOptions.search&&searchKeyList.length>0" class="header-tag">
                     <div
-                        :class="['header-tag-item',tag === searchKey? 'active' : '']"
                         v-for="(tag) in searchKeyList"
                         :key="tag"
+                        :class="['header-tag-item',tag === searchKey? 'active' : '']"
                         @click="searchItemClick(tag)">
                         <div class="header-tag-item-text">{{tag}}</div>
                         <span class="header-tag-item-del" @click.stop="searchKeyListDelete(tag)">x</span>
@@ -59,35 +59,35 @@
         </div>
 
         <div class="content" :class="{'content-win':osType=='win'}" @scroll="contentScroll">
-            <div class="content-main" ref="content_main" v-if="images.length>0">
+            <div v-if="images.length>0" ref="content_main" class="content-main">
                 <div
-                    class="image-item"
-                    :ref="'image_item_'+index"
                     v-for="(img,index) in images"
+                    :ref="'image_item_'+index"
                     :key="index"
+                    class="image-item"
                     :style="{'backgroundColor':img.backgroundColor}"
                     @mousemove.stop="currentMouseOverIndex=index"
                     @mouseleave.stop="currentMouseOverIndex=-1">
-                    <div class="image-item-img" v-imagematch="img.url"></div>
-                    <div class="image-set-wallpaper" v-show="currentMouseOverIndex==index&&isSetting==false" @click.stop="setWallpaper(img,index)">
+                    <div v-imagematch="img.url" class="image-item-img"></div>
+                    <div v-show="currentMouseOverIndex==index&&isSetting==false" class="image-set-wallpaper" @click.stop="setWallpaper(img,index)">
                         <i class="iconfont icon-xianshiqi"></i>
                         <span>设置壁纸</span>
                     </div>
 
-                    <div class="image-item-flag" v-show="currentMouseOverIndex==index&&isSetting==false">
-                        <div class="image-item-flag-direction" v-show="img.direction==='su'">
+                    <div v-show="currentMouseOverIndex==index&&isSetting==false" class="image-item-flag">
+                        <div v-show="img.direction==='su'" class="image-item-flag-direction">
                             <i class="iconfont icon-su-ping"></i>
                         </div>
                         <div class="image-item-tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
                     </div>
                 </div>
-                <div class="is-loading" v-if="infoShow!==''">
+                <div v-if="infoShow!==''" class="is-loading">
                     <i v-if="getDataFlag" class="el-icon-loading"></i>
                     <span v-html="infoShow"></span>
                 </div>
             </div>
 
-            <div class="content-main-no" v-else>
+            <div v-else class="content-main-no">
                 <span v-html="infoShow"></span>
             </div>
         </div>
@@ -115,7 +115,7 @@ import { resolve } from 'path'
 import SwProgress from '$render/components/progress'
 import Icon from '$render/components/icon/index.vue'
 import { getSystemInfo, utils } from '$render/utils'
-import { infoShowText, searchKeyMax, defaultSearchList } from '$render/config'
+import { InfoShowText, searchKeyMax, defaultSearchList } from '$render/config'
 import { postRegister, apiStatisticActive, apiGetNotices } from '$render/api'
 import ImageSource from '$render/get-image'
 
@@ -145,7 +145,7 @@ export default {
             osType, // 系统类型
             imageSource: '', // 图片来源
             currentImageBacColor: '#ddd', // 进度条的颜色
-            infoShow: infoShowText.loading, // 相关提示信息
+            infoShow: InfoShowText.loading, // 相关提示信息
             paperClass: [], // paper的分类
             noticeNoWatch: false, // 公告是否已阅
         }
@@ -160,7 +160,7 @@ export default {
 
 
     created(){
-        console.log('===========config', this.config)
+        console.log('===========this', this, this.config)
         this.imageSource = this.config.imageSource
         this.storeActionActiveImageSource(ImageSource[this.imageSource])
     },
@@ -254,11 +254,11 @@ export default {
                 // 获得了接口列表
                 if (type === 'urls') {
                     this.getDataFlag = false
-                    this.infoShow = infoShowText.null
+                    this.infoShow = InfoShowText.null
                     this.refreshBtnIng = false
                     if (data.length === 0) {
                         // this.havaDataFlag = false
-                        this.infoShow = infoShowText.noData
+                        this.infoShow = InfoShowText.noData
                         return
                     }
                     if (this.page === 0) {
@@ -270,7 +270,7 @@ export default {
                 else if (type === 'urlsError'){
                     this.refreshBtnIng = false
                     this.getDataFlag = false
-                    this.infoShow = infoShowText.netError
+                    this.infoShow = InfoShowText.netError
                 }
                 // 更新进度条
                 else if (type === 'updaterProgress') {
@@ -536,7 +536,7 @@ export default {
                 { this.images.push(obj) }
             })
             if (this.images.length === 0){
-                this.infoShow = infoShowText.noMatchFilter
+                this.infoShow = InfoShowText.noMatchFilter
             }
         },
 
@@ -563,7 +563,7 @@ export default {
          */
         async getData() {
             this.getDataFlag = true
-            this.infoShow = infoShowText.loading
+            this.infoShow = InfoShowText.loading
             const obj = {
                 searchKey: this.searchKey,
                 page: this.page,
@@ -571,11 +571,11 @@ export default {
             }
             ImageSource['500px'].getImage(obj).then((result) => {
                 this.getDataFlag = false
-                this.infoShow = infoShowText.null
+                this.infoShow = InfoShowText.null
                 this.refreshBtnIng = false
                 if (result.length === 0) {
                     // this.havaDataFlag = false
-                    this.infoShow = infoShowText.noData
+                    this.infoShow = InfoShowText.noData
                     return
                 }
                 if (this.page === 0) {
@@ -605,7 +605,7 @@ export default {
                         this.searchKey = ''
                         this.refreshBtnIng = false
                         this.getDataFlag = false
-                        this.infoShow = infoShowText.netError
+                        this.infoShow = InfoShowText.netError
                     }, 100)
                 }
             }

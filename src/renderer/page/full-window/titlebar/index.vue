@@ -28,24 +28,24 @@
         </div>
 
         <div class="titlebar-header">
-            <div class="titlebar-icon" v-if="showIcon">
+            <div v-if="showIcon" class="titlebar-icon">
                 <slot name="icon"></slot>
             </div>
 
-            <div class="titlebar-name" v-if="showTitle">
+            <div v-if="showTitle" class="titlebar-name">
                 <slot name="title"></slot>
             </div>
         </div>
 
-        <div class="titlebar-menu" v-if="platform !== 'darwin'">
-            <div class="titlebar-menu-item" v-for="(item, index) in menu" :key="index">
+        <div v-if="platform !== 'darwin'" class="titlebar-menu">
+            <div v-for="(item, index) in menu" :key="index" class="titlebar-menu-item">
                 <button @click="item.click()">
                     {{item.label}}
                 </button>
             </div>
         </div>
 
-        <div class="titlebar-buttons" v-if="platform !== 'darwin'">
+        <div v-if="platform !== 'darwin'" class="titlebar-buttons">
             <button aria-label="minimize" title="Minimize" tabindex="-1" @click="onMinimize()">
                 <svg aria-hidden="true" version="1.1" width="10" height="10">
                     <path d="M 0,5 10,5 10,6 0,6 Z"></path>
@@ -132,29 +132,30 @@ export default {
 
 <style lang="less" scoped>
     .titlebar {
+        display: flex;
+        flex-direction: row;
         flex-grow: 0;
         flex-shrink: 0;
         width: 100%;
-        display: flex;
-        flex-direction: row;
         height: 28px;
 
         -webkit-app-region: drag;
 
         &.titlebar-style-dark {
-            color: #fff;
             background: #2d3135;
+            color: #ffffff;
         }
 
         &.titlebar-style-light {
-            color: #2c2c2c;
             background: #f6f6f6;
+            color: #2c2c2c;
         }
 
         .titlebar-resize-handle {
             position: absolute;
             top: 0;
             left: 0;
+
             -webkit-app-region: no-drag;
 
             &.top {
@@ -163,8 +164,8 @@ export default {
             }
 
             &.right {
-                left: auto;
                 right: 0;
+                left: auto;
                 width: 3px;
                 height: 28px;
             }
@@ -181,18 +182,20 @@ export default {
             justify-content: center;
         }
 
-        .titlebar-icon, .titlebar-name {
+        .titlebar-icon,
+        .titlebar-name {
             display: flex;
-            align-content: center;
-            align-self: center;
             flex-grow: 0;
             flex-shrink: 0;
-            font-size: 14px;
-            line-height: 28px;
-            padding: 0 12px;
+            align-content: center;
+            align-self: center;
             height: 28px;
+            padding: 0 12px;
+            line-height: 28px;
+            font-size: 14px;
 
-            > svg, > img {
+            > svg,
+            > img {
                 display: block;
                 align-content: center;
                 align-self: center;
@@ -207,38 +210,39 @@ export default {
 
         &.titlebar-platform-darwin {
             .titlebar-header {
+                position: absolute;
                 width: 100%;
                 text-align: center;
-                position: absolute;
+
                 pointer-events: none;
             }
         }
 
         .titlebar-menu {
             display: flex;
+
             -webkit-app-region: no-drag;
 
             .titlebar-menu-item {
-                min-width: 0;
                 position: relative;
                 cursor: pointer;
+                min-width: 0;
 
                 button {
-                    border: none;
-                    box-shadow: none;
-                    background: transparent;
-                    height: 100%;
-                    width: 100%;
-
-                    position: relative;
                     display: flex;
                     flex-direction: row;
                     align-items: center;
+                    position: relative;
                     margin: 0;
+                    outline: none;
+                    border: none;
+                    box-shadow: none;
+                    background: transparent;
+                    width: 100%;
+                    height: 100%;
+                    padding: 0 10px;
                     color: currentColor;
                     font-size: 13px;
-                    padding: 0 10px;
-                    outline: none;
 
                     &:hover {
                         background-color: rgba(0, 0, 0, 0.2);
@@ -255,21 +259,22 @@ export default {
             margin-left: auto;
 
             button {
-                -webkit-app-region: no-drag;
                 display: inline-block;
                 position: relative;
+                margin: 0;
+                outline: none;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                background-color: transparent;
                 width: 45px;
                 height: 100%;
-                padding: 0;
-                margin: 0;
                 overflow: hidden;
-                border: none;
-                box-shadow: none;
-                border-radius: 0;
-                color: currentColor;
-                background-color: transparent;
+                padding: 0;
                 line-height: 10px;
-                outline: none;
+                color: currentColor;
+
+                -webkit-app-region: no-drag;
 
                 svg {
                     fill: currentColor;
@@ -282,31 +287,32 @@ export default {
 
                 &.close:hover {
                     background-color: #e81123;
-                    color: #fff;
+                    color: #ffffff;
                 }
             }
         }
 
         .titlebar-buttons-osx {
             display: flex;
-            box-sizing: border-box;
-            padding: 10px;
-            width: 70px;
             flex-direction: row;
-            -webkit-box-pack: justify;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+            width: 70px;
+            padding: 10px;
+
+            -webkit-box-pack: justify;
 
             .macButton {
+                border-color: #d1d1d1;
+                border-radius: 50%;
+                        box-sizing: border-box;
+                background-color: #dcdcdc;
+                width: 12px;
+                height: 12px;
+
                 -webkit-app-region: no-drag;
                 -webkit-box-sizing: border-box;
-                border-radius: 50%;
-                box-sizing: border-box;
-                height: 12px;
-                width: 12px;
-
-                background-color: #dcdcdc;
-                border-color: #d1d1d1;
 
                 &.macButtonClose {
                     background-color: #fc615d;
@@ -335,4 +341,5 @@ export default {
             }
         }
     }
+
 </style>

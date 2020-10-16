@@ -1,13 +1,16 @@
 import { getSystemInfo, utils } from '$render/utils'
-import { postRegister, apiStatisticActive } from '$render/api'
+import { postRegister, apiStatisticActive } from '$render/api' // 1小时
+
+import SetWallpaperMixin from '$render/mixin/set-wallpaper.mixin'
 
 const { version, deletePath } = utils
 
 let time = 0
-const ActiveDayTime = 60 * 60 * 1000 // 1小时
+const ActiveDayTime = 60 * 60 * 1000
 
 
 export default {
+    mixins: [SetWallpaperMixin],
     mounted() {
         this.$nextTick(() => {
             // 安装量的统计
@@ -22,6 +25,7 @@ export default {
             })
         })
     },
+    
     methods: {
 
         // 绑定系统事件
@@ -109,7 +113,7 @@ export default {
                 const updataTime = this.config.updataTime || 0
                 if (Math.abs(currentTime - lastUpdataTime) > updataTime) {
                     const index = this.images[this.currentWallpaperIndex] ? this.currentWallpaperIndex : 0
-                    this.setWallpaper(this.images[index], index)
+                    this.setWallpaper(this.images[index])
                 }
             }
         },

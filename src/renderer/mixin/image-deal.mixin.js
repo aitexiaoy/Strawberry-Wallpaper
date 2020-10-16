@@ -1,4 +1,4 @@
-import { infoShowText } from '$render/config'
+import { PageStatusEnum } from '$render/config'
 
 export default {
     methods: {
@@ -8,7 +8,8 @@ export default {
          * @function randomColor
          */
         randomColor() {
-            return `#${Math.floor(Math.random() * 0xffffff).toString(16)}`
+            const color = `000${Math.floor(Math.random() * 0xffffff).toString(16)}`.slice(-6)
+            return `#${color}`
         },
 
         
@@ -42,14 +43,17 @@ export default {
          * 对获取到的地址进行处理
          * @function urlsDeal
          */
-        urlsDeal(urls) {
-            if (urls.length === 0) {
-                this.storeSetInfoShow(infoShowText.noData)
+        urlsDeal(urls = []) {
+            // 没有更多数据了
+            if (this.images.length > 0 && urls.length === 0){
+                this.storeSetPageStatus(PageStatusEnum.noMoreData)
                 return
             }
-            if (this.page === 0) {
-                this.domContentMainMatch()
-                this.images = []
+
+            // 没有请求到数据
+            if (this.images.length === 0 && urls.length === 0) {
+                this.storeSetPageStatus(PageStatusEnum.noData)
+                return
             }
 
             urls.forEach((e) => {
@@ -65,18 +69,21 @@ export default {
                 }
                 const { wallpaperSizeWidth = 1600, wallpaperSizeHeight = 1080, wallpaperSizeDirection = [] } = this.config
                 const { width, height, direction } = obj
-                if (width > wallpaperSizeWidth && height > wallpaperSizeHeight 
+                if (width >= wallpaperSizeWidth && height >= wallpaperSizeHeight 
                 && (wallpaperSizeDirection.length === 0 || wallpaperSizeDirection.includes(direction))) 
                 { 
                     this.images.push(obj) 
                 }
             })
 
+            // 没有筛选到数据
             if (this.images.length === 0){
-                this.storeSetInfoShow(infoShowText.noMatchFilter)
+                this.storeSetPageStatus(PageStatusEnum.noMatchFilter)
+                return 
             }
+
+            // 恢复初始状态
+            this.storeSetPageStatus(PageStatusEnum.null)
         },
-
-
     }
 }

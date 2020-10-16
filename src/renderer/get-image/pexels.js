@@ -50,40 +50,31 @@ export const getImage = function (data) {
         if (data.searchKey) {
             baseUrl = `https://www.pexels.com/search/${data.searchKey}`
         }
-        const url = baseUrl + nextPageSeed
+        const url = baseUrl
         console.log('------------', url)
         reqObject = got.get(url, {
             method: 'GET',
             http2: true,
             searchParams: {
                 format: 'js',
-                seed: '2020-07-16 15:05:00 UTC',
-                type: ''
+                seed: '2020-09-28 11:56:55 UTC',
+                type: '',
             },
             headers: {
-                // 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
-                // accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                // 'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-                // cookie: '__cfduid=d40568cb2f513df09c99e7698e2d202761594043769; ab.storage.deviceId.5791d6db-4410-4ace-8814-12c903a548ba=%7B%22g%22%3A%2208a98635-964a-942e-4aa7-f5a8277129f7%22%2C%22c%22%3A1594043770325%2C%22l%22%3A1594043770325%7D; locale=zh-CN; _ga=GA1.2.1067444658.1594043770; _gid=GA1.2.1460006495.1594043770; _fbp=fb.1.1594043772346.1178853169; _hjid=183a33cf-ab06-4bc2-92f5-0ea69313a9cb; ab.storage.sessionId.5791d6db-4410-4ace-8814-12c903a548ba=%7B%22g%22%3A%22a9ca93d5-3b5f-1665-9bfa-341289eb5a52%22%2C%22e%22%3A1594045722456%2C%22c%22%3A1594043770323%2C%22l%22%3A1594043922456%7D; _gat=1',
-
-                // 'x-csrf-token': 'CJhqRifDW5d0DShLdxx1xiNP4TyP7B0bJ49vrsRFBJr3Ug8C5ze59DA5Z2F9mM0Ksk1x5ZVxAHVJU97vYAgHFQ==',
-                // 'x-requested-with': 'XMLHttpRequest'
-                // ':authority': 'www.pexels.com',
-                // ':path': '/zh-cn/?format=js&seed=2020-04-18%2015%3A05%3A28%20UTC&type=',
-                // ':scheme': 'https',
-                // accept: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01',
-                // 'accept-encoding': 'gzip, deflate, br',
-                // 'accept-language': 'zh-CN,zh;q=0.9',
-                // 'cache-control': 'no-cache',
-                cookie: '__cfduid=d40568cb2f513df09c99e7698e2d202761594043769; ab.storage.deviceId.5791d6db-4410-4ace-8814-12c903a548ba=%7B%22g%22%3A%2208a98635-964a-942e-4aa7-f5a8277129f7%22%2C%22c%22%3A1594043770325%2C%22l%22%3A1594043770325%7D; locale=zh-CN; _ga=GA1.2.1067444658.1594043770; _fbp=fb.1.1594043772346.1178853169; _gid=GA1.2.2023373995.1595225088; _hjid=183a33cf-ab06-4bc2-92f5-0ea69313a9cb; _hjAbsoluteSessionInProgress=1; ab.storage.sessionId.5791d6db-4410-4ace-8814-12c903a548ba=%7B%22g%22%3A%2283c6187f-9387-34c9-7a10-40d461dc1510%22%2C%22e%22%3A1595226970076%2C%22c%22%3A1595225087452%2C%22l%22%3A1595225170076%7D',
-                // pragma: 'no-cache',
-                // referer: 'https://www.pexels.com/zh-cn/',
-                // 'sec-fetch-dest': 'empty',
-                // 'sec-fetch-mode': 'cors',
-                // 'sec-fetch-site': 'same-origin',
-                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
-                'x-csrf-token': 'rw06b2ozQl8meMdWV2iy2f5b9cEXncAclDiMlS3CPk+LnnGtIdnSsdheLScVBZafPQ1ewZpaae8tW8bortLVcQ==',
-                // 'x-requested-with': 'XMLHttpRequest',
+                cookie: `ab.storage.deviceId.5791d6db-4410-4ace-8814-12c903a548ba:%7B%22g%22%3A%2208a98635-964a-942e-4aa7-f5a8277129f7%22%2C%22c%22%3A1594043770325%2C%22l%22%3A1594043770325%7D;_ga:GA1.2.1067444658.1594043770;
+                _fbp:fb.1.1594043772346.1178853169;
+                pexels_auth:true;
+                ab.storage.userId.5791d6db-4410-4ace-8814-12c903a548ba:%7B%22g%22%3A%223273119%22%2C%22c%22%3A1595228766092%2C%22l%22%3A1595228766092%7D;
+                __cfduid:dddf34aa364822e49bbd359fba2abf1041601458245;
+                _gid:GA1.2.1202628450.1601458253;
+                remember_user_token:eyJfcmFpbHMiOnsibWVzc2FnZSI6Ilcxc3pNamN6TVRFNVhTd2lKREpoSkRFd0pHcERiVTl4ZHpBeEwxazJVamRQY1U5S1dIWjJjRThpTENJeE5qQXhORFU0TWpVekxqUXlPRGs0TWpNaVhRPT0iLCJleHAiOiIyMDIxLTA5LTMwVDA5OjMwOjUzLjQyOVoiLCJwdXIiOiJjb29raWUucmVtZW1iZXJfdXNlcl90b2tlbiJ9fQ%3D%3D--981d2a5cd64e6dfeb64603e61bb6b5de59ac44c8;
+                locale:zh-CN;
+                _hjTLDTest:1;
+                _hjid:183a33cf-ab06-4bc2-92f5-0ea69313a9cb;
+                _hjAbsoluteSessionInProgress:1;
+                ab.storage.sessionId.5791d6db-4410-4ace-8814-12c903a548ba:%7B%22g%22%3A%22b319d860-f7c1-3a78-e7c2-094647f81caf%22%2C%22e%22%3A1601461662443%2C%22c%22%3A1601458251441%2C%22l%22%3A1601459862443%7D;
+                _pexels_session:2IbaQQ4au43QlL7QbVasM%2F62lJ1m%2FNwMij1Sui%2Fe3OuPIWmcIKpTsw6GKEbJalBdLHYgMx%2BTdIxrJtA2DDGpkMNGEOu3Gbdf9PxMO9Sx2D8xfZoLTJrXaj1djSdWEiEPZ7m2Jy%2FWnH3kYAf5gYIfW7l5TYYYT26NGMzSkcSfeQkkwQAriZeocWDHqDt7ZKiYc9iJYsYgarEjrDCNaZlg%2Bnc54S%2F%2FpCNgGSytSnzSGsfDm8kEwSmHBmw8QdrK09Fa8PKYIWbbzKVhKgoJ%2Bc%2FgVs0JLZWHH3ZR8ZNg7s%2Bw%2BMmqfxTm%2BF5ucBqQYzSy%2BVmGb5E5VbHgyIKUsflTmpU181n5sxbRv8KXwYNorK8Z5x4ocsKKfqZUWavOB%2F5Q3GJCDupPeNSrIw%3D%3D--PzrO4O1MVogCX%2FsL--my6GBqgd3N6S%2B0c6GjfqeA%3D%3D;`
+                
             },
         }).then((res) => {
             console.log('==========', res)

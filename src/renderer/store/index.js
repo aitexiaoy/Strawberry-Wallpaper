@@ -5,8 +5,6 @@ import { createPersistedState, createSharedMutations } from 'vuex-electron'
 import localStorage from '$render/assets/js/local-storage'
 import { defaultConfig, defaultSearchList } from '$render/config'
 
-console.log('========defaultConfig', defaultConfig)
-
 const userConfigStoreText = 'userConfig'
 
 const storeSearchKeyList = localStorage.getStore('searchKeyList') 
@@ -24,16 +22,13 @@ if (userConfig){
     userConfig = { ...defaultConfig }
 }
 
-console.log('========userConfig', userConfig)
-
-
 const state = {
     // 用户设置
     config: { ...userConfig },
     // 当前活跃的壁纸源
     activeImageSource: null,
 
-    // 储存最近搜索的10次关键字
+    // 储存最近搜索的8次关键字
     searchKeyList: storeSearchKeyList || [...defaultSearchList], 
 
     // 搜索关键词
@@ -42,22 +37,22 @@ const state = {
     // 是否是正在设置壁纸
     isSetting: false,
 
-    // 进度条进度，下载进度
-    downloadProgress: 0,
-
     // 当前设置壁纸的信息
     currentWallpaperBkColor: '#ffffff',
     currentWallpaperIndex: 0,
 
-    // 显示
-    infoShow: '',
+    // 进度条的主颜色
+    progressColor: '',
+    // 进度条进度，下载进度
+    progressValue: 0,
+    // 状态🐔
+    pageStatus: '', // refresh|getData 刷新数据
 
 }
 
 const mutations = {
     storeActionConfig(store, payload = {}) {
         store.config = { ...store.config, ...payload }
-        console.log('=========', store.config)
         localStorage.setStore(userConfigStoreText, store.config)
     },
 
@@ -79,10 +74,6 @@ const mutations = {
         store.isSetting = payload
     },
 
-    storeSetDownloadProgress(store, payload = 0){
-        store.downloadProgress = payload
-    },
-
     storeSetCurrentWallpaperBkColor(store, payload = '#fff'){
         store.currentWallpaperBkColor = payload
     },
@@ -91,8 +82,16 @@ const mutations = {
         store.currentWallpaperIndex = payload
     },
 
-    storeSetInfoShow(store, payload = ''){
-        store.infoShow = payload
+    storeSetProgressColor(store, payload = '#fff'){
+        store.progressColor = payload
+    },
+
+    storeSetProgressValue(store, payload = 0){
+        store.progressValue = payload
+    },
+
+    storeSetPageStatus(store, payload = ''){
+        store.pageStatus = payload
     }
 }
 
@@ -115,6 +114,7 @@ const getters = {
 Vue.use(Vuex)
 
 
+// 全局注册
 Vue.mixin({
     computed: {
         ...mapState(Object.keys(state)),

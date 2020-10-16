@@ -1,136 +1,148 @@
 <template>
-<Secondary class="setter" title="设置">
-     <div class="setter-content">
-        <div class="setter-row flex-space-between">
-            <div>
-                {{version}}
-                <span class="setter-link font-size-12" @click.stop="handleNewVersionClick">
-                    检查更新
-                </span>
+    <Secondary class="setter" title="设置">
+        <div class="setter-content">
+            <div class="setter-row flex-space-between">
+                <div>
+                    {{version}}
+                    <span class="setter-link font-size-12" @click.stop="handleNewVersionClick">
+                        检查更新
+                    </span>
+                </div>
+                <div class="setter-link" @click.stop="quit">
+                    退出
+                </div>
             </div>
-            <div @click.stop="quit" class="setter-link">
-                退出
+
+            <div class="setter-row">
+                <el-checkbox size="mini" :value="config.isOpenStatr" @change="setOpenStart">
+                    <span class="setter-header">开机自动启动</span>
+                </el-checkbox>
             </div>
-        </div>
 
-        <div class="setter-row">
-            <el-checkbox :value="config.isOpenStatr" @change="setOpenStart">
-                <span class="setter-header">开机自动启动</span>
-            </el-checkbox>
-        </div>
+            <div class="setter-row">
+                <el-checkbox size="mini" :value="config.wallpaperAutoUp" @change="wallpaperAutoChange">
+                    <span class="setter-header">是否自动更新</span>
+                </el-checkbox>
 
-        <div class="setter-row">
-            <el-checkbox :value="config.wallpaperAutoUp" @change="wallpaperAutoChange">
-                <span class="setter-header">壁纸自动更新</span>
-            </el-checkbox>
-        </div>
-
-        <div class="setter-row flex-space-between">
-            <el-radio-group :value="config.updataTime"  @input="handleUpdataTimeInputChange" :disabled="config.wallpaperAutoUp===false">
-                <el-radio :label="3600">
-                    <span class="checkbox-text">每小时</span>
-                </el-radio>
-                <el-radio :label="86400">
-                    <span class="checkbox-text">每天</span>
-                </el-radio>
-            </el-radio-group>
-            <el-input
-                :disabled="config.wallpaperAutoUp==false"
-                class="input-width-100"
-                @input="handleUpdataTimeInputChange"
-                placeholder="自定义"
-                size="small"
-                :value="config.updataTime">
-                <span slot="suffix">秒</span>
-            </el-input>
-        </div>
-
-        <div class="setter-row" v-if="isMac">
-            <el-checkbox :value="config.autoSetAllScreens" @change="setLocation">
-                <span class="setter-header">自动应用到所有屏幕</span>
-            </el-checkbox>
-        </div>
-
-        <div class="setter-row flex-space-between" v-if="isMac">
-            <span class="checkbox-text setter-header">壁纸填充方式:</span>
-            <el-select :value="config.wallpaperScale" class="input-width-140" @change="handleWallpaperScale">
-                <el-option
-                    v-for="item in wallpaperScaleOptions"
-                    :key="item.value"
-                    :label="item.name"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-        </div>
-
-        <div class="setter-row">
-            <span class="checkbox-text setter-header">自定义过滤方向:</span>
-            <i :class="['iconfont icon-heng-ping icon-direction',
-                    {'active': config.wallpaperSizeDirection.includes('heng')}]" @click="handleDirectionChange('heng')"></i>
-            <i :class="['iconfont icon-su-ping icon-direction',
-                    {'active': config.wallpaperSizeDirection.includes('su')}]" @click="handleDirectionChange('su')"></i>
-        </div>
-
-        <div class="setter-row">
-            <span class="checkbox-text setter-header">自定义过滤尺寸:</span>
-            <el-input
-                class="myselef-time"
-                @input="handleWallpaperSizeWidthChange"
-                placeholder="宽"
-                size="small"
-                :value="config.wallpaperSizeWidth">
-                <span slot="suffix">px</span>
-            </el-input>
-            <span class="size-icon">x</span>
-            <el-input
-                class="myselef-time"
-                @input="handleWallpaperSizeHeightChange"
-                placeholder="高"
-                size="small"
-                :value="config.wallpaperSizeHeight">
-                <span slot="suffix">px</span>
-            </el-input>
-        </div>
-
-        <div class="setter-row">
-            <span class="setter-header">设置保存地址:</span>
-            <span class="setter-link" @click="setDefalutDownloadPath">{{config.downloadImagePath}}</span>
-        </div>
-
-        <div class="setter-row flex-space-between">
-            <span class="setter-header">定时清空已下载图库:</span>
-            <el-input
-                class="input-width-100"
-                @input="handleClearnDownloadFilesTimeInput"
-                placeholder="自定义"
-                size="small"
-                :value="config.autoClearnDownloadFilesTime">
-                <span slot="suffix">天</span>
-            </el-input>
-        </div>
-
-        <div class="setter-row">
-            <span class="setter-header">图片来源:</span>
-            <span class="setter-link" @click="gotToWallPaperHome(config.imageSource)">{{config.imageSource}}</span>
-        </div>
-
-        <div class="setter-row">
-            <el-radio-group :value="config.imageSource" @change="imageSourceChange">
-                <template v-for="item in imageSourceType">
-                    <el-radio :label="item.value" :key="item.value">
-                        <span class="checkbox-text">{{item.name}}</span>
+                <el-radio-group
+                    size="mini"
+                    :value="config.updataTime"
+                    :disabled="config.wallpaperAutoUp===false"
+                    :style="{'whiteSpace':'nowrap'}"
+                    @input="handleUpdataTimeInputChange">
+                    <el-radio :label="3600">
+                        <span class="checkbox-text">小时</span>
                     </el-radio>
-                </template>
-            </el-radio-group>
-        </div>
+                    <el-radio :label="86400">
+                        <span class="checkbox-text">天</span>
+                    </el-radio>
+                </el-radio-group>
+                <el-input
+                    :disabled="config.wallpaperAutoUp==false"
+                    placeholder="自定义"
+                    size="mini"
+                    :value="config.updataTime"
+                    @input="handleUpdataTimeInputChange">
+                    <span slot="suffix">秒</span>
+                </el-input>
 
-        <div class="setter-content-footer">
-            <div class="setter-link" @click="suggestion">意见反馈</div>
-            <div class="setter-link" @click="aboutPro">关于项目</div>
+            </div>
+
+            <div class="setter-row">
+                <span class="checkbox-text setter-header">自定义过滤图片方向：</span>
+                <el-checkbox-group size="mini" :value="config.wallpaperSizeDirection" @input="handleDirectionChange">
+                    <el-checkbox label="heng">横向</el-checkbox>
+                    <el-checkbox label="su">纵向</el-checkbox>
+                </el-checkbox-group>
+            </div>
+            
+            <div class="setter-row">
+                <span class="checkbox-text setter-header">自定义过滤尺寸：</span>
+                <el-input
+                    class="myselef-time"
+                    placeholder="宽"
+                    size="mini"
+                    :value="config.wallpaperSizeWidth"
+                    @input="handleWallpaperSizeWidthChange">
+                    <span slot="suffix">px</span>
+                </el-input>
+                <span class="size-icon">x</span>
+                <el-input
+                    class="myselef-time"
+                    placeholder="高"
+                    size="mini"
+                    :value="config.wallpaperSizeHeight"
+                    @input="handleWallpaperSizeHeightChange">
+                    <span slot="suffix">px</span>
+                </el-input>
+            </div>
+
+            <div v-if="isMac" class="setter-row flex-space-between">
+                <span class="checkbox-text setter-header">壁纸填充方式：</span>
+                <el-select
+                    size="mini"
+                    :value="config.wallpaperScale"
+                    class="input-width-140"
+                    @change="handleWallpaperScale">
+                    <el-option
+                        v-for="item in wallpaperScaleOptions"
+                        :key="item.value"
+                        :label="item.name"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
+            <div v-if="isMac" class="setter-row">
+                <span class="checkbox-text setter-header">多屏设置：</span>
+                <el-radio-group size="mini" :value="config.autoSetAllScreens" @input="handleSetAllScreensChange">
+                    <el-radio :label="true">
+                        <span class="checkbox-text">应用到所有屏幕</span>
+                    </el-radio>
+                    <el-radio :label="false">
+                        <span class="checkbox-text">当前屏幕</span>
+                    </el-radio>
+                </el-radio-group>
+            </div>
+
+            <div class="setter-row">
+                <span class="setter-header">壁纸保存路径：</span>
+                <span class="setter-link" @click="setDefalutDownloadPath">{{config.downloadImagePath}}</span>
+            </div>
+
+            <div class="setter-row flex-space-between">
+                <span class="setter-header">定时清空已下载壁纸：</span>
+                <el-input
+                    class="input-width-100"
+                    placeholder="自定义"
+                    size="mini"
+                    :value="config.autoClearnDownloadFilesTime"
+                    @input="handleClearnDownloadFilesTimeInput">
+                    <span slot="suffix">天</span>
+                </el-input>
+            </div>
+
+            <div class="setter-row">
+                <span class="setter-header">图片来源：</span>
+                <span class="setter-link" @click="gotToWallPaperHome(config.imageSource)">{{config.imageSource}}</span>
+            </div>
+
+            <div class="setter-row">
+                <el-radio-group :value="config.imageSource" @input="handleImageSourceChange">
+                    <template v-for="item in imageSourceType">
+                        <el-radio :key="item.name" :label="item.name">
+                            <span class="checkbox-text">{{item.label}}</span>
+                        </el-radio>
+                    </template>
+                </el-radio-group>
+            </div>
+
+            <div class="setter-content-footer">
+                <div class="setter-link" @click="suggestion">意见反馈</div>
+                <div class="setter-link" @click="aboutPro">关于项目</div>
+            </div>
         </div>
-    </div>
-</Secondary>
-   
+    </Secondary>
+
 </template>
 
 <script>
@@ -149,12 +161,12 @@ export default {
             version, // 版本    
             isMac,
             wallpaperScaleOptions,
-            imageSourceType: []
+            imageSourceType: [],
         }
     },
 
     created(){
-        this.imageSourceType = Object.value(ImageSource).map(item => item.options)
+        this.imageSourceType = Object.values(ImageSource).map(item => item.options)
     },
 
     mounted() {
@@ -170,7 +182,6 @@ export default {
             this.storeActionConfig({ isOpenStatr: val })
         },
         
-    
         /**
          * 关于项目
          */
@@ -185,9 +196,8 @@ export default {
             this.$router.replace('/suggestion')
         },
 
-        /** *将配置信息存到localstorage中 */
-        setLocation() {
-            this.$localStorage.setStore('userConfig', this.config)
+        handleSetAllScreensChange(val) {
+            this.storeActionConfig({ autoSetAllScreens: val })
         },
 
         // 壁纸自动更新
@@ -238,8 +248,7 @@ export default {
         /**
          * 更改图片来源
          */
-        imageSourceChange(val) {
-            // this.$emit('imageSourceChange', val)
+        handleImageSourceChange(val) {
             this.storeActionConfig({ imageSource: val })
         },
         /**
@@ -274,7 +283,7 @@ export default {
          * 浏览器打开指定链接 
         */
         gotToWallPaperHome(sourece) {
-            const current = this.imageSourceType.find(i => i.value === sourece)
+            const current = this.imageSourceType.find(i => i.name === sourece)
             if (current && current.home) {
                 shell.openExternal(current.home)
             }  
@@ -298,14 +307,7 @@ export default {
 
         // 更改方向
         handleDirectionChange(direction){
-            const wallpaperSizeDirection = [...this.config.wallpaperSizeDirection]
-            if (wallpaperSizeDirection.includes(direction)){
-                this.storeActionConfig({ wallpaperSizeDirection: wallpaperSizeDirection.filter(i => i !== direction) })
-            }
-            else {
-                wallpaperSizeDirection.push(direction)
-                this.storeActionConfig({ wallpaperSizeDirection })
-            }
+            this.storeActionConfig({ wallpaperSizeDirection: direction })
         }
     },
     watch: {}
@@ -317,10 +319,8 @@ export default {
     cursor: default;
 
     .setter-content {
-        background-color: rgba(43, 42, 42, 0.9);
         width: 100%;
         height: auto;
-        padding: 12px 24px;
         color: #ffffff;
         font-size: 12px;
 
@@ -329,9 +329,10 @@ export default {
         .setter-row {
             display: flex;
             align-items: center;
-            margin: 8px 0;
+            // margin: 12px 0;
             // border-bottom: 1px dashed rgba(#cccccc,0.3);
             width: 100%;
+            height: 38px;
 
             &.flex-space-between {
                 justify-content: space-between;
@@ -359,7 +360,7 @@ export default {
             margin-right: 10px;
             white-space: nowrap;
             color: #ffffff;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
         }
 
@@ -407,8 +408,16 @@ export default {
 
 <style lang="less">
 .setter {
-    .el-checkbox__label {
-        color: #ffffff;
+    .el-checkbox {
+        margin-right: 12px;
+
+        &.is-checked,
+        & {
+            .el-checkbox__label {
+                color: #ffffff;
+                font-size: 12px;
+            }
+        }
     }
 
     .el-radio__label {

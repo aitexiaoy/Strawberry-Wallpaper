@@ -1,17 +1,17 @@
 <template>
     <Secondary title="意见反馈">
         <div class="suggestion">
-            <el-form :model="formData" ref="form">
+            <el-form ref="form" :model="formData">
                 <div class="content">
                     <el-form-item prop="content" :rules="[
                         {required: true, message: '反馈建议不能为空', trigger: 'blur'},
                     ]">
                         <el-input
+                            v-model="formData.content"
                             type="textarea"
                             :rows="10"
                             resize="none"
                             placeholder="请在此处填写你的想法，帮助我完善此项目"
-                            v-model="formData.content"
                             size="small"></el-input>
                     </el-form-item>
                 </div>
@@ -20,12 +20,12 @@
                         {required: true, message: '联系方式不能为空', trigger: 'blur'},
                         { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
                     ]">
-                        <el-input placeholder="请留下您的邮箱，方便作者与您联系" v-model="formData.telUser" size="small"></el-input>
+                        <el-input v-model="formData.telUser" placeholder="请留下您的邮箱，方便作者与您联系" size="small"></el-input>
                     </el-form-item>
                 </div>
 
                 <div class="sure-post">
-                    <el-button type="primary" @click.stop="handleSurePost" :loading="loading">提交</el-button>
+                    <el-button type="primary" :loading="loading" @click.stop="handleSurePost">提交</el-button>
                 </div>
 
                 <el-button class="issues" type="primary" @click.stop="goToGitHubIssues">或直接提交issues</el-button>
@@ -110,8 +110,6 @@ export default {
 
 <style lang="less" scoped>
 .suggestion {
-    padding: 0 24px;
-
     .edit {
         width: 100%;
     }

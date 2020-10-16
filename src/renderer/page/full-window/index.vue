@@ -6,15 +6,15 @@
                 <div class="button">
                     <chromeIcon icon="icon-back1" :disabled="backDisabled" @click="handleGoBack"></chromeIcon>
                     <chromeIcon icon="icon-forwad" :disabled="forwadDisabled" @click="handleGoForward"></chromeIcon>
-                    <chromeIcon icon="icon-research" v-show="!isLoading" @click="handleReload()"></chromeIcon>
-                    <chromeIcon icon="icon-close" v-show="isLoading" @click="handleAbort"></chromeIcon>
+                    <chromeIcon v-show="!isLoading" icon="icon-research" @click="handleReload()"></chromeIcon>
+                    <chromeIcon v-show="isLoading" icon="icon-close" @click="handleAbort"></chromeIcon>
                 </div>
                 <div class="nav">
                     <template v-for="item in imageSourceType">
                         <div
-                            style="-webkit-app-region: no-drag"
                             v-if="item.home"
                             :key="item.value"
+                            style="-webkit-app-region: no-drag"
                             :class="['nav-item',{active:currentPath===item.home}]"
                             @click="handleNavClick(item)">{{item.name}}
                         </div>
@@ -34,14 +34,14 @@
             <webview
                 v-if="currentPath"
                 ref="fullWindowView"
-                :src="currentPath"
                 :key="currentPath"
+                :src="currentPath"
                 :preload="fileAbsolutePath"
                 class="position content"></webview>
             <div
                 v-show="isLoading"
-                class="position loading"
                 v-loading="isLoading"
+                class="position loading"
                 element-loading-text="拼命加载中..."
                 element-loading-background="#222222 !important"
                 element-loading-customClass="webview-loading">

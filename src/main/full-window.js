@@ -1,59 +1,38 @@
+/**
+ *  功能：全屏页面窗口
+ *  作者：--
+ *  日期：2020/9/30
+ */
 const electron = require('electron')
 const { baseUrl } = require('../utils/utils')
 
 const { BrowserWindow } = electron
 
-let fullWindow = null
-
-/**
- * 创建窗口
- * @function createWindow
- */
-function createWindow() {
-    fullWindow = new BrowserWindow({
-        width: 1200,
-        height: 700,
-        webPreferences: {
-            nodeIntegration: true
-        },
-        frame: false,
-        maximizable: true,
-        minimizable: true,
-    })
-    fullWindow.loadURL(`${baseUrl}#/full`)
-
-    fullWindow.on('close', () => {
-        fullWindow = null
-    })
-
-    fullWindow.on('enter-full-screen', () => {
-        // console.log('Jin人员')
-        // fullWindow.setWindowButtonVisibility(true)
-    })
+const defaultOptions = {
+    width: 1200,
+    height: 700,
+    webPreferences: {
+        nodeIntegration: true
+    },
+    frame: false,
+    maximizable: true,
+    minimizable: true,
 }
 
-function openWindow(){
-    if (!fullWindow){
-        createWindow()
-        // fullWindow.openDevTools()
+class CreateFullWindow extends BrowserWindow{
+    constructor(props = { ...defaultOptions }){
+        super(props)
+        this.init()
     }
-    else {
-        fullWindow.show()
+
+    init(){
+        this.loadURL(`${baseUrl}#/full`)
+        
+        this.on('enter-full-screen', () => {
+            // console.log('Jin人员')
+            // this.setWindowButtonVisibility(true)
+        })
     }
 }
 
-function closeWindow(){
-    if (fullWindow){
-        fullWindow.hide()
-    }
-}
-
-function getWindow(){
-    return fullWindow
-}
-
-export default {
-    openWindow,
-    closeWindow,
-    getWindow,
-}
+module.exports = CreateFullWindow

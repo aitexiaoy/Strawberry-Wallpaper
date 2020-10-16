@@ -14,7 +14,8 @@ module.exports = {
     extends: ['plugin:vue/essential', 'airbnb-base'],
     globals: {
         Atomics: 'readonly',
-        SharedArrayBuffer: 'readonly'
+        SharedArrayBuffer: 'readonly',
+        __static: 'readonly'
     },
     parserOptions: {
         ecmaVersion: 2018,
@@ -31,6 +32,25 @@ module.exports = {
         }
     },
     rules: {
+        // 属性用小写
+        'vue/attribute-hyphenation': ['error', 'always'],
+        // 属性顺序
+        'vue/attributes-order': ['error', {
+            order: [
+                'DEFINITION',
+                'LIST_RENDERING',
+                'CONDITIONALS',
+                'RENDER_MODIFIERS',
+                'GLOBAL',
+                'UNIQUE',
+                'TWO_WAY_BINDING',
+                'OTHER_DIRECTIVES',
+                'OTHER_ATTR',
+                'EVENTS',
+                'CONTENT',
+            ],
+            alphabetical: false,
+        }],
         // 句尾分号可以省略
         'semi': ['error', 'never'],
         // 代码中console/debugger处理
@@ -104,10 +124,10 @@ module.exports = {
         "no-param-reassign": 0, //禁止给参数重新赋值
         "no-use-before-define": 0,
         "no-unused-vars": 'off',
-        "no-underscore-dangle":0,
-        "brace-style":0,
+        "no-underscore-dangle": 0,
+        "brace-style": 0,
         // 扩展名处理
         'import/extensions': 'off',
-        'import/prefer-default-export':'off',
+        'import/prefer-default-export': 'off',
     }
 };

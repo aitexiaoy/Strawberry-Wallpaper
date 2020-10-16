@@ -14,7 +14,7 @@ export default class SourcePaper {
         this.source = null
         this.search = false
         // 搜索分类
-        this.searchTypes = []
+        this.searchSelectLists = []
         this.options = {
             name: 'paper',
             label: 'paper',
@@ -22,7 +22,7 @@ export default class SourcePaper {
         }
     }
 
-    getSearchTypes(){
+    getSearchSelectLists(){
         const returnResult = []
         return new Promise((resolve, reject) => {
             axios.get(paperApi).then((result) => {
@@ -32,7 +32,7 @@ export default class SourcePaper {
                         value: item._id
                     })
                 }
-                this.searchTypes = [...returnResult]
+                this.searchSelectLists = [...returnResult]
                 resolve(returnResult)
             }).catch(() => {
                 resolve(returnResult)

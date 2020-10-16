@@ -4,14 +4,14 @@
         :style="{'backgroundColor':img.backgroundColor}"
         @mousemove.stop="setterShow = true"
         @mouseleave.stop="setterShow = false">
-        <div class="image-item-img" v-imagematch="img.url"></div>
-        <div class="image-set-wallpaper" v-show="setterShow && isSetting==false" @click.stop="setWallpaper(img,index)">
+        <div v-imagematch="img.url" class="image-item-img"></div>
+        <div v-show="setterShow && isSetting==false" class="image-set-wallpaper" @click.stop="setWallpaperItem(img)">
             <i class="iconfont icon-xianshiqi"></i>
             <span>设置壁纸</span>
         </div>
 
-        <div class="image-item-flag" v-show="setterShow && isSetting==false">
-            <div class="flag-item direction" v-show="img.direction==='su'">
+        <div v-show="setterShow && isSetting==false" class="image-item-flag">
+            <div v-show="img.direction==='su'" class="flag-item direction">
                 <i class="iconfont icon-su-ping"></i>
             </div>
             <div class="flag-item tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
@@ -20,37 +20,29 @@
 </template>
 
 <script>
+import SetWallpaperMixin from '$render/mixin/set-wallpaper.mixin'
 import { wallpaper } from '$render/utils'
 
 export default {
     name: 'ImageItem',
     props: ['img'],
+    mixins: [SetWallpaperMixin],
     data() {
         return {
             setterShow: false,
         }
     },
+
     methods: {
         /**
          * 设置壁纸
-         * @function setWallpaper
+         * @function setWallpaperItem
          * @param {Object} img 当前图片数据
-         * @param {Number} index 数组索引
          */
-        setWallpaper(img, index) {
-            this.isSetting = true
-            this.storeSetIsSetting(true)
+        setWallpaperItem(img) {
             this.$swLoading.open(this.$el)
-            
-            this.currentImageBacColor = img.backgroundColor
-            wallpaper.setWallpaper(img, this.config, (progress) => {
-                this.storeSetDownloadProgress(progress)
-            }).finally(() => {
-                this.storeSetIsSetting(false)
+            this.setWallpaper(img).finally(() => {
                 this.$swLoading.close(this.$el)
-            }).then(() => {
-                this.storeSetCurrentWallpaperIndex(this.currentWallpaperIndex + 1)
-                this.$localStorage.setStore('lastUpdataTime', +new Date())
             })
         },
     }
@@ -111,7 +103,7 @@ export default {
             height: 26px;
             color: var(--main-text-color);
 
-            /deep/ & + .flag-item {
+            & + .flag-item {
                 margin-left: 8px;
             }
         }

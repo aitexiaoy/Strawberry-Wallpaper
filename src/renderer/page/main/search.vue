@@ -1,91 +1,64 @@
 <template>
-    <div class="header-search" 
-    v-if="config.imageSource==='paper'" 
-   >
+    <div class="header-search">
         <el-select
-            class="header-search-input"
-            v-model="searchKey"
-            size="small"
+            v-if="activeImageSource.searchSelectLists"
+            :value="searchKey"
+            size="mini"
             @change="handleSearch"
-        >
+            >
             <el-option
-                v-for="item in activeImageSource.searchTypes"
+                v-for="item in activeImageSource.searchSelectLists"
                 :key="item.value"
                 :label="item.name"
                 :value="item.value"></el-option>
         </el-select>
-    </div>
-
-    <div class="header-search" v-else-if="activeImageSource.option&&activeImageSource.option.search">
-        <div class="search">
-            <el-input
-                class="header-search-input"
-                :value="searchKey"
-                :input="storeSetSearchKey"
-                placeholder="请输入关键词"
-                size="small"
-                @keydown.enter="handleSearch"
-            ></el-input>
-            <Icon class="iconfont icon-sousuo" @click="handleSearch"></Icon>
-        </div>
-        <div class="header-tag" v-if="searchKeyList.length>0">
-            <div
-                :class="['header-tag-item',tag === searchKey? 'active' : '']"
-                v-for="(tag) in searchKeyList"
-                :key="tag"
-                @click="handleSearchTagAdd(tag)">
-                <div class="header-tag-item-text">{{tag}}</div>
-                <span class="header-tag-item-del" @click.stop="handleSearchTagRemove(tag)">x</span>
+        <template v-else-if="activeImageSource.options && activeImageSource.options.search">
+            <div class="search">
+                <el-input
+                    :value="searchKey"
+                    placeholder="请输入关键词"
+                    size="mini"
+                    @input="storeSetSearchKey"
+                    @keyup.enter.native="handleSearch">
+                    <Icon slot="suffix" class="iconfont icon-sousuo" @click="handleSearch"></Icon>
+                </el-input>
             </div>
-        </div>
+            <div v-if="searchKeyList.length>0" class="header-tag">
+                <el-tag
+                    v-for="tag in searchKeyList"
+                    :key="tag"
+                    size="mini"
+                    :class="['tag-item',tag === searchKey? 'active' : '']"
+                    closable
+                    @click="handleTagClick(tag)"
+                    @close="handleTagClose(tag)"
+                    >
+                    <span class="text">{{tag}}</span>
+                </el-tag>
+            </div>
+        </template>
     </div>
 
 </template>
 
 <script>
-import { searchKeyMax } from '$render/config'
+import { searchKeyMax, defaultSearchList } from '$render/config'
 
 export default {
     name: 'MainSearch',
-    data(){
-        return {
-
-        }
-    },
     methods: {
-        /**
-         * 搜索按钮
-         * @function searchKeyFn
-         */
-        searchKeyFn() {
-            const searchKeyList = [...this.searchKeyList]
-            if (!searchKeyList.includes(this.searchKey) && this.searchKey !== ''){
-                this.domContentMainMatch()
-                searchKeyList.unshift(this.searchKey)
-                if (searchKeyList.length > searchKeyMax){
-                    searchKeyList.pop()
-                }
-
-                this.storeSetSearchKeyList()
-            }
-            this.destroyAll()
-            this.images = []
-            this.getData()
-        },
         
-        handleSearchTagRemove(tag){
-            this.searchKeyList = this.searchKeyList.filter(i => i !== tag)
-            this.$localStorage.setStore('searchKeyList', this.searchKeyList)
+        handleTagClose(tag){
+            this.storeSetSearchKeyList(this.searchKeyList.filter(i => i !== tag))
         },
-        handleSearchTagAdd(tag){
-            this.searchKey = tag
+        handleTagClick(tag){
+            this.storeSetSearchKey(tag)
             this.handleSearch()
         },
 
         handleSearch(){
             const searchKeyList = [...this.searchKeyList]
             if (!searchKeyList.includes(this.searchKey) && this.searchKey !== ''){
-                this.domContentMainMatch()
                 searchKeyList.unshift(this.searchKey)
                 if (searchKeyList.length > searchKeyMax){
                     searchKeyList.pop()
@@ -97,31 +70,17 @@ export default {
             this.$emit('search', this.searchKey)
         },
 
-        handleKeydownEnter(){
-            if (this.searchKeyFocus) {
-                this.$emit('search', this.searchKey)
-            }
-        }
     }
 }
 </script>
 
 <style lang="less" scoped>
 .header-search {
-    display: flex;
-    align-items: center;
-    position: relative;
     width: 100%;
-    padding-bottom: 6px;
-
-    .header-search-input {
-        flex: none;
-        width: 100%;
-    }
 
     .iconfont {
-        position: absolute;
-        right: 5px;
+        cursor: pointer;
+        line-height: 28px;
     }
 
     .header-tag {
@@ -132,50 +91,14 @@ export default {
 
         user-select: none;
 
-        .header-tag-item {
-            position: relative;
-            height: 20px;
-            padding: 0 6px;
-            line-height: 20px;
-            color: #a5a5a5;
-            font-size: 12px;
-
-            .header-tag-item-text {
-                width: auto;
-                max-width: 100px;
-                height: 100%;
+        .tag-item {
+            .text {
+                display: inline-block;
+                max-width: 50px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
-
-            .header-tag-item-del {
-                display: none;
-                position: absolute;
-                top: -2px;
-                right: -3px;
-                border-radius: 100%;
-                background-color: rgba(#aaaaaa, 0.6);
-                width: 12px;
-                height: 12px;
-                text-align: center;
-                line-height: 12px;
-                font-size: 12px;
-            }
-
-            &:hover {
-                color: #dddddd;
-                font-weight: bold;
-
-                .header-tag-item-del {
-                    display: inline-block;
-                }
-            }
-        }
-
-        .active {
-            color: #dddddd;
-            font-weight: bold;
         }
     }
 }

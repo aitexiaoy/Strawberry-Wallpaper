@@ -95,15 +95,12 @@ export default {
     .left {
         flex: auto;
         position: relative;
-        width: 100%;
-        height: 100%;
 
         .text {
             cursor: default;
             color: var(--header-text-color);
 
             user-select: none;
-            // z-index: 2;
         }
     }
 

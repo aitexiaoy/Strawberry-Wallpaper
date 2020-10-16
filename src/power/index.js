@@ -12,16 +12,16 @@ const onFulfilled = (response) => {
 axios.interceptors.response.use(onFulfilled)
 
 const modules = {
-    cheerio: require('cheerio'),
-    got: require('got'),
-    axios,
-    autoOpen: require('./auto-open'),
+    cheerio: require('cheerio'), // 解析dom
+    got: require('got'), // got库
+    axios, // axios库
+    autoOpen: require('./auto-open'), // 开机自动启动
     mail: require('./mail'),
-    userConfig: require('../../.user-config'),
-    download: require('./download'),
-    wallpaper: require('./wallpaper'),
+    userConfig: require('../../.user-config'), // 用户配置
+    download: require('./download'), // 下载文件
+    wallpaper: require('./wallpaper'), // 壁纸
     getSystemInfo: require('./system-info'),
-    utils: require('./utils')
+    utils: require('./utils') // 工具库
 }
 
 module.exports = modules

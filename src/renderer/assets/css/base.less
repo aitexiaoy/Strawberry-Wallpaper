@@ -4,6 +4,24 @@
     font-family: "PingFang SC","Microsoft YaHei";
 }
 
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 0;
+    background: transparent;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 0;
+}
+
+::-webkit-scrollbar-track-piece {
+    background: transparent;
+}
+
 html,
 body,
 .app {
@@ -12,12 +30,7 @@ body,
     height: 100%;
 }
 
-.el-input__inner {
-    border: none;
-    background-color: #383838;
-    color: #a5a5a5;
-}
-
+.el-input__inner,
 .el-textarea__inner {
     border: none;
     background-color: #383838;
@@ -30,18 +43,20 @@ textarea::-webkit-input-placeholder {
     font-size: 12px;
 }
 
-.el-button--primary {
-    border: none;
-    background-color: #383838;
-    width: 100%;
-    color: #a5a5a5;
-}
+.el-button {
+    &.el-button--primary {
+        border: none;
+        background-color: #383838;
+        width: 100%;
+        color: #a5a5a5;
 
-.el-button--primary:focus,
-.el-button--primary:hover {
-    border: none;
-    border: none;
-    background-color: #4d4e4e;
+        &:hover,
+        &:focus {
+            border: none;
+            border: none;
+            background-color: #4d4e4e;
+        }
+    }
 }
 
 .popper__arrow {
@@ -60,6 +75,13 @@ textarea::-webkit-input-placeholder {
     border: none;
     background-color: #383838;
     color: #000000;
+
+    .el-select-dropdown__item {
+        height: 28px;
+        padding: 0 12px;
+        line-height: 28px;
+        font-size: 12px;
+    }
 }
 
 .el-select-dropdown__item.selected {
@@ -111,20 +133,46 @@ textarea::-webkit-input-placeholder {
     line-height: 22px;
 }
 
-::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-}
+.el-tag {
+    position: relative;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    width: auto;
+    padding: 0;
+    line-height: 20px;
+    color: #a5a5a5;
+    font-size: 12px;
 
-::-webkit-scrollbar-thumb {
-    border-radius: 0;
-    background: transparent;
-}
+    & + .el-tag {
+        margin-left: 12px;
+    }
 
-::-webkit-scrollbar-track {
-    border-radius: 0;
-}
+    &:hover,
+    &.active {
+        color: #dddddd;
+    }
 
-::-webkit-scrollbar-track-piece {
-    background: transparent;
+    &:hover {
+        .el-icon-close {
+            display: inline-block;
+        }
+    }
+
+    .el-icon-close {
+        display: none;
+        position: absolute;
+        top: -3px;
+        right: -12px;
+        border-radius: 100%;
+        background-color: rgba(#aaaaaa, 0.6);
+        cursor: pointer;
+        text-align: center;
+        color: #ffffff;
+
+        &:hover {
+            background-color: rgba(#aaaaaa, 0.6);
+            color: #ffffff;;
+        }
+    }
 }

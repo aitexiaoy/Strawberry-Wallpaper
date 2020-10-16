@@ -1,19 +1,19 @@
 <template>
-    <div class="content" :class="{'content-win':osType=='win'}" @scroll="contentScroll">
-        <div class="content-main" ref="content_main" v-if="images.length>0">
+    <div class="content">
+        <template v-if="images.length > 0">
             <ImageItem
-                v-for="(img) in images"
+                v-for="img in images"
                 :key="img.downloadUrl"
                 :img="img"
-                class="image-item">
-            </ImageItem>
-            <div class="is-loading" v-if="infoShow!==''">
-                <i v-if="getDataFlag" class="el-icon-loading"></i>
+                class="image-item"></ImageItem>
+
+            <div ref="last-row" class="last-row is-loading">
+                <i v-if="pageStatus === PageStatusEnum.loading" class="el-icon-loading"></i>
                 <span v-html="infoShow"></span>
             </div>
-        </div>
+        </template>
 
-        <div class="content-main-no" v-else>
+        <div v-else class="content-no">
             <span v-html="infoShow"></span>
         </div>
     </div>
@@ -21,81 +21,128 @@
 
 <script>
 import ImageItem from './image-item.vue'
+import { InfoShowText, PageStatusEnum } from '$render/config'
 
-import { utils } from '$render/utils'
+let listenerEl = null
 
-const { osType } = utils
 export default {
     name: 'ImageContent',
     components: { ImageItem },
     props: ['images'],
     data() {
         return {
-            osType
+           
         }
     },
-    methods: {
-        /**
-         * 滚动条事件,请求下一页
-         * @function contentScroll
-         * @param {Object} event 事件
-         */
-        contentScroll(event) {
-            const el = event.srcElement || event.target
-            if (this.havaDataFlag === true && this.getDataFlag === false) {
-                this.$nextTick(() => {
-                    if (el.scrollTop + 1800 > el.querySelector('.content-main').clientHeight) {
-                        this.page = this.page + 1
-                        this.getData()
-                    }
-                })
-            }
+    computed: {
+        infoShow(){
+            return InfoShowText[this.pageStatus] || ''
         },
-    }
 
+        hasData(){
+            return this.images.length > 0
+        }
+    },
+
+    watch: {
+        'images.length': function (val){
+            if (val > 0){
+                this.listenerGetNext()
+            }
+            else {
+                this.offListenerGetNext()
+            }
+        }
+    },
+
+    created(){
+        this.PageStatusEnum = PageStatusEnum
+        this.initListener()
+    },
+    methods: {
+
+        initListener(){
+            this.$nextTick(() => {
+                this.$oberserver = new IntersectionObserver((enteries) => {
+                    // 下拉
+                    if (enteries[0].intersectionRatio > 0.5) {
+                        if (![PageStatusEnum.loading, PageStatusEnum.refresh].includes(this.pageStatus)){
+                            console.log('=================next')
+                            this.$emit('next')
+                        }
+                    }
+                    this.lastIntersectionRatio = enteries[0].intersectionRatio
+                }, { 
+                    root: this.$el, 
+                    threshold: [0, 1],
+                })
+            })
+        },
+
+        /**
+         * 监听
+         */
+        listenerGetNext(){
+            this.$nextTick(() => {
+                this.offListenerGetNext()
+                
+                const index = Math.max(this.images.length - 5, 0)
+                listenerEl = this.$el.querySelectorAll('.image-item')[index]
+                this.$oberserver.observe(listenerEl)
+                    
+                this.$once('hook:beforeDestroy', () => {
+                    this.$oberserver.unobserve(listenerEl)
+                    listenerEl = null
+                })
+            })
+        },
+
+        offListenerGetNext(){
+            if (listenerEl){
+                this.$oberserver.unobserve(listenerEl)
+                listenerEl = null
+            }
+        }
+    }
 }
 </script>
 
 <style lang="less" scoped>
-  .content {
-      border-radius: 5px;
-      background-color: #222222;
-      width: 100%;
-      height: 100%;
-      overflow-x: hidden;
-      overflow-y: scroll;
-      padding: 1px;
+.content {
+    border-radius: 4px;
+    background-color: #222222;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 1px;
 
-      .content-main {
-          padding-top: 96px;
-      }
+    .content-no {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        line-height: 20px;
+        color: #cccccc;
+        font-size: 12px;
+    }
 
-      .content-main-no {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          height: 100%;
-          padding: 20px;
-          line-height: 20px;
-          color: #cccccc;
-          font-size: 12px;
-      }
+    .is-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 40px;
+        color: #dddddd;
+        font-size: 12px;
 
-      .is-loading {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          height: 40px;
-          color: #dddddd;
-          font-size: 12px;
-
-          i {
-              margin-right: 5px;
-              font-size: 16px;
-          }
-      }
-  }
+        i {
+            margin-right: 5px;
+            font-size: 16px;
+        }
+    }
+}
 
 </style>

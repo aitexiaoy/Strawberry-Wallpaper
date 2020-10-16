@@ -1,11 +1,9 @@
 <template>
-    <div class="main-content" @keydown.enter="keydownEnterFn">
+    <div class="main-content">
         <Header @search="handleSearch"></Header>
-        <ImageContent 
-        :images="images"
-        @setWallpaperFinally="handleSetWallpaperFinally"></ImageContent>
-
-        <div class="refresh-btn" :class="{'refresh-btn-ing':refreshBtnIng}">
+        <ImageContent :images="images" @next="handleNext"></ImageContent>
+        
+        <div class="refresh-btn" :class="{'refresh-btn-ing':pageStatus === PageStatusEnum.loading}">
             <Icon class="iconfont icon-shuaxin" @click="refreshFn"></Icon>
         </div>
 
@@ -16,15 +14,15 @@
 // 在渲染器进程 (网页) 中。
 
 import { getSystemInfo, utils } from '$render/utils'
-import { infoShowText } from '$render/config'
+import { PageStatusEnum } from '$render/config'
 import { apiStatisticActive } from '$render/api'
 import ImageSource from '$render/get-image'
 
-import ImageContent from './image-content.vue'
-import ImageDealMixin from './image-deal.mixin'
-import SystemMixin from './system.mixin'
-import Header from './header.vue'
+import SystemMixin from '$render/mixin/system.mixin'
+import ImageDealMixin from '$render/mixin/image-deal.mixin'
 
+import ImageContent from './image-content.vue'
+import Header from './header.vue'
 
 export default {
     name: 'mainContent',
@@ -35,83 +33,53 @@ export default {
     mixins: [ImageDealMixin, SystemMixin],
     data() {
         return {
-            page: 0, // 请求数据的页数
+            page: 1, // 请求数据的页数，从1开始编号
             
             havaDataFlag: true, // 标记是否还有数据
             getDataFlag: false, // 标记页面是否正在请求数据
             refreshBtnIng: false, // 是否正在刷新
-
+            
             images: [], // 图片列表
-            imageSource: '', // 图片来源
-            currentImageBacColor: '#ddd', // 进度条的颜色
         }
     },
 
     computed: {
         imageSourceOptions(){
             return this.activeImageSource ? this.activeImageSource.options : {}
-        }
+        },
     },
 
     created(){
-        this.imageSource = this.config.imageSource
-        this.storeActionActiveImageSource(ImageSource[this.imageSource])
+        this.PageStatusEnum = PageStatusEnum
+        this.storeActionActiveImageSource(ImageSource[this.config.imageSource])
     },
 
     mounted() {
-        this.clearLocalStorage()
-       
         this.pageInit()
         
         this.domContentMainMatch()
     },
 
     methods: {
-        /**
-         * 清除因版本更新后不再使用字段
-         */
-        clearLocalStorage(params) {
-            ['first_install_flag', 'first_install_flag_v1.1', 'statisticTimeFlag'].forEach((key) => {
-                this.$localStorage.removeStore(key)
-            })
-        },
-
         domContentMainMatch(){
             this.$nextTick(() => {
-                if (this.$refs.content_main && document.querySelector('.header')){
-                    this.$refs.content_main.style.paddingTop = `${document.querySelector('.header').offsetHeight}px`
+                const header = this.$el.querySelector('.header')
+                const content = this.$el.querySelector('.content')
+                if (header && content) {
+                    content.style.paddingTop = `${header.offsetHeight}px`
                 }
             })
         },
-
-        handleSetWallpaperFinally(status){
-            this.getDataFlag = false
-            this.refreshBtnIng = false
-            
-            if (status){
-                this.storeSetInfoShow(infoShowText.null)
-            }
-            else {
-                this.storeSetInfoShow(infoShowText.netError)
-            }
-        },
-   
 
         /**
          * 刷新
          * @function refreshFn
          */
         refreshFn() {
-            if (this.refreshBtnIng === false) {
-                this.destroyAll()
-                this.page = 0
-                this.images = []
-                this.getData()
-            }
-            this.refreshBtnIng = true
-            // 设置一个时间记录最后更新的时间
-            this.$localStorage.setStore('lastUpdataTime', +new Date())
-            this.$swLoading.close()
+            this.storeSetPageStatus(PageStatusEnum.refresh)
+            
+            this.destroyAll()
+            this.pageDataInit()
         },
 
         /**
@@ -119,34 +87,16 @@ export default {
          * @function destroyAll
          */
         destroyAll() {
-            this.storeSetDownloadProgress(0)
-            this.storeSetIsSetting(false)
             this.$swLoading.close()
+            // 取消列表请求
+            this.activeImageSource.cancelImage()
+            // 取消设置壁纸
+            this.cancelWallpaper()
         },
 
-        /**
-         * 改变图片来源
-         * @function imageSourceChange
-         */
-        imageSourceChange(val) {
+        handleSearch(keyWord){
             this.destroyAll()
-            this.imageSource = val
-            this.page = 0
-            this.images = []
-            window.setTimeout(() => {
-                this.getData()
-            }, 100)
-        },
-
-        // 设置变更
-        handleSetterChange(){
-            this.config = this.$localStorage.getStore('userConfig') || {}
-        },
-
-        handleSearch(){
-            this.page = 0
-            this.images = []
-            this.destroyAll()
+            this.pageDataInit()
             this.getData()
         },
 
@@ -155,39 +105,49 @@ export default {
          * @function getData
          */
         async getData() {
-            this.getDataFlag = true
-            this.storeSetInfoShow(infoShowText.loading)
+            this.storeSetPageStatus(PageStatusEnum.loading)
+            const params = {
+                searchKey: this.searchKey,
+                page: this.page,
+                imageSource: this.config.imageSource
+            }
+
+            console.log('============================', params)
             return new Promise((resolve, reject) => {
-                this.activeImageSource.getImage({
-                    searchKey: this.searchKey,
-                    page: this.page,
-                    imageSource: this.imageSource
-                }).then((result) => {
-                    this.getDataFlag = false            
-                    this.refreshBtnIng = false
-                    this.storeSetInfoShow(infoShowText.null)
+                this.activeImageSource.getImage(params).then((result) => {
                     this.urlsDeal(result)
                     resolve(result)
-                }, reject)
+                }).catch((error) => {
+                    this.storeSetPageStatus(PageStatusEnum.netError)
+                    reject(error)
+                })
             })
         },
 
-        async pageInit(){
+        pageDataInit(){
             this.images = []
-            this.page = 0
-            this.refreshBtnIng = false
-            this.getDataFlag = false
-            
+            this.page = 1
+
+            this.storeSetPageStatus(PageStatusEnum.null)
             this.storeSetSearchKey('')
             this.storeSetIsSetting(false)
-            this.storeSetDownloadProgress(0)
+            this.storeSetProgressValue(0)
             this.storeSetCurrentWallpaperBkColor('#fff')
             this.storeSetCurrentWallpaperIndex(0)
+        },
 
+        handleNext(){
+            this.page = this.page + 1
+            this.getData()
+        },
+
+        async pageInit(){
+            this.pageDataInit()
+            
             if (this.activeImageSource.getSearchTypes){
-                const searchTypes = await this.activeImageSource.getSearchTypes()
-                if (searchTypes.length){
-                    this.storeSetSearchKey(searchTypes[0].value)
+                const searchSelectLists = await this.activeImageSource.getSearchTypes()
+                if (searchSelectLists.length){
+                    this.storeSetSearchKey(searchSelectLists[0].value)
                 }
             }
             
@@ -196,7 +156,9 @@ export default {
 
     },
     watch: {
-        imageSource(val, oldVal) {
+        'config.imageSource': function (val, oldVal) {
+            console.log('==================: imageSource', val)
+            
             this.pageInit()
         },
     }
@@ -223,6 +185,7 @@ export default {
     bottom: 8px;
     left: 14px;
     z-index: 999;
+    cursor: pointer;
     color: #dddddd;
 
     .iconfont {

@@ -1,37 +1,29 @@
-import electron from 'electron'
+/**
+ *  功能：主渲染程序逻辑
+ *  作者：--
+ *  日期：2020/9/30
+ */
 
-import fs from 'fs'
-import path from 'path'
-import { autoUpdater } from 'electron-updater'
-// import { setCurrentWallpaper, changeWallpaperScale } from '../wallpaper/outwallpaper'
-// import { downloadPic, cancelDownloadPic } from '../file/download'
-// import { getUrls, cancelUrls } from '../get-image/search'
-// import { newEmail } from './mail'
-import { isDev, isMac, isWin, baseUrl, log } from '../power/utils'
-// import { getPaperSetting } from '../get-image/paper'
+const electron = require('electron')
+const { Icon } = require('./utils')
+const { isDev, isMac, isWin, log } = require('../power/utils')
+const { checkUpdater, autoUpdater } = require('./update')
 
-import { Icon } from './utils'
+const CreateMainWindow = require('./main-window')
+const CreateFullWindow = require('./full-window')
+const CreateAppTray = require('./tray')
 
-import fullWindow from './full-window'
+const { app, ipcMain, dialog } = electron
 
-const { app, BrowserWindow, Tray, ipcMain, dialog, Menu, nativeImage } = electron
-
-let mainWindow = null
-// 托盘对象
 let appTray = null
-let openAppFlag = true
-let currentScreenIndex = 0 // 当前屏幕的索引
-const mainCallBack = {
-    'autoUpdater.downloadUpdate': () => {
-        autoUpdater.downloadUpdate()
-    },
-}
+let mainWindow = null
+let fullWindow = null
+const openAppFlag = true
 
 appOpenInit()
 ipcMainInit()
-autoUpdaterInit()
-setTimeIntervalInit()
 
+setTimeIntervalInit()
 
 /**
  * 创建程序锁，保证只能打开单个实例 
@@ -46,7 +38,7 @@ function appOpenInit(){
             app.on('second-instance', (event, commandLine, workingDirectory) => {
                 if (mainWindow) {
                     if (!mainWindow.isVisible()) {
-                        mainWindowShow()
+                        mainWindow.animateShow()
                     }
                     mainWindow.focus()
                 }
@@ -66,12 +58,12 @@ function appOpenInit(){
             // app.dock.hide() 
         }
         setTimeout(() => {
+            appInit()
             if (!isDev) {
                 autoUpdater.logger = log
                 autoUpdater.autoDownload = false
                 checkUpdater()
             }
-            appInit()
         }, 10)
     })
 
@@ -86,53 +78,11 @@ function appOpenInit(){
         if (mainWindow === null) {
             appInit()
         } else {
-            mainWindowShow()
+            mainWindow.animateShow()
         }
     })
 }
 
-/**
- * 创建窗口
- * @function createWindow
- */
-function createWindow() {
-    mainWindow = new BrowserWindow({
-        height: 600,
-        // width: 310,
-        width: 810,
-        webPreferences: {
-            nodeIntegration: true
-        },
-        frame: false,
-        transparent: true,
-        show: false,
-        alwaysOnTop: true,
-        resizable: false, // 禁止变化尺寸
-        hasShadow: true, // 是否阴影
-        focusable: true,
-        fullscreenable: false,
-        skipTaskbar: true,
-        minimizable: false,
-        maximizable: false,
-        // closable: false,
-        fullscreen: false,
-        titleBarStyle: 'customButtonsOnHover'
-    })
-
-    mainWindow.openDevTools()
-
-    console.log('=================baseUrl:', baseUrl)
-    mainWindow.loadURL(baseUrl)
-
-    mainWindow.on('blur', () => {
-        // mainWindow.hide()
-    })
-
-    mainWindow.on('closed', () => {
-        app.quit()
-        mainWindow = null
-    })
-}
 
 /**
  * 设置定时器
@@ -144,138 +94,14 @@ function setTimeIntervalInit(){
     }, 10000)
 }
 
-/**
- * 创建 Tray
- * @function createAppTra
- */
-function createAppTray() {
-    if (isMac) {
-        appTray = new Tray(Icon('./img/icon-tray.png', 16))
-    } else if (isWin) {
-        // eslint-disable-next-line no-undef
-        appTray = new Tray(path.resolve(__static, './img/tray.png'))
-    }
-    // eslint-disable-next-line no-undef
-    const icon = nativeImage.createFromPath(path.resolve(__static, './img/tray.png'))
-
-    const contextMenu = Menu.buildFromTemplate([
-        { label: '全屏模式', type: 'normal', icon: icon.resize({ width: 20, height: 20 }) },
-        { label: '意见反馈', type: 'normal', role: 'window' },
-        { label: '赞助', type: 'normal', },
-        { 
-            label: '退出',
-            type: 'normal', 
-            click(){
-                app.quit()
-            } }
-    ])
-
-    // appTray.setContextMenu(contextMenu)
-
-    // 系统托盘图标目录
-    appTray.on('click', (event, bounds, position) => {
-        console.log('=============')
-        // mainWindow === null ? createWindow() : mainWindow.close()
-        // return
-        // 点击时显示窗口，并修改窗口的显示位置
-        function setMainWinPosition(win, trayBounds) {
-            try {
-                const { screen } = electron
-                const winWidth = mainWindow.getSize()[0]
-                const winHeight = mainWindow.getSize()[1]
-                const cursorPosition = screen.getCursorScreenPoint()
-                const currentScreen = screen.getDisplayNearestPoint(cursorPosition)
-                const screenLists = screen.getAllDisplays()
-                
-
-                currentScreenIndex = screenLists.findIndex(i => i.id === currentScreen.id)
-
-
-                // 保证永远在图标的中心位置,因为没有做其他方向的三角，所以暂不考虑高
-                cursorPosition.x = trayBounds.x + trayBounds.width / 2
-                const parallelType = cursorPosition.x < currentScreen.bounds.x + currentScreen.workAreaSize.width / 2 ? 'left' : 'right'
-                const verticaType = cursorPosition.y < currentScreen.bounds.y + currentScreen.workAreaSize.height / 2 ? 'top' : 'bottom'
-
-                let trayPositionType = '' // 任务栏的位置 top|bottom|left|right
-                let trayPositionSize = 0 // 任务栏的尺寸
-    
-                if (currentScreen.workAreaSize.height < currentScreen.size.height) {
-                    trayPositionType = verticaType === 'top' ? 'top' : 'bottom'
-                    // trayPositionSize = currentScreen.size.height - currentScreen.workAreaSize.height
-                    trayPositionSize = currentScreen.workArea.y
-                } else if (currentScreen.workAreaSize.width < currentScreen.size.width) {
-                    trayPositionType = parallelType === 'left' ? 'left' : 'right'
-                    trayPositionSize = currentScreen.size.width - currentScreen.workAreaSize.width
-                }
-                let winPositionX = 0
-                let winPositionY = 0
-                if (trayPositionType === 'top') {
-                    winPositionX = Math.max(Math.min(currentScreen.bounds.width + currentScreen.bounds.x - winWidth, cursorPosition.x - (winWidth / 2)), currentScreen.bounds.x)
-                    winPositionY = currentScreen.bounds.y + trayPositionSize + 2
-                } else if (trayPositionType === 'bottom') {
-                    winPositionX = Math.max(Math.min(currentScreen.bounds.width + currentScreen.bounds.x - winWidth, cursorPosition.x - (winWidth / 2)), currentScreen.bounds.x)
-                    winPositionY = currentScreen.bounds.height + currentScreen.bounds.y - trayPositionSize - winHeight
-                } else if (trayPositionType === 'left') {
-                    winPositionX = currentScreen.bounds.x + trayPositionSize
-                    winPositionY = Math.max(Math.min(currentScreen.bounds.height + currentScreen.bounds.y - winHeight, cursorPosition.y - (winHeight / 2)), currentScreen.bounds.y)
-                } else if (trayPositionType === 'right') {
-                    winPositionX = currentScreen.bounds.x + currentScreen.bounds.width - trayPositionSize - winWidth
-                    winPositionY = Math.max(Math.min(currentScreen.bounds.height + currentScreen.bounds.y - winHeight, cursorPosition.y - (winHeight / 2)), currentScreen.bounds.y)
-                }
-                log.info('--------------------------------')
-                log.info('currentScreen:', currentScreen)
-                log.info('position:', winPositionX, winPositionY)
-                log.info('trayPositionType:', trayPositionType)
-                log.info('trayPositionSize', trayPositionSize)
-                log.info('cursorPosition:', cursorPosition)
-                log.info('--------------------------------')
-                win.setPosition(parseInt(winPositionX, 10), winPositionY)
-            } catch (error) {
-                log.error(error)
-            }
-        }
-        try {
-            if (mainWindow.isVisible()) {
-                sendData('datainfo', {
-                    type: 'windowShow',
-                    data: false
-                })
-                mainWindowHide()
-            } else {
-                sendData('datainfo', {
-                    type: 'windowShow',
-                    data: true
-                })
-                mainWindowShow()
-                setMainWinPosition(mainWindow, bounds)
-            }
-        } catch (error) {
-            log.error(error)
-        }
-    })
-
-    appTray.on('right-click', (event, bounds) => {
-        if (!mainWindow.isVisible()){
-            appTray.popUpContextMenu(contextMenu)
-        }
-    })
-    mainWindow.on('show', () => {
-        // appTray.setHighlightMode('never')
-    })
-    mainWindow.on('hide', () => {
-        // appTray.setHighlightMode('selection')
-    })
-}
-
 
 function appInit() {
-    if (mainWindow == null) {
-        createWindow() // 创建主窗口
-    } else {
-        mainWindowShow()
+    if (!mainWindow){
+        mainWindow = new CreateMainWindow()
     }
+    mainWindow.animateShow()
     if (appTray == null) {
-        createAppTray() // 创建系统托盘    
+        appTray = new CreateAppTray(mainWindow) // 创建系统托盘    
     }
 }
 
@@ -283,54 +109,20 @@ function appInit() {
  * 给所有的的渲染进程发消息
  */
 function sendData(...args){
-    const fullWindowWindow = fullWindow.getWindow()
-    const windows = [mainWindow, fullWindowWindow]
-    windows.forEach((i) => {
+    [mainWindow, fullWindow].forEach((i) => {
         if (i){
             i.webContents.send(...args) 
         }
     })
 }
 
-/**
- * 主窗口显示，创建一个动画效果
- */
-function mainWindowShow() {
-    let opacity = 0
-    mainWindow.show()
-    const time = setInterval(() => {
-        if (opacity >= 1) {
-            opacity = 1
-            clearInterval(time)
-        }
-        mainWindow.setOpacity(opacity)
-        opacity = parseFloat((opacity + 0.1).toFixed(1))
-    }, 80)
-}
-
-/**
- * 主窗口隐藏，创建一个动画效果
- */
-function mainWindowHide() {
-    let opacity = 1
-    const time = setInterval(() => {
-        if (opacity <= 0) {
-            opacity = 0.0
-            clearInterval(time)
-            mainWindow.hide()
-        }
-        mainWindow.setOpacity(opacity)
-        opacity = parseFloat((opacity - 0.1).toFixed(1))
-    }, 80)
-}
-
 
 function ipcMainInit() {
     /** * 主进程传一个字符串给渲染进程，渲染进程在传递事件给主进程 用于主进程中的一些函数回调 */
     ipcMain.on('maincallback', (event, data, argument) => {
-        if (typeof mainCallBack[data] !== 'undefined') {
-            mainCallBack[data](argument)
-        }
+        // if (typeof mainCallBack[data] !== 'undefined') {
+        //     mainCallBack[data](argument)
+        // }
     })
 
     // 取消所有请求
@@ -341,11 +133,14 @@ function ipcMainInit() {
     })
 
     ipcMain.on('fullWindow', (event, data) => {
+        if (!fullWindow){
+            fullWindow = new CreateFullWindow()
+        }
         if (data){
-            fullWindow.openWindow()
+            fullWindow.show()
         }
         else {
-            fullWindow.closeWindow()
+            fullWindow.hide()
         }
     })
 
@@ -400,15 +195,6 @@ function ipcMainInit() {
             } else {
                 // openDisStart()
             }
-        } else if (data.type === 'newEmail') {
-            // newEmail(data.data.data, data.data.telUser, {
-            //     version: autoUpdater.currentVersion,
-            //     emailType: data.data.emailType
-            // }).then(() => {
-            //     event.sender.send('sendnewEmail', 'success', data.data.emailType)
-            // }).catch((error) => {
-            //     event.sender.send('sendnewEmail', 'error', data.data.emailType, error)
-            // })
         } else if (data.type === 'checkNewVersion') {
             checkUpdater()
         }
@@ -449,86 +235,5 @@ function ipcMainInit() {
         //         event.returnValue = false
         //     })
         // }
-    })
-}
-
-function checkUpdater() {
-    autoUpdater.checkForUpdates().then((result) => {
-    }).catch((error) => {
-        log.error(error)
-    })
-}
-
-function autoUpdaterInit() {
-    /** * 下载完成 */
-    autoUpdater.on('update-downloaded', () => {
-        autoUpdater.quitAndInstall()
-    })
-
-    autoUpdater.on('error', (info) => {
-        if (openAppFlag) {
-            openAppFlag = false
-            return
-        }
-        dialog.showMessageBox({
-            type: 'error',
-            buttons: ['关闭'],
-            title: '版本更新',
-            message: '版本更新检测出错',
-            detail: '可能是网路不好或者版本Bug,请提交意见反馈',
-            // eslint-disable-next-line no-undef
-            icon: path.resolve(__static, './img/banben.png')
-        })
-    })
-
-
-    autoUpdater.on('update-available', (info) => {
-        dialog.showMessageBox({
-            type: 'info',
-            buttons: ['是', '否'],
-            title: '版本更新',
-            message: `当前版本:${autoUpdater.currentVersion}`,
-            detail: `检测到新版本:${info.version},是否升级？`,
-            // eslint-disable-next-line no-undef
-            icon: path.resolve(__static, './img/banben.png')
-        }, (response) => {
-            if (response === 0) {
-                autoUpdater.downloadUpdate()
-            } else if (response === 1) {
-                console.log('1')
-            }
-        })
-        log.info('检测到新版本', info)
-    })
-
-    autoUpdater.on('checking-for-update', (info) => {
-        log.info('检测更新已发出', info)
-    })
-
-
-    autoUpdater.on('update-not-available', (info) => {
-        if (openAppFlag) {
-            openAppFlag = false
-            return
-        }
-        log.error('没有检测到新版本', info)
-        dialog.showMessageBox({
-            type: 'info',
-            buttons: ['关闭'],
-            title: '版本更新',
-            message: `当前版本:${autoUpdater.currentVersion}`,
-            detail: '当前已是最新版本，无需更新',
-            // eslint-disable-next-line no-undef
-            icon: path.resolve(__static, './img/banben.png')
-        })
-    })
-
-
-    // 更新下载进度
-    autoUpdater.on('download-progress', (progressObj) => {
-        sendData('datainfo', {
-            type: 'updaterProgress',
-            data: progressObj.percent
-        })
     })
 }

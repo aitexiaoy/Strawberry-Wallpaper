@@ -5,25 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            // "type": "node",
+            "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}/.electron-vue/dev-runner.js",
-            "type": "pwa-node"
-        },
-        // {
-        //     "type": "node",
-        //     "request": "launch",
-        //     "name": "Electron Main",
-        //     "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
-        //     "program": "${workspaceFolder}/dist/electron/main.js"
-        // },
-        // {
-        //     "type": "node",
-        //     "request": "launch",
-        //     "name": "Launch Program",
-        //     "program": "${workspaceFolder}/src/get-image/500px.js"
-        // },
-
+            "name": "启动程序",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/aa.js",
+            "runtimeExecutable":"/Users/yangpeng/.nvm/versions/node/v12.18.2/bin/node"
+        }
     ]
 }

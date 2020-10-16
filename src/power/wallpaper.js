@@ -3,7 +3,7 @@
 const wallpaper = require('wallpaper')
 const os = require('os')
 const { log, isMac } = require('./utils')
-const { downloadPic } = require('./download')
+const { downloadPic, cancelDownloadPic } = require('./download')
 
 // TODO 当前点击的是那个屏幕
 const currentScreenIndex = 1
@@ -30,7 +30,10 @@ const changeWallpaperScale = async function (options = { screen: 'all', scale: '
 
 function setWallpaper(imageData, options, progressCallback = () => {}) {
     return new Promise((resolve, reject) => {
-        downloadPic(imageData, options, progressCallback).then((filePath) => {
+        if (!imageData || !options){
+            throw new Error('设置参数不全', imageData.downloadPic, options)
+        }
+        downloadPic(imageData.downloadUrl, options, progressCallback).then((filePath) => {
             if (isMac && options.autoSetAllScreens === false){
                 set(filePath, {
                     ...options,
@@ -50,7 +53,12 @@ function setWallpaper(imageData, options, progressCallback = () => {}) {
     })
 }
 
+function cancelWallpaper(){
+    cancelDownloadPic()
+}
+
 module.exports = {
     setWallpaper,
-    changeWallpaperScale
+    changeWallpaperScale,
+    cancelWallpaper
 }

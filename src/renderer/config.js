@@ -11,7 +11,7 @@ export const defaultConfig = {
     wallpaperAutoUp: false, // 壁纸自动更新
     updataTime: 3600, // 自动更新时间
     timingWipeData: true, // 定时清空已下载图库
-    downloadImagePath: `${os.homedir()}${['Downloads', 'wallpaper'].join(path.sep)} `, // 下载图片保存目录
+    downloadImagePath: `${[os.homedir(), 'Downloads', 'wallpaper'].join(path.sep)}`, // 下载图片保存目录
     wallpaperScale: 'auto', // 壁纸填充方式
     autoClearnDownloadFilesTime: 999999, // 自动清空下载文件夹
 
@@ -22,14 +22,25 @@ export const defaultConfig = {
     wallpaperSizeDirection: ['heng', 'su'], // 筛选方向 'heng', 'su'
 }
 
+export const PageStatusEnum = {
+    null: 'null', // 无状态
+    refresh: 'refresh', // 刷新按钮刷新
+    loading: 'loading', // 请求数据正在请求
+    noData: 'noDatas', // 请求数据完成没数据
+    netError: 'netError', // 网络错误
+    noMatchFilter: 'noMatchFilter',
+    noMoreData: 'noMoreData'
+}
+
 // 定义提示信息
-export const infoShowText = {
+export const InfoShowText = {
     loading: '美好的事情即将发生...',
     noData: '暂时没有得到想要的内容...',
     netError: '&nbsp &nbsp &nbsp &nbsp网络暂时发生了错误，请求不到数据了。可能原因是网络没有正常连接，请确保网络已连接。'
     + '也可能是所选择图库相关接口已修改，请在设置->意见反馈中联系作者，或者在设置中换个图库试试。非常感谢你的支持。',
     null: '',
-    noMatchFilter: '请求到了内容但不满足筛选条件，请更换筛选条件...'
+    noMatchFilter: '请求到了内容但不满足筛选条件，请在设置中更换筛选条件...',
+    noMoreData: '没有更多内容了...'
 }
 
 

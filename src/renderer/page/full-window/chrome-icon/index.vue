@@ -1,5 +1,5 @@
 <template>
-    <div :class="['chrome-icon',{nodisabled:!disabled}]" @click="handleClick" style="-webkit-app-region: no-drag">
+    <div :class="['chrome-icon',{nodisabled:!disabled}]" style="-webkit-app-region: no-drag" @click="handleClick">
         <i :class="['iconfont',icon]"></i>
     </div>
 </template>
@@ -27,19 +27,18 @@ export default {
 
 <style lang="less" scoped>
 .chrome-icon {
-    background-color: transparent;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
     margin-right: 5px;
     border-radius: 100%;
+    background-color: transparent;
     cursor: not-allowed;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
 
     .iconfont {
-        font-size: 24px;
         color: #aaaaaa;
-
+        font-size: 24px;
     }
 
     &.nodisabled {
@@ -54,4 +53,5 @@ export default {
         background-color: #aaaaaa;
     }
 }
+
 </style>

@@ -4,8 +4,7 @@
             <Nav></Nav>
             <Search v-on="$listeners"></Search>
         </div>
-
-        <Progress v-if="downloadProgress>0" :value="downloadProgress" :color="currentImageBacColor"></Progress>
+        <Progress v-if="progressValue > 0"  :value="progressValue" :color="progressColor"></Progress>
     </div>
 </template>
 
@@ -33,25 +32,7 @@ export default {
 
      .header-content {
          width: 100%;
-         padding: 0 24px;
-     }
-
-     .header-search {
-         display: flex;
-         align-items: center;
-         position: relative;
-         width: 100%;
-         padding-bottom: 6px;
-
-         .header-search-input {
-             flex: none;
-             width: 100%;
-         }
-
-         .iconfont {
-             position: absolute;
-             right: 5px;
-         }
+         padding: 0 12px;
      }
  }
 

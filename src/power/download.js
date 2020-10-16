@@ -61,6 +61,7 @@ const cancelDownloadPic = function () {
         if (myRequest) {
             myRequest.destroy()
             deleteDownLoadFile(currentSaveFilePath)
+            myRequest = null
         }
         resolve()
     })

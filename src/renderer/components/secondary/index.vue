@@ -1,7 +1,7 @@
 <template>
     <transition name="page-transition">
         <div class="secondary-content">
-            <ml-page-header>{{title}}</ml-page-header>
+            <page-header>{{title}}</page-header>
             <div class="content">
                 <slot></slot>
             </div>
@@ -34,6 +34,7 @@ export default {
 
     .content {
         margin-bottom: 20px;
+        padding: 0 12px;
     }
 }
 
