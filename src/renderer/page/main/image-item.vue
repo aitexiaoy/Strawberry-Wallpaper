@@ -14,7 +14,7 @@
             <div v-show="img.direction==='su'" class="flag-item direction">
                 <i class="iconfont icon-su-ping"></i>
             </div>
-            <div class="flag-item tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'17abe3':'d3217b'}">{{img.tip}}</div>
+            <div class="flag-item tip" :style="{'color':img.tip=='5k'?'#e0620d':img.tip=='4k'?'#17abe3':'#d3217b'}">{{img.tip}}</div>
         </div>
     </div>
 </template>
@@ -55,7 +55,7 @@ export default {
     align-items: center;
     justify-content: center;
     position: relative;
-    border-bottom: 1px solid #bbbbbb;
+    border-bottom: 1px solid var(--image-item-bottom-color);
     width: 100%;
     height: 180px;
 
@@ -68,7 +68,7 @@ export default {
     .image-set-wallpaper {
         position: absolute;
         border-radius: 15px;
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: var(--image-item-wallpaper-bk);
         cursor: pointer;
         width: auto;
         width: 120px;
@@ -78,7 +78,7 @@ export default {
         color: var(--main-text-color);
 
         &:hover {
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: var(--image-item-wallpaper-bk-hover);
         }
 
         .iconfont {
@@ -98,7 +98,7 @@ export default {
             align-items: center;
             justify-content: center;
             border-radius: 4px;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: var(--image-item-wallpaper-flag-bk);
             width: 26px;
             height: 26px;
             color: var(--main-text-color);

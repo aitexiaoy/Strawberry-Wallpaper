@@ -1,8 +1,8 @@
 <template>
     <Secondary title="公告">
-        <div class="notice" ref="content">
+        <div ref="content" class="notice">
             <template v-if="noticeList.length>0">
-                <div class="notice-item" v-for="item in noticeList" :key="`${item.content}-${item.time}`">
+                <div v-for="item in noticeList" :key="`${item.content}-${item.time}`" class="notice-item">
                     <span>{{`【${item.time}】`}}</span>
                     <span v-html="item.content"></span>
                 </div>

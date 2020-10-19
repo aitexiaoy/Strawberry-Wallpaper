@@ -43,32 +43,25 @@ export default {
         }
     },
 
-    computed: {
-        imageSourceOptions(){
-            return this.activeImageSource ? this.activeImageSource.options : {}
-        },
-    },
-
     created(){
         this.PageStatusEnum = PageStatusEnum
-        this.storeActionActiveImageSource(ImageSource[this.config.imageSource])
+        this.activeImageSource = ImageSource[this.config.imageSource]
     },
 
     mounted() {
         this.pageInit()
-        
-        this.domContentMainMatch()
     },
 
     methods: {
         domContentMainMatch(){
-            this.$nextTick(() => {
+            window.setTimeout(() => {
                 const header = this.$el.querySelector('.header')
                 const content = this.$el.querySelector('.content')
                 if (header && content) {
-                    content.style.paddingTop = `${header.offsetHeight}px`
+                    const { height } = header.getBoundingClientRect()
+                    content.style.paddingTop = `${height}px`
                 }
-            })
+            }, 500)
         },
 
         /**
@@ -77,9 +70,8 @@ export default {
          */
         refreshFn() {
             this.storeSetPageStatus(PageStatusEnum.refresh)
-            
             this.destroyAll()
-            this.pageDataInit()
+            this.pageInit()
         },
 
         /**
@@ -111,8 +103,7 @@ export default {
                 page: this.page,
                 imageSource: this.config.imageSource
             }
-
-            console.log('============================', params)
+            
             return new Promise((resolve, reject) => {
                 this.activeImageSource.getImage(params).then((result) => {
                     this.urlsDeal(result)
@@ -129,7 +120,6 @@ export default {
             this.page = 1
 
             this.storeSetPageStatus(PageStatusEnum.null)
-            this.storeSetSearchKey('')
             this.storeSetIsSetting(false)
             this.storeSetProgressValue(0)
             this.storeSetCurrentWallpaperBkColor('#fff')
@@ -144,12 +134,23 @@ export default {
         async pageInit(){
             this.pageDataInit()
             
-            if (this.activeImageSource.getSearchTypes){
-                const searchSelectLists = await this.activeImageSource.getSearchTypes()
-                if (searchSelectLists.length){
-                    this.storeSetSearchKey(searchSelectLists[0].value)
+            this.storeSetSearchKey('')
+            
+            if (this.activeImageSource.getSearchSelectLists){
+                if (this.activeImageSource.searchSelectLists.length === 0){
+                    await this.activeImageSource.getSearchSelectLists().then((res) => {
+                        if (res.length){
+                            this.storeSetSearchKey(res[0].value)
+                        }
+                        this.storeSetSearchSelectLists(res)
+                    })
+                } else {
+                    this.storeSetSearchSelectLists(this.activeImageSource.searchSelectLists)
+                    this.storeSetSearchKey(this.activeImageSource.searchSelectLists[0].value)
                 }
             }
+
+            this.domContentMainMatch()
             
             this.getData()
         },
@@ -157,11 +158,13 @@ export default {
     },
     watch: {
         'config.imageSource': function (val, oldVal) {
-            console.log('==================: imageSource', val)
-            
+            if (ImageSource[oldVal].getSearchSelectLists){
+                this.storeSetSearchKey('')
+            }
+            this.activeImageSource = ImageSource[val]
             this.pageInit()
         },
-    }
+    },
 }
 </script>
 

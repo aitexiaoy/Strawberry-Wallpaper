@@ -12,11 +12,13 @@ const defaultOptions = {
     width: 1200,
     height: 700,
     webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        webviewTag: true,
     },
     frame: false,
     maximizable: true,
     minimizable: true,
+
 }
 
 class CreateFullWindow extends BrowserWindow{

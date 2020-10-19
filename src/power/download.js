@@ -6,11 +6,10 @@
  * @LastEditTime: 2019-04-09 09:39:45
  */
 
-const fs = require('fs')
-const path = require('path')
 const webp = require('webp-converter')
 const fse = require('fs-extra')
 const download = require('download')
+const mkdir = require('make-dir')
 const md5 = require('./md5').md5_32
 
 /**
@@ -18,25 +17,6 @@ const md5 = require('./md5').md5_32
  */
 let myRequest = null
 let currentSaveFilePath = ''
-
-/**
- * 创建指定路径文件
- * @param {String} dirname 
- */
-function mkdirSync(dirname) {
-    try {
-        if (fs.existsSync(dirname)) {
-            return true
-        }
-        if (mkdirSync(path.dirname(dirname))) {
-            fs.mkdirSync(dirname)
-            return true
-        }
-        return false
-    } catch (error) {
-        return false
-    }
-}
 
 /**
  * 删除文件
@@ -80,11 +60,11 @@ const downloadPic = async function (src, userConfig, progressCallback) {
         const hostdir = userConfig.downloadImagePath
         // 文件名
         const fileName = md5(src)
-        mkdirSync(hostdir)
+        mkdir.sync(hostdir)
         let dstpath = `${hostdir}/SW-${fileName}`
         let isWebp = false
         // 如图图片已经下载完成了
-        if (fs.existsSync(`${dstpath}.jpg`)){
+        if (fse.existsSync(`${dstpath}.jpg`)){
             resolve(`${dstpath}.jpg`)
             return
         }
@@ -97,16 +77,15 @@ const downloadPic = async function (src, userConfig, progressCallback) {
         }
         currentSaveFilePath = dstpath
 
-        myRequest = download(src)
-        myRequest.on('error', (error) => {
-            deleteDownLoadFile(dstpath)
-            reject()
-        })
+        myRequest = download(src, dstpath)
+            .on('error', (error) => {
+                deleteDownLoadFile(dstpath)
+                reject()
+            })
             .on('downloadProgress', (progress) => {
                 progressCallback(parseFloat((progress.percent * 100)))
             })
-            .pipe(fs.createWriteStream(dstpath)) // 这个地方变成了whiteStream对象了
-            .on('finish', () => {
+            .then(() => {
                 if (isWebp) {
                     webp.dwebp(dstpath, dstpath.replace('webp', 'jpg'), '-o', (status) => {
                         // status 101->fails || 100->successful
@@ -127,6 +106,5 @@ const downloadPic = async function (src, userConfig, progressCallback) {
 
 module.exports = {
     downloadPic,
-    mkdirSync,
     cancelDownloadPic
 }

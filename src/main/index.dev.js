@@ -9,7 +9,6 @@ require('electron-debug')({ showDevTools: true })
 
 app.on('ready', () => {
     session.defaultSession.loadExtension(path.resolve(__dirname, './vue-devtools')).then((name) => {
-        console.log('vue加载成功::', name)
     }).catch((err) => {
         console.log('vue-devtools', err)
     })

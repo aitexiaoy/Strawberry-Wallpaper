@@ -1,5 +1,5 @@
 <template>
-    <div class="app" id='app'>
+    <div id='app' class="app">
         <keep-alive>
             <router-view></router-view>
         </keep-alive>
@@ -18,12 +18,13 @@ export default {
 </script>
 
 <style lang="less">
-    .app{
+    .app {
+        position: relative;
+        box-sizing: border-box;
+        background-color: transparent;
         width: 100%;
         height: 100%;
         overflow: hidden;
-        box-sizing: border-box;
-        position: relative;
-        background-color: transparent;
     }
+
 </style>

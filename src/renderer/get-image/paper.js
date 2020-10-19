@@ -26,7 +26,7 @@ export default class SourcePaper {
         const returnResult = []
         return new Promise((resolve, reject) => {
             axios.get(paperApi).then((result) => {
-                for (const item of result){
+                for (const item of result.data){
                     returnResult.push({
                         name: item.langs['zh-Hans-CN'],
                         value: item._id
@@ -34,7 +34,7 @@ export default class SourcePaper {
                 }
                 this.searchSelectLists = [...returnResult]
                 resolve(returnResult)
-            }).catch(() => {
+            }).catch((err) => {
                 resolve(returnResult)
             })
         })
@@ -47,11 +47,11 @@ export default class SourcePaper {
                 return
             }
             const baseUrl = `${paperApi}/flow/${data.searchKey}`
-            this.source = CancelToken.this.source()
+            this.source = CancelToken.source()
             axios({
                 url: baseUrl,
                 params: {
-                    page: data.page + 1,
+                    page: data.page,
                     per_page: 50
                 },
                 cancelToken: this.source.token
@@ -67,6 +67,7 @@ export default class SourcePaper {
                     }
                     urls.push(obj)
                 })
+                console.log('=====================urls', urls)
                 resolve(urls)
             }).catch((error) => {
                 this.source = null
@@ -79,6 +80,7 @@ export default class SourcePaper {
     cancelImage() {
         if (this.source) {
             this.source.cancel()
+            this.source = null
         }
     }
 }

@@ -25,8 +25,12 @@ if (userConfig){
 const state = {
     // 用户设置
     config: { ...userConfig },
+
     // 当前活跃的壁纸源
-    activeImageSource: null,
+    // activeImageSource: null,
+
+    // 搜索的select列表
+    searchSelectLists: [],
 
     // 储存最近搜索的8次关键字
     searchKeyList: storeSearchKeyList || [...defaultSearchList], 
@@ -51,13 +55,13 @@ const state = {
 }
 
 const mutations = {
-    storeActionConfig(store, payload = {}) {
+    storeSetConfig(store, payload = {}) {
         store.config = { ...store.config, ...payload }
         localStorage.setStore(userConfigStoreText, store.config)
     },
 
-    storeActionActiveImageSource(store, payload) {
-        store.activeImageSource = payload
+    storeSetSearchSelectLists(store, payload){
+        store.searchSelectLists = payload
     },
 
     storeSetSearchKeyList(store, payload = []) {
@@ -98,12 +102,8 @@ const mutations = {
 // 因为使用了vuex-electron 所以需要采用actions
 const actions = {
     storeActionConfig({ commit }, payload){
-        commit('storeActionConfig', payload)
+        commit('storeSetConfig', payload)
     },
-
-    storeActionActiveImageSource({ commit }, payload){
-        commit('storeActionActiveImageSource', payload)
-    }
 }
 
 const getters = {

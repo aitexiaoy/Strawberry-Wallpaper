@@ -1,22 +1,23 @@
 <template>
     <div class="full-window">
         <div class="full-window-ctrl" style="-webkit-app-region: drag">
-            <vueTitlebar></vueTitlebar>
+            <VueTitlebar></VueTitlebar>
             <div class="ctrl-content">
                 <div class="button">
-                    <chromeIcon icon="icon-back1" :disabled="backDisabled" @click="handleGoBack"></chromeIcon>
-                    <chromeIcon icon="icon-forwad" :disabled="forwadDisabled" @click="handleGoForward"></chromeIcon>
-                    <chromeIcon v-show="!isLoading" icon="icon-research" @click="handleReload()"></chromeIcon>
-                    <chromeIcon v-show="isLoading" icon="icon-close" @click="handleAbort"></chromeIcon>
+                    <ChromeIcon icon="icon-back1" :disabled="backDisabled" @click="handleGoBack"></ChromeIcon>
+                    <ChromeIcon icon="icon-forwad" :disabled="forwadDisabled" @click="handleGoForward"></ChromeIcon>
+                    <ChromeIcon v-show="!isLoading" icon="icon-research" @click="handleReload()"></ChromeIcon>
+                    <ChromeIcon v-show="isLoading" icon="icon-close" @click="handleAbort"></ChromeIcon>
                 </div>
                 <div class="nav">
                     <template v-for="item in imageSourceType">
                         <div
                             v-if="item.home"
-                            :key="item.value"
+                            :key="item.name"
                             style="-webkit-app-region: no-drag"
                             :class="['nav-item',{active:currentPath===item.home}]"
-                            @click="handleNavClick(item)">{{item.name}}
+                            @click="handleNavClick(item)">
+                            {{item.label}}
                         </div>
 
                     </template>
@@ -51,17 +52,13 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import customTitlebar from 'custom-electron-titlebar'
 import { resolve } from 'path'
-import fs from 'fs'
-import chromeIcon from './chrome-icon/index.vue'
+import fs from 'fs-extra'
+import ChromeIcon from './chrome-icon/index.vue'
 import SwProgress from '$render/components/progress'
-
-import vueTitlebar from './titlebar/index.vue'
-
-const imageSourceType = []
-
+import VueTitlebar from './titlebar/index.vue'
+import SetWallpaperMixin from '$render/mixin/set-wallpaper.mixin'
+import ImageSource from '$render/get-image'
 
 // eslint-disable-next-line no-undef
 const fileBasePath = file => resolve(__static, `./page-script/${file}`)
@@ -71,19 +68,26 @@ const renderFile = readFileSync('render.js')
 
 export default {
     name: 'fullWindow',
-    components: { chromeIcon, SwProgress, vueTitlebar },
+    components: { ChromeIcon, SwProgress, VueTitlebar },
+    mixins: [SetWallpaperMixin],
     data() {
         return {
             backDisabled: true,
             forwadDisabled: true,
             isLoading: true,
-            imageSourceType,
+            imageSourceType: [],
             currentPath: '',
-            progressValue: 0,
             currentImageBacColor: '#ff66ff', // 进度条的颜色
             currentSourceValue: '',
-            config: this.$localStorage.getStore('userConfig'),
         }
+    },
+    computed: {
+        fileAbsolutePath(){
+            return `file://${fileBasePath(`${this.currentSourceValue}.js`)}` 
+        } 
+    },
+    created(){
+        this.imageSourceType = Object.values(ImageSource).map(item => item.options)
     },
     mounted() {
         this.handleNavClick(this.imageSourceType[0])
@@ -91,11 +95,7 @@ export default {
         this.renderEventInit()
         this.registerKeyEvent()
     },
-    computed: {
-        fileAbsolutePath(){
-            return `file://${fileBasePath(`${this.currentSourceValue}.js`)}` 
-        } 
-    },
+  
     methods: {
         webviewEventInit(){
             this.$nextTick(() => {
@@ -127,13 +127,7 @@ export default {
                         webview.downloadURL(data.downloadUrl)
                     }
                     else if (channel === 'setWallpaper'){
-                        const { autoSetAllScreens } = this.config
-                        const { wallpaperScale } = this.config
-                        this.$ipcRenderer.send('dataWallpaper', { 
-                            ...data, 
-                            options: { scale: wallpaperScale, autoSetAllScreens }, 
-                            userConfig: this.config
-                        })
+                        this.setWallpaper()
                     }
                     else if (channel === 'notify'){
                         this.$notify({ ...data, customClass: 'full-screen-notify', offset: 100, duration: 2000 })
@@ -143,24 +137,7 @@ export default {
         },
 
         renderEventInit(){
-            // 数据相关事件
-            this.$ipcRenderer.on('datainfo', (event, { type = '', data }) => {
-            // 更新进度条
-                if (type === 'updaterProgress') {
-                    this.progressValue = data
-                    if (this.progressValue >= 100) {
-                        const time = setTimeout(() => {
-                            clearTimeout(time)
-                            this.progressValue = 0
-                        }, 1000)
-                    }
-                }
-            })
-
-            // 设置壁纸完成事件
-            this.$ipcRenderer.on('dataWallpaper', (event, arg) => {
-                this.progressValue = 0
-            })
+        
         },
 
         registerKeyEvent(){
@@ -216,13 +193,13 @@ export default {
         // 打开指定连接
         handleNavClick(item){
             const webview = this.$refs.fullWindowView
-            const { home: path, value } = item
+            const { home: path, name } = item
             
             this.currentPath = path
             this.$nextTick(() => {
                 this.webviewEventInit()
             })
-            this.currentSourceValue = value
+            this.currentSourceValue = name
             this.isLoading = true
         } 
     }
@@ -258,7 +235,7 @@ export default {
             display: flex;
 
             .nav-item {
-                cursor: default;
+                cursor: pointer;
                 width: auto;
                 padding: 0 10px;
                 color: #aaaaaa;

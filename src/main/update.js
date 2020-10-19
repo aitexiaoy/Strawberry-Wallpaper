@@ -8,6 +8,8 @@ const updateHot = require('./update-hot')
 
 const updateURL = 'http://sw.taoacat.com/version/'
 
+const renderPackageURL = `${updateURL}render.zip`
+
 const { dialog } = electron
 
 
@@ -31,6 +33,8 @@ autoUpdater.autoDownload = false
 //     autoUpdater.updateConfigPath = path.join(__dirname, '../../../app-update.yml')
 // }
 autoUpdater.setFeedURL(updateURL)
+
+autoUpdater.currentVersion = '1.0.4'
 
   
 /** * 下载完成 */
@@ -58,14 +62,19 @@ autoUpdater.on('update-available', (info) => {
         title: '版本更新',
         message: `当前版本:${autoUpdater.currentVersion}`,
         detail: `检测到新版本:${info.version},是否升级？`,
-        // eslint-disable-next-line no-undef
         icon: path.resolve(__static, './img/banben.png')
     }, (response) => {
         log.info('检测到新版本::', response)
+        // 如果是主版本更新
         if (response === 0) {
             autoUpdater.downloadUpdate()
-        } else if (response === 1) {
-            console.log('1')
+        } else if (response === 1) { // 如果是render包更新
+            // updateHot.downloadPackage(renderPackageURL, (progress) => {
+
+            // }).then((res) => {
+            //     console.log('========================请求成功',)
+            //     updateHot.quitAndInstall()
+            // })
         }
     })
     log.info('检测到新版本', info)
@@ -84,7 +93,6 @@ autoUpdater.on('update-not-available', (info) => {
         title: '版本更新',
         message: `当前版本:${autoUpdater.currentVersion}`,
         detail: '当前已是最新版本，无需更新',
-        // eslint-disable-next-line no-undef
         icon: path.resolve(__static, './img/banben.png')
     })
 })
@@ -103,15 +111,11 @@ autoUpdater.on('download-progress', (progressObj) => {
  * 检测是否更新
  */
 function checkUpdater() {
-    updateHot.downloadPackage().then((res) => {
-        console.log('========================请求成功',)
-        updateHot.quitAndInstall()
+    autoUpdater.checkForUpdates().then((result) => {
+        console.log('==================: checkUpdater -> result', result)
+    }).catch((error) => {
+        log.error(error)
     })
-    // autoUpdater.checkForUpdates().then((result) => {
-    //     console.log('==================: checkUpdater -> result', result)
-    // }).catch((error) => {
-    //     log.error(error)
-    // })
 }
 
 

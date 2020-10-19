@@ -1,18 +1,18 @@
 <template>
     <div class="header-search">
         <el-select
-            v-if="activeImageSource.searchSelectLists"
+            v-if="searchType==='select'"
             :value="searchKey"
             size="mini"
-            @change="handleSearch"
+            @change="handleSearchSelect"
             >
             <el-option
-                v-for="item in activeImageSource.searchSelectLists"
+                v-for="item in searchSelectLists"
                 :key="item.value"
                 :label="item.name"
                 :value="item.value"></el-option>
         </el-select>
-        <template v-else-if="activeImageSource.options && activeImageSource.options.search">
+        <template v-else>
             <div class="search">
                 <el-input
                     :value="searchKey"
@@ -43,11 +43,27 @@
 
 <script>
 import { searchKeyMax, defaultSearchList } from '$render/config'
+import ImageSource from '$render/get-image'
+
 
 export default {
     name: 'MainSearch',
+    data() {
+        return {
+            searchType: 'input' // input|search
+        }
+    },
+    watch: {
+        'config.imageSource': {
+            handler(val){
+                this.searchType = ImageSource[val].searchSelectLists ? 'select' : 'input'
+            },
+            immediate: true,
+        },
+    },
+
+
     methods: {
-        
         handleTagClose(tag){
             this.storeSetSearchKeyList(this.searchKeyList.filter(i => i !== tag))
         },
@@ -70,13 +86,18 @@ export default {
             this.$emit('search', this.searchKey)
         },
 
-    }
+        handleSearchSelect(val){
+            this.storeSetSearchKey(val)
+            this.$emit('search', val)
+        }
+    },
 }
 </script>
 
 <style lang="less" scoped>
 .header-search {
     width: 100%;
+    padding-bottom: 12px;
 
     .iconfont {
         cursor: pointer;
@@ -87,7 +108,7 @@ export default {
         display: flex;
         flex-wrap: wrap;
         cursor: default;
-        padding: 5px 0;
+        padding-top: 4px;
 
         user-select: none;
 

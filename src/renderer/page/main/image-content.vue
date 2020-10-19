@@ -67,7 +67,6 @@ export default {
                     // 下拉
                     if (enteries[0].intersectionRatio > 0.5) {
                         if (![PageStatusEnum.loading, PageStatusEnum.refresh].includes(this.pageStatus)){
-                            console.log('=================next')
                             this.$emit('next')
                         }
                     }
@@ -110,12 +109,11 @@ export default {
 <style lang="less" scoped>
 .content {
     border-radius: 4px;
-    background-color: #222222;
+    background-color: var(--main-bk-color);
     width: 100%;
     height: 100%;
     overflow-x: hidden;
     overflow-y: scroll;
-    padding: 1px;
 
     .content-no {
         display: flex;
@@ -125,7 +123,7 @@ export default {
         height: 100%;
         padding: 20px;
         line-height: 20px;
-        color: #cccccc;
+        color: var(--main-text-color);
         font-size: 12px;
     }
 
@@ -135,7 +133,7 @@ export default {
         justify-content: center;
         width: 100%;
         height: 40px;
-        color: #dddddd;
+        color: var(--main-text-color);
         font-size: 12px;
 
         i {

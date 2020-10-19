@@ -51,7 +51,7 @@ export default {
          * @function openDownloadFile
          */
         handleOpenFullWindow(){
-            // this.$ipcRenderer.send('fullWindow', true) // 打开全屏 ， false 关闭全屏
+            this.$ipcRenderer.send('fullWindow', true) // 打开全屏 ， false 关闭全屏
         },
 
         handleGoToNotice(){

@@ -11,6 +11,9 @@ export function register(Source){
 
     newSource.getImage = async function (data) {
         data.searchKey = this.isSupportChinaSearch ? data.searchKey : await baiDuTranslation(data.searchKey)
+        // if (searchKey){
+        //     data.searchKey = searchKey
+        // }
         newSource.cancelImage()
         return Source.prototype.getImage.call(this, data)
     }

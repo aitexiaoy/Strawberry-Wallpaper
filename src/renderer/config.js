@@ -26,7 +26,7 @@ export const PageStatusEnum = {
     null: 'null', // 无状态
     refresh: 'refresh', // 刷新按钮刷新
     loading: 'loading', // 请求数据正在请求
-    noData: 'noDatas', // 请求数据完成没数据
+    noData: 'noData', // 请求数据完成没数据
     netError: 'netError', // 网络错误
     noMatchFilter: 'noMatchFilter',
     noMoreData: 'noMoreData'

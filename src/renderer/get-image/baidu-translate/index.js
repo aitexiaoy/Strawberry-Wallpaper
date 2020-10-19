@@ -45,10 +45,10 @@ export default function (val){
                 resolve(dst.toLocaleLowerCase())
             }
             else {
-                resolve('')
+                resolve(val)
             }
         }).catch(() => {
-            resolve('')
+            resolve(val)
         })
     }) 
 } 

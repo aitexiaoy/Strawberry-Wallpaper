@@ -171,7 +171,7 @@ export default {
 
     mounted() {
         this.$ipcRenderer.on('defaultPath', (event, arg) => {
-            this.storeActionConfig({ downloadImagePath: arg })
+            this.storeSetConfig({ downloadImagePath: arg })
         })
     },
     methods: {
@@ -179,7 +179,7 @@ export default {
         // 设置开机启动
         setOpenStart(val) {
             autoOpen.openAutoStart(val)
-            this.storeActionConfig({ isOpenStatr: val })
+            this.storeSetConfig({ isOpenStatr: val })
         },
         
         /**
@@ -197,12 +197,12 @@ export default {
         },
 
         handleSetAllScreensChange(val) {
-            this.storeActionConfig({ autoSetAllScreens: val })
+            this.storeSetConfig({ autoSetAllScreens: val })
         },
 
         // 壁纸自动更新
         wallpaperAutoChange(val) {
-            this.storeActionConfig({ wallpaperAutoUp: val })
+            this.storeSetConfig({ wallpaperAutoUp: val })
          
             this.handleUpdataTimeInputChange(!val ? -1 : val)
         },
@@ -229,17 +229,17 @@ export default {
                 this.config[key] = ''
                 window.setTimeout(() => {
                     if (this.config[key] === ''){
-                        this.storeActionConfig({ [key]: defaultValue })
+                        this.storeSetConfig({ [key]: defaultValue })
                         callback()
                     }
                 }, 500)
                 return
             }
             if (Number.isNaN(value)){
-                this.storeActionConfig({ [key]: defaultValue })
+                this.storeSetConfig({ [key]: defaultValue })
             }
             else {
-                this.storeActionConfig({ [key]: Math.min(Math.max(value, min), max) })
+                this.storeSetConfig({ [key]: Math.min(Math.max(value, min), max) })
             }
             callback()
         },
@@ -249,7 +249,8 @@ export default {
          * 更改图片来源
          */
         handleImageSourceChange(val) {
-            this.storeActionConfig({ imageSource: val })
+            this.storeSetConfig({ imageSource: val })
+            this.$router.go(-1)
         },
         /**
          * 检测更新
@@ -291,7 +292,7 @@ export default {
 
         // 更改填充方式
         handleWallpaperScale(val){
-            this.storeActionConfig({ wallpaperScale: val })
+            this.storeSetConfig({ wallpaperScale: val })
             wallpaper.changeWallpaperScale({ scale: val })
         },
 
@@ -307,7 +308,7 @@ export default {
 
         // 更改方向
         handleDirectionChange(direction){
-            this.storeActionConfig({ wallpaperSizeDirection: direction })
+            this.storeSetConfig({ wallpaperSizeDirection: direction })
         }
     },
     watch: {}
