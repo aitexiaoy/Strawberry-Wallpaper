@@ -1,14 +1,19 @@
+/**
+ *  功能：更新
+ *  作者：yangpeng
+ *  日期：2020/12/8
+ *  如果是render程序更新，默认在版本描述文件后面添加一个isRender:true，以及定义上renderPath
+ */
+
 const electron = require('electron')
 const path = require('path')
-const fs = require('fs')
 const { autoUpdater } = require('electron-updater')
 const { log } = require('../power/utils')
-
 const updateHot = require('./update-hot')
 
-const updateURL = 'http://sw.taoacat.com/version/'
+// const updateURL = build.publish.url
 
-const renderPackageURL = `${updateURL}render.zip`
+const updateURL = ' http://172.17.14.1:8081/'
 
 const { dialog } = electron
 
@@ -26,15 +31,9 @@ const { dialog } = electron
 
 // 设置是否自动下载，默认是true,当点击检测到新版本时，会自动下载安装包，所以设置为false
 autoUpdater.autoDownload = false
-// https://github.com/electron-userland/electron-builder/issues/1254
-// if (process.env.NODE_ENV === 'development') {
-//     autoUpdater.updateConfigPath = path.join(__dirname, 'default-app-update.yml')
-// } else {
-//     autoUpdater.updateConfigPath = path.join(__dirname, '../../../app-update.yml')
-// }
-autoUpdater.setFeedURL(updateURL)
 
-autoUpdater.currentVersion = '1.0.4'
+// 设置更新地址
+autoUpdater.setFeedURL(updateURL)
 
   
 /** * 下载完成 */
@@ -56,6 +55,8 @@ autoUpdater.on('error', (info) => {
 
 
 autoUpdater.on('update-available', (info) => {
+    log.info('检测到新版本', info)
+
     dialog.showMessageBox({
         type: 'info',
         buttons: ['是', '否'],
@@ -63,21 +64,20 @@ autoUpdater.on('update-available', (info) => {
         message: `当前版本:${autoUpdater.currentVersion}`,
         detail: `检测到新版本:${info.version},是否升级？`,
         icon: path.resolve(__static, './img/banben.png')
-    }, (response) => {
-        log.info('检测到新版本::', response)
-        // 如果是主版本更新
+    }).then(({ response }) => {
+        // 更新
         if (response === 0) {
-            autoUpdater.downloadUpdate()
-        } else if (response === 1) { // 如果是render包更新
-            // updateHot.downloadPackage(renderPackageURL, (progress) => {
-
-            // }).then((res) => {
-            //     console.log('========================请求成功',)
-            //     updateHot.quitAndInstall()
-            // })
+            // 如果是主版本更新,全量更新
+            if (info.isRender){
+                updateHot.downloadPackage(`${updateURL}${info.renderPath}`).then((res) => {
+                    console.log('========================请求成功',)
+                    updateHot.quitAndInstall()
+                })
+            } else {
+                autoUpdater.downloadUpdate()
+            }
         }
     })
-    log.info('检测到新版本', info)
 })
 
 autoUpdater.on('checking-for-update', (info) => {
@@ -110,9 +110,11 @@ autoUpdater.on('download-progress', (progressObj) => {
 /**
  * 检测是否更新
  */
-function checkUpdater() {
+function checkUpdater(version) {
+    // 手动写入版本
+    autoUpdater.currentVersion = version
     autoUpdater.checkForUpdates().then((result) => {
-        console.log('==================: checkUpdater -> result', result)
+
     }).catch((error) => {
         log.error(error)
     })

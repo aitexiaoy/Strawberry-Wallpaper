@@ -101,6 +101,7 @@ export default {
             color: var(--header-text-color);
 
             user-select: none;
+            backdrop-filter: opacity(0) ;
         }
     }
 

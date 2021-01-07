@@ -77,6 +77,8 @@ export default {
         line-height: 33px;
         color: var(--main-text-color);
 
+        backdrop-filter: blur(5px);
+
         &:hover {
             background-color: var(--image-item-wallpaper-bk-hover);
         }

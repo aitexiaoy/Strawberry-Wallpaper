@@ -1,7 +1,7 @@
 {
   "name": "strawberrywallpaper",
-  "version": "v1.4.2",
-  "author": "taoacat，流浪记",
+  "version": "1.4.2",
+  "author": "taoacat",
   "description": "a wallpaper app by electron",
   "license": "",
   "main": "./dist/electron/main.js",

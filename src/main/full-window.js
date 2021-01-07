@@ -35,6 +35,10 @@ class CreateFullWindow extends BrowserWindow{
             // this.setWindowButtonVisibility(true)
         })
     }
+
+    sendData(...args){
+        this.webContents.send(...args) 
+    }
 }
 
 module.exports = CreateFullWindow

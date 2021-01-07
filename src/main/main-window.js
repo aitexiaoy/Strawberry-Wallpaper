@@ -5,7 +5,7 @@
  */
 
 const electron = require('electron')
-const { baseUrl } = require('../power/utils')
+const { baseUrl, isDev, isPro } = require('../power/utils')
 
 const { app, BrowserWindow } = electron
 
@@ -27,7 +27,7 @@ const defaultOptions = {
     skipTaskbar: true,
     minimizable: false,
     maximizable: false,
-    // closable: false,
+    closable: false,
     fullscreen: false,
     titleBarStyle: 'customButtonsOnHover'
 }
@@ -40,18 +40,22 @@ class CreateMainWindow extends BrowserWindow {
     init(){
         this.loadURL(baseUrl)
         
-        this.on('blur', () => {
-            // this.hide()
-        })
-        
         this.on('closed', () => {
             app.quit()
         })
 
-        // 延时才能加载出来vue-devtools
-        setTimeout(() => {
-            this.webContents.openDevTools()
-        }, 2000)
+        if (isDev){
+            // 延时才能加载出来vue-devtools
+            setTimeout(() => {
+                this.webContents.openDevTools()
+            }, 2000)
+        }
+
+        if (isPro){
+            this.on('blur', () => {
+                this.hide()
+            })
+        }
     }
 
     /**
@@ -84,6 +88,10 @@ class CreateMainWindow extends BrowserWindow {
             this.setOpacity(opacity)
             opacity = parseFloat((opacity - 0.1).toFixed(1))
         }, 80)
+    }
+
+    sendData(...args){
+        this.webContents.send(...args) 
     }
 }
 

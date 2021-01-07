@@ -209,7 +209,6 @@ export default {
 
         // 设置更新周期
         handleUpdataTimeInputChange(val){
-            console.log('============', val)
             this.beforeInputNumberValueChange(val, 'updataTime', { min: 120, max: 864000, defaultValue: 3600 }, () => {
                 this.$localStorage.setStore('lastUpdataTime', +new Date())
             })
@@ -258,7 +257,7 @@ export default {
         handleNewVersionClick() {
             this.$ipcRenderer.send('btn', {
                 type: 'checkNewVersion',
-                data: true
+                data: { version }
             })
         },
 

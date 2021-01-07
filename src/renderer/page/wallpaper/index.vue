@@ -58,7 +58,10 @@ export default {
         &::before {
             border-width: 0 10px 10px;
             border-style: solid;
-            border-color: transparent transparent rgb(37, 33, 33);
+            border-color: var(--main-bk-color);
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-left-color: transparent;
             width: 0;
             height: 0;
             content: "";
@@ -73,7 +76,7 @@ export default {
 .sw-main-content {
     transform: rotate(0deg);
     border-radius: 6px;
-    background-color: #222222;
+    background-color: var(--main-bk-color);
     width: 100%;
     height: 100%;
     overflow: hidden;

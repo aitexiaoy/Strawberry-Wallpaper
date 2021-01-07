@@ -67,7 +67,7 @@ export default class SourceThemoviedb {
                 resolve([])
                 return
             }
-            this.source = CancelToken.this.source()
+            this.source = CancelToken.source()
             let url = MOVELISTAPI
             let params = {
                 ...MOVELISTPARAMS,

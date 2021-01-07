@@ -6,7 +6,6 @@
         <div class="refresh-btn" :class="{'refresh-btn-ing':pageStatus === PageStatusEnum.loading}">
             <Icon class="iconfont icon-shuaxin" @click="refreshFn"></Icon>
         </div>
-
     </div>
 </template>
 

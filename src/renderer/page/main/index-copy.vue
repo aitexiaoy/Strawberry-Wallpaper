@@ -595,8 +595,6 @@ export default {
 
         paperInit(){
             if (this.paperClass.length === 0){
-                // 发送同步消息，主进程通过returnValue返回 [注意：同步消息会阻塞渲染进程，会阻塞。也就是在此期间渲染进程什么都干不了！！干不了！！]
-                // this.paperClass = this.$ipcRenderer.sendSync('runFunc', 'getPaperSetting')
                 if (this.paperClass.length){
                     this.searchKey = this.paperClass[0].value
                 }

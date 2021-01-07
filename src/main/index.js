@@ -45,7 +45,6 @@ function appOpenInit(){
             })
         }
     } else if (isMac) {
-        // app.dock.hide() 
         app.on('will-continue-activity', (e) => {
             e.preventDefault()
             console.log(e)
@@ -53,16 +52,19 @@ function appOpenInit(){
     }
     app.on('ready', () => {
         // fullWindow.openWindow()
-        if (isMac) {
-            app.dock.setIcon(Icon('./img/iconTemplate.png', 128))
-            // app.dock.hide() 
+        if (isMac && isDev) {
+            if (isDev){
+                app.dock.setIcon(Icon('./img/iconTemplate.png', 128))
+            } else {
+                app.dock.hide() 
+            }
         }
         setTimeout(() => {
             appInit()
             if (!isDev) {
                 autoUpdater.logger = log
                 autoUpdater.autoDownload = false
-                checkUpdater()
+                mainWindow.sendData('app-ready')
             }
         }, 10)
     })
@@ -83,6 +85,17 @@ function appOpenInit(){
     })
 }
 
+/**
+ * 给所有的的渲染进程发消息
+ */
+function sendDataAll(...args){
+    [mainWindow, fullWindow].forEach((i) => {
+        if (i){
+            i.sendData(...args) 
+        }
+    })
+}
+
 
 /**
  * 设置定时器
@@ -90,7 +103,7 @@ function appOpenInit(){
 function setTimeIntervalInit(){
     // 10s执行一次
     setInterval(() => {
-        sendData('intervalTime')
+        sendDataAll('intervalTime')
     }, 10000)
 }
 
@@ -103,17 +116,6 @@ function appInit() {
     if (appTray == null) {
         appTray = new CreateAppTray(mainWindow) // 创建系统托盘    
     }
-}
-
-/**
- * 给所有的的渲染进程发消息
- */
-function sendData(...args){
-    [mainWindow, fullWindow].forEach((i) => {
-        if (i){
-            i.webContents.send(...args) 
-        }
-    })
 }
 
 
@@ -196,44 +198,13 @@ function ipcMainInit() {
                 // openDisStart()
             }
         } else if (data.type === 'checkNewVersion') {
-            checkUpdater()
+            checkUpdater(data.data.version)
         }
         else if (data.type === 'setDefaultDownPath'){
-            mainWindow.setAlwaysOnTop(false)
-            dialog.showOpenDialog({
-                properties: ['openDirectory', 'createDirectory', 'promptToCreate'], 
-                message: '选择要下载图片所在文件夹',
-                defaultPath: data.data },
-            (paths) => {
-                mainWindow.setAlwaysOnTop(true)
-                if (paths){
-                    // 清空原目录中的文件
-                    // delPath(data.data)
-                    event.sender.send('defaultPath', paths[0])
-                }
-            }, mainWindow)
+           
         }
         else if (data.type === 'deleteFile'){
             // delPath(data.data)
         }
-
-        else if (data.type === 'changeWallpaperScale'){
-            // changeWallpaperScale({ scale: data.data })
-        }
-    })
-
-    // 渲染函数运行过来
-    ipcMain.on('runFunc', async (event, data) => {
-        // 存放一些函数
-        const FUNCLIST = {
-            // getPaperSetting, // 获取paper的设置
-        }
-        // if (FUNCLIST[data]){
-        //     FUNCLIST[data]().then((result) => {
-        //         event.returnValue = result
-        //     }).catch(() => {
-        //         event.returnValue = false
-        //     })
-        // }
     })
 }

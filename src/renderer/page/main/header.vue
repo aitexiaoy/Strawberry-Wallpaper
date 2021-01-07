@@ -25,10 +25,12 @@ export default {
  .header {
      position: fixed;
      z-index: 3000;
-     background-color: rgba(34, 34, 34, 0.9);
+     background-color: var(--header-bk-color);
      width: 100%;
      min-height: 50px;
      overflow: hidden;
+
+     backdrop-filter: blur(4px);
 
      .header-content {
          width: 100%;
